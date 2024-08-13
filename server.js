@@ -39,7 +39,9 @@ const app = express();
 app.use(express.json());
 
 // This middleware function enables logging of incoming HTTP requests.
-app.use(morgan('tiny'));
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 app.post('/api/v1/issues', (req, res, next) => {
   const { status, epic, description } = req.body;
