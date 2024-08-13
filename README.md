@@ -60,14 +60,32 @@ curl -v \
 
 
 
+# curl -v \
+#   -X POST \
+#   -H "Content-Type: application/json" \
+#   -d '{ \
+#          "status": "1 = in backlog", \
+#          "epic": "ease of development", \
+#          "description": "make it possible to use VS Code to serve the backend"
+#     }' \
+#   localhost:5000/api/v1/issues \
+#   | json_pp
+
+# echo ${THE_JSON_PAYLOAD} | jq .
+# crashes with an error
+
+# but
+# `echo '{ "status": "1 = in backlog",  "epic": "ease of development", "description": "make it possible to use VS Code to serve the backend" }' | jq .`
+# works fine, and so does the corresponding HTTP request
+
 curl -v \
   -X POST \
-  -d \
-    '{ \
-         "status": "1 = in backlog",
-         "epic": "ease of development",
-         "description": "make it possible to use VS Code to serve the backend",
-    }' \
+  -H "Content-Type: application/json" \
+  -d "{ \
+         \"status\": \"1 = in backlog\",
+         \"epic\": \"ease of development\",
+         \"description\": \"make it possible to use VS Code to serve the backend\"
+    }" \
   localhost:5000/api/v1/issues \
   | json_pp
 

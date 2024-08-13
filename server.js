@@ -33,8 +33,15 @@ const issues = [
 
 const app = express();
 
+// This middleware function enables the backend application
+// to "understand" when an incoming HTTP request's body contains a JSON payload.
+app.use(express.json());
+
 app.post('/api/v1/issues', (req, res) => {
-  console.log(req.body); // -> undefined
+  // You are encouraged to take at a look at
+  // what gets output in the terminal!
+  // To do so, issue the 2nd HTTP request from `README.md`.
+  console.log(req.body);
 
   res.status(501).json({
     message: 'This endpoint exists but is not ready for use.',
