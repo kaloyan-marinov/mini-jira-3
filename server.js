@@ -33,6 +33,14 @@ const issues = [
 
 const app = express();
 
+app.post('/api/v1/issues', (req, res) => {
+  console.log(req.body); // -> undefined
+
+  res.status(501).json({
+    message: 'This endpoint exists but is not ready for use.',
+  });
+});
+
 app.get('/api/v1/issues', (req, res) => {
   res.status(200).json({
     resources: issues,

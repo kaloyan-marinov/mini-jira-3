@@ -57,4 +57,24 @@ curl -v \
       }
    ]
 }
+
+
+
+curl -v \
+  -X POST \
+  -d \
+    '{ \
+         "status": "1 = in backlog",
+         "epic": "ease of development",
+         "description": "make it possible to use VS Code to serve the backend",
+    }' \
+  localhost:5000/api/v1/issues \
+  | json_pp
+
+# ...
+< HTTP/1.1 501 Not Implemented
+# ...
+{
+   "message" : "This endpoint exists but is not ready for use."
+}
 ```
