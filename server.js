@@ -1,4 +1,5 @@
 const express = require('express');
+const morgan = require('morgan');
 
 const issues = [
   {
@@ -36,6 +37,9 @@ const app = express();
 // This middleware function enables the backend application
 // to "understand" when an incoming HTTP request's body contains a JSON payload.
 app.use(express.json());
+
+// This middleware function enables logging of incoming HTTP requests.
+app.use(morgan('tiny'));
 
 app.post('/api/v1/issues', (req, res, next) => {
   const { status, epic, description } = req.body;
