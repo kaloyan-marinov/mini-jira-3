@@ -57,42 +57,50 @@ curl -v \
       }
    ]
 }
+```
 
 
 
-# curl -v \
-#   -X POST \
-#   -H "Content-Type: application/json" \
-#   -d '{ \
-#          "status": "1 = in backlog", \
-#          "epic": "ease of development", \
-#          "description": "make it possible to use VS Code to serve the backend"
-#     }' \
-#   localhost:5000/api/v1/issues \
-#   | json_pp
-
-# echo ${THE_JSON_PAYLOAD} | jq .
-# crashes with an error
-
-# but
-# `echo '{ "status": "1 = in backlog",  "epic": "ease of development", "description": "make it possible to use VS Code to serve the backend" }' | jq .`
-# works fine, and so does the corresponding HTTP request
-
+```bash
 curl -v \
   -X POST \
   -H "Content-Type: application/json" \
   -d "{ \
-         \"status\": \"1 = in backlog\",
-         \"epic\": \"ease of development\",
-         \"description\": \"make it possible to use VS Code to serve the backend\"
+         \"status\": \"1 = in backlog\"
     }" \
   localhost:5000/api/v1/issues \
   | json_pp
 
 # ...
-< HTTP/1.1 501 Not Implemented
+< HTTP/1.1 400 Bad Request
 # ...
 {
-   "message" : "This endpoint exists but is not ready for use."
+   "message" : "At least one of 'status', 'epic', 'description' is missing from the HTTP request's body"
+}
+```
+
+```bash
+curl -v \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d "{ \
+         \"status\": \"1 = in backlog\",
+         \"epic\": \"backend\",
+         \"description\": \"containerize the backend\"
+    }" \
+  localhost:5000/api/v1/issues \
+  | json_pp
+
+# ...
+< HTTP/1.1 201 Created
+# ...
+{
+   "createdAt" : null,
+   "deadline" : null,
+   "description" : "containerize the backend",
+   "epic" : "backend",
+   "finishedAt" : null,
+   "id" : 4,
+   "status" : "1 = in backlog"
 }
 ```

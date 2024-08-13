@@ -37,15 +37,33 @@ const app = express();
 // to "understand" when an incoming HTTP request's body contains a JSON payload.
 app.use(express.json());
 
-app.post('/api/v1/issues', (req, res) => {
-  // You are encouraged to take at a look at
-  // what gets output in the terminal!
-  // To do so, issue the 2nd HTTP request from `README.md`.
-  console.log(req.body);
+app.post('/api/v1/issues', (req, res, next) => {
+  const { status, epic, description } = req.body;
 
-  res.status(501).json({
-    message: 'This endpoint exists but is not ready for use.',
-  });
+  if (!status || !epic || !description) {
+    res.status(400).json({
+      message:
+        "At least one of 'status', 'epic', 'description' is missing from" +
+        " the HTTP request's body",
+    });
+
+    return;
+  }
+
+  const existingIds = issues.map((issuer) => issuer.id);
+  const newId = Math.max(...existingIds) + 1;
+  const newIssue = {
+    id: newId,
+    createdAt: null,
+    status,
+    deadline: null,
+    finishedAt: null,
+    epic,
+    description,
+  };
+  issues.push(newIssue);
+
+  res.status(201).json(newIssue);
 });
 
 app.get('/api/v1/issues', (req, res) => {
