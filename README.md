@@ -12,7 +12,7 @@ in it, start a process responsible for serving the application instance
 by issuing the following command:
 
 ```bash
-node server.js
+npm run dev
 ```
 
 launch another terminal window and,
