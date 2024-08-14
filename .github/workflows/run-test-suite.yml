@@ -1,0 +1,137 @@
+name: workflows_run-test-suite
+
+on:
+  push:
+  #   branches-ignore:
+  #     - "main"
+
+  # Runs your workflow when activity on a pull request in the workflow's repository
+  # occurs. For example, if no activity types are specified, the workflow runs
+  # when a pull request is opened or reopened
+  # or when the head branch of the pull request is updated.
+  # pull_request:
+  #   branches:
+  #     - main
+  # pull_request_target:
+
+  # Make it possible to run the workflow manually (from GitHub's web UI).
+  workflow_dispatch:
+
+jobs:
+
+  run-tests-for-backend:
+
+    runs-on: ubuntu-20.04
+
+    outputs:
+      coverage-percentage: ${{ steps.run-tests-for-b-e.outputs.coverage-percentage }}
+
+    steps:
+      - name: Check out repository onto runner
+        uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8.3'
+
+      - name: Install Python dependencies
+        run: |
+          cd backend
+          pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - id: run-tests-for-b-e
+        name: Run tests
+        run: |
+          cd backend
+          export DAYS_FOR_EMAIL_ADDRESS_CONFIRMATION=42
+          export MINUTES_FOR_TOKEN_VALIDITY=42
+          export MINUTES_FOR_PASSWORD_RESET=42
+          coverage run \
+              --source=src/ \
+              --omit=venv/*,tests/* \
+              --branch \
+              -m unittest \
+              discover -v \
+              tests/
+          coverage report > line-with-the-TOTAL.txt
+          read -r -a arr <<< $(grep TOTAL line-with-the-TOTAL.txt)
+          echo "coverage-percentage=${arr[5]}" >> $GITHUB_OUTPUT
+  # https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
+
+  report-coverage-for-backend:
+
+    runs-on: ubuntu-latest
+
+    needs: run-tests-for-backend
+
+    steps:
+
+      - id: create-badge-url
+        name: Create badge with (test-)coverage percentage
+        run: |
+          coverage_percentage="${{ needs.run-tests-for-backend.outputs.coverage-percentage }}"
+          badge_url="![badge-test-coverage](https://img.shields.io/static/v1?label=test-coverage-backend&message=${coverage_percentage}25&color=black)"
+          echo "badge_url=$badge_url" >> $GITHUB_OUTPUT
+
+      # https://github.com/alexanderdamiani/pytester-cov/blame/main/entrypoint.sh
+      - name: Post comment (containing coverage-percentage badge) on commit
+        uses: peter-evans/commit-comment@v3
+        with:
+          body: ${{ steps.create-badge-url.outputs.badge_url }}
+
+  run-tests-for-frontend:
+
+    runs-on: ubuntu-20.04
+
+    outputs:
+      coverage-percentage: ${{ steps.run-tests-for-f-e.outputs.coverage-percentage }}
+
+    steps:
+      - name: Check out repository onto runner
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.18.0'
+
+      - name: Install Node.js dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - id: run-tests-for-f-e
+        name: Run tests 
+        run: |
+          cd frontend
+          CI=true \
+            npm test -- \
+              --coverage \
+              --collectCoverageFrom="./src/**" \
+                > lines-with-the-coverage-across-All-files.txt
+          read -r -a arr <<< $(grep "All files" lines-with-the-coverage-across-All-files.txt)
+          echo "coverage-percentage=${arr[3]}" >> $GITHUB_OUTPUT
+  # https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
+
+  report-coverage-for-frontend:
+
+    runs-on: ubuntu-latest
+
+    needs: run-tests-for-frontend
+
+    steps:
+
+      - id: create-badge-url
+        name: Create badge with (test-)coverage percentage
+        run: |
+          coverage_percentage="${{ needs.run-tests-for-frontend.outputs.coverage-percentage }}%"
+          badge_url="![badge-test-coverage](https://img.shields.io/static/v1?label=test-coverage-frontend&message=${coverage_percentage}25&color=black)"
+          echo "badge_url=$badge_url" >> $GITHUB_OUTPUT
+
+      # https://github.com/alexanderdamiani/pytester-cov/blame/main/entrypoint.sh
+      - name: Post comment (containing coverage-percentage badge) on commit
+        uses: peter-evans/commit-comment@v3
+        with:
+          body: ${{ steps.create-badge-url.outputs.badge_url }}
