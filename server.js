@@ -46,10 +46,10 @@ if (process.env.NODE_ENV === 'development') {
 app.post('/api/v1/issues', (req, res, next) => {
   const { status, epic, description } = req.body;
 
-  if (!status || !epic || !description) {
+  if (!status || !description) {
     res.status(400).json({
       message:
-        "At least one of 'status', 'epic', 'description' is missing from" +
+        "Each of 'status', 'description' must be specified in" +
         " the HTTP request's body",
     });
 

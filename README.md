@@ -75,7 +75,7 @@ curl -v \
 < HTTP/1.1 400 Bad Request
 # ...
 {
-   "message" : "At least one of 'status', 'epic', 'description' is missing from the HTTP request's body"
+   "message" : "Each of 'status', 'description' must be specified in the HTTP request's body"
 }
 ```
 
