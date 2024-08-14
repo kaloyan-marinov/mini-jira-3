@@ -94,6 +94,48 @@ app.get('/api/v1/issues/:id', (req, res) => {
   res.status(200).json(issue);
 });
 
+app.put('/api/v1/issues/:id', (req, res) => {
+  // Check if an existing issue is targeted.
+  const issueId = parseInt(req.params.id);
+
+  const issueIndex = issues.findIndex((i) => i.id === issueId);
+  console.log(issueIndex);
+
+  if (issueIndex === -1) {
+    res.status(404).json({
+      message: 'Resource not found',
+    });
+
+    return;
+  }
+
+  // Check if there is something relevant in the body of the incoming request.
+  const { status, epic, description } = req.body;
+
+  if (!status && !epic && !description) {
+    res.status(400).json({
+      message:
+        "At least one of 'status', 'epic', 'description' is missing from" +
+        " the HTTP request's body",
+    });
+
+    return;
+  }
+
+  // Update the targeted issue.
+  if (status) {
+    issues[issueIndex].status = status;
+  }
+  if (epic) {
+    issues[issueIndex].epic = epic;
+  }
+  if (description) {
+    issues[issueIndex].description = description;
+  }
+
+  res.status(200).json(issues[issueIndex]);
+});
+
 const PORT = 5000;
 
 app.listen(PORT, () => {

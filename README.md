@@ -136,3 +136,56 @@ curl -v \
    "status" : "3 = in progress"
 }
 ```
+
+
+```bash
+curl -v \
+  -X PUT \
+  localhost:5000/api/v1/issues/17 \
+  | json_pp
+
+# ...
+< HTTP/1.1 404 Not Found
+# ...
+{
+   "message" : "Resource not found"
+}
+```
+
+```bash
+curl -v \
+  -X PUT \
+  localhost:5000/api/v1/issues/1 \
+  | json_pp
+
+# ...
+< HTTP/1.1 400 Bad Request
+# ...
+{
+   "message" : "At least one of 'status', 'epic', 'description' is missing from the HTTP request's body"
+}
+```
+
+```bash
+curl -v \
+  -X PUT \
+  -H "Content-Type: application/json" \
+  -d "{ \
+         \"status\": \"4 = done\"
+    }" \
+  localhost:5000/api/v1/issues/1 \
+  | json_pp
+
+# ...
+< HTTP/1.1 200 OK
+# ...
+{
+   "createdAt" : null,
+   "deadline" : null,
+   "description" : "build a backend application using Express (without a persistence layer)",
+   "epic" : "backend",
+   "finishedAt" : null,
+   "id" : 1,
+   "status" : "4 = done"
+}
+```
