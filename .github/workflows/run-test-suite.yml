@@ -12,8 +12,8 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    # outputs:
-    #   coverage-percentage: ${{ steps.run-tests-for-b-e.outputs.coverage-percentage }}
+    outputs:
+      coverage-percentage: ${{ steps.run-tests.outputs.coverage-percentage }}
 
     steps:
       - name: Check out repository onto runner
@@ -29,31 +29,33 @@ jobs:
           npm ci
       
       - name: Run tests
-        # id: run-tests-for-b-e
+        id: run-tests
         run: |
           npm run test -- \
             --coverage \
-            --collectCoverageFrom="./src/**"
-          
+            --collectCoverageFrom="./src/**" \
+              > lines-with-the-coverage-across-All-files.txt
+          read -r -a arr <<< $(grep "All files" lines-with-the-coverage-across-All-files.txt)
+          echo "coverage-percentage=${arr[3]}" >> $GITHUB_OUTPUT
   # https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
 
-  # report-coverage-for-backend:
+  report-coverage:
 
-  #   runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-  #   needs: run-automated-tests
+    needs: run-tests
 
-  #   steps:
+    steps:
 
-  #     - id: create-badge-url
-  #       name: Create badge with (test-)coverage percentage
-  #       run: |
-  #         coverage_percentage="${{ needs.run-automated-tests.outputs.coverage-percentage }}"
-  #         badge_url="![badge-test-coverage](https://img.shields.io/static/v1?label=test-coverage-backend&message=${coverage_percentage}25&color=black)"
-  #         echo "badge_url=$badge_url" >> $GITHUB_OUTPUT
+      - id: create-badge-url
+        name: Create badge with (test-)coverage percentage
+        run: |
+          coverage_percentage="${{ needs.run-tests.outputs.coverage-percentage }}%"
+          badge_url="![badge-test-coverage](https://img.shields.io/static/v1?label=test-coverage-frontend&message=${coverage_percentage}25&color=black)"
+          echo "badge_url=$badge_url" >> $GITHUB_OUTPUT
 
-  #     # https://github.com/alexanderdamiani/pytester-cov/blame/main/entrypoint.sh
-  #     - name: Post comment (containing coverage-percentage badge) on commit
-  #       uses: peter-evans/commit-comment@v3
-  #       with:
-  #         body: ${{ steps.create-badge-url.outputs.badge_url }}
+      # https://github.com/alexanderdamiani/pytester-cov/blame/main/entrypoint.sh
+      - name: Post comment (containing coverage-percentage badge) on commit
+        uses: peter-evans/commit-comment@v3
+        with:
+          body: ${{ steps.create-badge-url.outputs.badge_url }}
