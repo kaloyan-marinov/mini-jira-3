@@ -7,6 +7,20 @@ which is a pared-down version of [Jira](
 
 # How to set up the project locally
 
+install the package dependencies
+by issuing the following command:
+
+```bash
+npm install
+```
+
+run the project's suite of automated tests
+by issuing the following command:
+
+```bash
+./node_modules/.bin/jest
+```
+
 launch a terminal window and,
 in it, start a process responsible for serving the application instance
 by issuing the following command:
