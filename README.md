@@ -104,3 +104,35 @@ curl -v \
    "status" : "1 = in backlog"
 }
 ```
+
+```bash
+curl -v \
+  localhost:5000/api/v1/issues/17 \
+  | json_pp
+
+# ...
+< HTTP/1.1 404 Not Found
+# ...
+{
+   "message" : "Resource not found"
+}
+
+
+
+curl -v \
+  localhost:5000/api/v1/issues/1 \
+  | json_pp
+
+# ...
+< HTTP/1.1 200 OK
+# ...
+{
+   "createdAt" : null,
+   "deadline" : null,
+   "description" : "build a backend application using Express (without a persistence layer)",
+   "epic" : "backend",
+   "finishedAt" : null,
+   "id" : 1,
+   "status" : "3 = in progress"
+}
+```

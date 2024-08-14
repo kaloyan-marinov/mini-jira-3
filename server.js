@@ -78,6 +78,22 @@ app.get('/api/v1/issues', (req, res) => {
   });
 });
 
+app.get('/api/v1/issues/:id', (req, res) => {
+  const issueId = parseInt(req.params.id);
+  // console.log(issueId);
+  const issue = issues.find((i) => i.id === issueId);
+
+  if (!issue) {
+    res.status(404).json({
+      message: 'Resource not found',
+    });
+
+    return;
+  }
+
+  res.status(200).json(issue);
+});
+
 const PORT = 5000;
 
 app.listen(PORT, () => {
