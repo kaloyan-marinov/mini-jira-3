@@ -99,7 +99,7 @@ app.put('/api/v1/issues/:id', (req, res) => {
   const issueId = parseInt(req.params.id);
 
   const issueIndex = issues.findIndex((i) => i.id === issueId);
-  console.log(issueIndex);
+  // console.log(issueIndex);
 
   if (issueIndex === -1) {
     res.status(404).json({
@@ -134,6 +134,25 @@ app.put('/api/v1/issues/:id', (req, res) => {
   }
 
   res.status(200).json(issues[issueIndex]);
+});
+
+app.delete('/api/v1/issues/:id', (req, res) => {
+  // Check if an existing issue is targeted.
+  const issueId = parseInt(req.params.id);
+
+  const issueIndex = issues.findIndex((i) => i.id === issueId);
+
+  if (issueIndex === -1) {
+    res.status(404).json({
+      message: 'Resource not found',
+    });
+
+    return;
+  }
+
+  issues.splice(issueIndex, 1);
+
+  res.status(204).json({});
 });
 
 const PORT = 5000;

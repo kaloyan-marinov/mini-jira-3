@@ -189,3 +189,28 @@ curl -v \
    "status" : "4 = done"
 }
 ```
+
+```bash
+curl -v \
+  -X DELETE \
+  localhost:5000/api/v1/issues/17 \
+  | json_pp
+
+# ...
+< HTTP/1.1 404 Not Found
+# ...
+{
+   "message" : "Resource not found"
+}
+```
+
+```bash
+curl -v \
+  -X DELETE \
+  localhost:5000/api/v1/issues/1
+
+# ...
+< HTTP/1.1 204 No Content
+# ...
+# The body of the HTTP response is empty.
+```
