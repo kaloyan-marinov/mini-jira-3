@@ -18,7 +18,15 @@ run the project's suite of automated tests
 by issuing the following command:
 
 ```bash
-./node_modules/.bin/jest
+npm run test
+```
+
+to run the project's suite of automated tests in watch mode,
+issue the following command:
+
+```bash
+npm run test -- \
+   --watchAll
 ```
 
 launch a terminal window and,
