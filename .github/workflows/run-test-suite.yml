@@ -31,7 +31,8 @@ jobs:
       - name: Run tests
         # id: run-tests-for-b-e
         run: |
-          npm run test
+          npm run test -- \
+            --coverage
   # https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
 
   # report-coverage-for-backend:
