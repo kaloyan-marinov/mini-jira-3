@@ -32,7 +32,9 @@ jobs:
         # id: run-tests-for-b-e
         run: |
           npm run test -- \
-            --coverage
+            --coverage \
+            --collectCoverageFrom="./src/**"
+          
   # https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
 
   # report-coverage-for-backend:
