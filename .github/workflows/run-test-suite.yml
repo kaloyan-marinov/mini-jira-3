@@ -43,14 +43,14 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    needs: run-tests
+    needs: run-automated-tests
 
     steps:
 
       - id: create-badge-url
         name: Create badge with (test-)coverage percentage
         run: |
-          coverage_percentage="${{ needs.run-tests.outputs.coverage-percentage }}%"
+          coverage_percentage="${{ needs.run-automated-tests.outputs.coverage-percentage }}%"
           badge_url="![badge-test-coverage](https://img.shields.io/static/v1?label=test-coverage-frontend&message=${coverage_percentage}25&color=black)"
           echo "badge_url=$badge_url" >> $GITHUB_OUTPUT
 
