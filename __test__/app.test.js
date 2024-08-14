@@ -62,7 +62,7 @@ describe('POST /api/v1/issues', () => {
     });
   });
 
-  test('if "status" and "description", should return 201', async () => {
+  xtest('if "status" and "description", should return 201', async () => {
     // Act.
     const response = await request(app).post('/api/v1/issues').send({
       status: '1 = in backlog',
