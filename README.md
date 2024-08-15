@@ -21,6 +21,18 @@ by issuing the following command:
 npm run test
 ```
 
+> To run a specific automated test in debug mode,
+> which allows you to set breakpoints
+> (not only in the test itself but also and the application code exercised by the test),
+> open the project in VS Code,
+> click on the "View" menu item,
+> click on "Command Palette...",
+> type "Jest: Run All Tests" and hit [Enter].
+> Click on "Testing" in VS Code's left-hand sidebar -
+> that will display a Graphical User Interface (GUI)
+> with all automated tests;
+> from that GUI, you can run any specific automated test of your choice in debug mode.
+
 to run the project's suite of automated tests in watch mode,
 issue the following command:
 
@@ -29,13 +41,22 @@ npm run test -- \
    --watchAll
 ```
 
-launch a terminal window and,
-in it, start a process responsible for serving the application instance
-by issuing the following command:
 
-```bash
-npm run dev
-```
+
+to start a process responsible for serving the application instance,
+you can
+-  <u>either</u>
+   launch a terminal window and, in it, execute `npm run dev`,
+-  <u>or</u>
+   use VS Code (
+      by clicking on "Run and Debug" in VS Code's left-hand sidebar,
+      selecting the launch configuration called "Backend app",
+      and then clicking the Play button
+   )
+> One benefit of the 2nd option is that
+> it serves the application in debug mode
+> (i.e. it allows you to set breakpoints).
+
 
 launch another terminal window and,
 in it, issue an HTTP request to the server:
