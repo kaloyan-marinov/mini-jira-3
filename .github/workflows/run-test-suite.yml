@@ -54,7 +54,7 @@ jobs:
         name: Create badge with line-coverage-percentage
         run: |
           coverage_percentage="${{ needs.run-automated-tests.outputs.line-coverage-percentage }}%"
-          badge_url="![badge-test-coverage](https://img.shields.io/static/v1?label=test-coverage-by-lines&message=${coverage_percentage}25&color=black)"
+          badge_url="![badge-test-coverage](https://img.shields.io/static/v1?label=test-coverage-based-on-lines&message=${coverage_percentage}25&color=black)"
           echo "badge_url=$badge_url" >> $GITHUB_OUTPUT
 
       # https://github.com/alexanderdamiani/pytester-cov/blame/main/entrypoint.sh
