@@ -7,6 +7,8 @@ which is a pared-down version of [Jira](
 
 # How to set up the project locally
 
+[step 1]
+
 install the package dependencies
 by issuing the following command:
 
@@ -14,31 +16,62 @@ by issuing the following command:
 npm install
 ```
 
-run the project's suite of automated tests
-by issuing the following command:
+[step 2]
 
-```bash
-npm run test
-```
+run automated tests
 
-to run the project's suite of automated tests in watch mode,
-issue the following command:
+- to run all of the project's suite of automated tests <u>in regular mode</u>,
+  issue the following command:
 
-```bash
-npm run test -- \
-   --watchAll
-```
+   ```bash
+   npm run test
+   ```
 
-launch a terminal window and,
-in it, start a process responsible for serving the application instance
-by issuing the following command:
+- to run a specific automated test <u>in debug mode</u>,
+  which allows you to set breakpoints
+  (not only in the test itself but also and the application code exercised by the test),
+  take the following steps:
+   1. open the project in VS Code
+   2. click on the "View" menu item
+   3. click on "Command Palette..."
+   4. type "Jest: Run All Tests" and hit [Enter]
+   5. click on "Testing" in VS Code's left-hand sidebar -
+      that will display a Graphical User Interface (GUI)
+      with all automated tests
+   6. from that GUI,
+      you can run any specific automated test of your choice <u>in debug mode</u>.
 
-```bash
-npm run dev
-```
+- to run the project's suite of automated tests in watch mode,
+  issue the following command:
 
+   ```bash
+   npm run test -- \
+      --watchAll
+   ```
+
+[step 3]
+
+start a process responsible for serving the application instance
+
+- to do that <u>in regular mode</u>,
+  launch a terminal window and, in it, execute `npm run dev`
+
+- to do that <u>in debug mode</u>,
+  use VS Code by taking the following steps:
+   1. by clicking on "Run and Debug" in VS Code's left-hand sidebar,
+   2. selecting the launch configuration called "Backend app", and
+   3. clicking "the Play button"
+
+> One benefit of the 2nd option is that
+> it serves the application in debug mode
+> (i.e. it allows you to set breakpoints).
+
+[step 4]
+
+if you have performed the preceding step successfully,
+then you can go on to
 launch another terminal window and,
-in it, issue an HTTP request to the server:
+in it, issue the following requests to the HTTP server:
 
 ```bash
 curl -v \
