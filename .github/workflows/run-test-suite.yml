@@ -45,6 +45,9 @@ jobs:
 
     needs: run-automated-tests
 
+    permissions:
+      contents: write
+
     steps:
 
       - id: create-badge-url
