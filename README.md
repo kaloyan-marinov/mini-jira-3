@@ -87,7 +87,7 @@ curl -v \
 curl -v \
   -X POST \
   -H "Content-Type: application/json" \
-  -d "{ \
+  -d "{
          \"status\": \"1 = in backlog\"
     }" \
   localhost:5000/api/v1/issues \
@@ -105,7 +105,7 @@ curl -v \
 curl -v \
   -X POST \
   -H "Content-Type: application/json" \
-  -d "{ \
+  -d "{
          \"status\": \"1 = in backlog\",
          \"epic\": \"backend\",
          \"description\": \"containerize the backend\"
@@ -192,7 +192,7 @@ curl -v \
 curl -v \
   -X PUT \
   -H "Content-Type: application/json" \
-  -d "{ \
+  -d "{
          \"status\": \"4 = done\"
     }" \
   localhost:5000/api/v1/issues/1 \
