@@ -51,6 +51,26 @@ run automated tests
 
 [step 3]
 
+- create an empty database:
+
+   ```bash
+   docker run \
+      --name container-m-j-3-mongo \
+      --add-host host.docker.internal:host-gateway \
+      --mount source=volume-m-j-3-mongo,destination=/data/db \
+      --env MONGO_INITDB_ROOT_USERNAME=mongoadmin \
+	   --env MONGO_INITDB_ROOT_PASSWORD=secret \
+      --env MONGO_INITDB_DATABASE=db-mini-jira-3 \
+      --publish 27017:27017 \
+      mongo:latest
+   ```
+
+   `--env MONGO_INITDB_DATABASE=<...>`
+
+   `--env-file backend/.env \`
+
+[step 4]
+
 start a process responsible for serving the application instance
 
 - to do that <u>in regular mode</u>,
@@ -66,7 +86,7 @@ start a process responsible for serving the application instance
 > it serves the application in debug mode
 > (i.e. it allows you to set breakpoints).
 
-[step 4]
+[step 5]
 
 if you have performed the preceding step successfully,
 then you can go on to
