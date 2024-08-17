@@ -1,10 +1,16 @@
 const connectToDatabase = require('./database');
 const app = require('./app');
 
-connectToDatabase();
+const connectToDatabasePromise = connectToDatabase();
 
-const PORT = 5000;
+connectToDatabasePromise
+  .then(() => {
+    const PORT = 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
-});
+    app.listen(PORT, () => {
+      console.log(`Server is listening on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error(err);
+  });
