@@ -9,6 +9,18 @@ which is a pared-down version of [Jira](
 
 [step 1]
 
+create `.env` file within your local repository by taking the following steps:
+
+   ```bash
+   $ cp \
+      .env.template \
+      .env
+
+   # Edit the content of the created file as per the comments/instructions therein.
+   ```
+
+[step 2]
+
 install the package dependencies
 by issuing the following command:
 
@@ -16,7 +28,7 @@ by issuing the following command:
 npm install
 ```
 
-[step 2]
+[step 3]
 
 run automated tests
 
@@ -49,7 +61,7 @@ run automated tests
       --watchAll
    ```
 
-[step 3]
+[step 4]
 
 - create an empty database:
 
@@ -58,18 +70,14 @@ run automated tests
       --name container-m-j-3-mongo \
       --add-host host.docker.internal:host-gateway \
       --mount source=volume-m-j-3-mongo,destination=/data/db \
-      --env MONGO_INITDB_ROOT_USERNAME=mongoadmin \
-	   --env MONGO_INITDB_ROOT_PASSWORD=secret \
-      --env MONGO_INITDB_DATABASE=db-mini-jira-3 \
+      --env MONGO_INITDB_ROOT_USERNAME=$(grep -oP '^MONGO_USERNAME=\K.*' .env) \
+	   --env MONGO_INITDB_ROOT_PASSWORD=$(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
+      --env MONGO_INITDB_DATABASE=$(grep -oP '^MONGO_DATABASE=\K.*' .env) \
       --publish 27017:27017 \
       mongo:latest
    ```
 
-   `--env MONGO_INITDB_DATABASE=<...>`
-
-   `--env-file backend/.env \`
-
-[step 4]
+[step 5]
 
 start a process responsible for serving the application instance
 
@@ -86,7 +94,7 @@ start a process responsible for serving the application instance
 > it serves the application in debug mode
 > (i.e. it allows you to set breakpoints).
 
-[step 5]
+[step 6]
 
 if you have performed the preceding step successfully,
 then you can go on to

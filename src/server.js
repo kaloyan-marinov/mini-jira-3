@@ -1,5 +1,11 @@
+const dotenv = require('dotenv');
 const connectToDatabase = require('./database');
 const app = require('./app');
+
+// Load all environment variables, which are set in a file at the specified path.
+dotenv.config({
+  path: '.env',
+});
 
 const connectToDatabasePromise = connectToDatabase();
 

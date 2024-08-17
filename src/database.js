@@ -5,12 +5,12 @@ const connectToDatabase = async () => {
 
   const connection = await mongoose.connect(
     'mongodb://' +
-      // 'srv+mongoadmin:secret@localhost:27017' +
-      // 'mongoadmin:secret@localhost:27017' +
-      'mongoadmin:secret@localhost' +
-      '/admin?retryWrites=true&w=majority',
+      `${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}` +
+      `@${process.env.MONGO_HOST}` +
+      `/${process.env.MONGO_AUTHENTICATION_DATABASE}` +
+      '?retryWrites=true&w=majority',
     {
-      dbName: 'db-mini-jira-3',
+      dbName: process.env.MONGO_DATABASE,
     }
   );
   // const connection = await mongoose.connect(process.env.MONGO_URI);
