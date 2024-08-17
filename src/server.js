@@ -1,4 +1,7 @@
+const connectToDatabase = require('./database');
 const app = require('./app');
+
+connectToDatabase();
 
 const PORT = 5000;
 
