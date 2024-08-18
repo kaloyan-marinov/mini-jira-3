@@ -15,7 +15,7 @@ const issues = [
   {
     id: 2,
     createdAt: null,
-    status: '1 = in backlog',
+    status: '1 = backlog',
     deadline: null,
     finishedAt: null,
     epic: 'ease of development',
@@ -24,7 +24,7 @@ const issues = [
   {
     id: 3,
     createdAt: null,
-    status: '1 = in backlog',
+    status: '1 = backlog',
     deadline: null,
     finishedAt: null,
     epic: 'backend',

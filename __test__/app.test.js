@@ -51,7 +51,7 @@ describe('POST /api/v1/issues', () => {
   test('if "description" is missing, should return 400', async () => {
     // Act.
     const response = await request(app).post('/api/v1/issues').send({
-      status: '1 = in backlog',
+      status: '1 = backlog',
     });
 
     // Assert.
@@ -65,7 +65,7 @@ describe('POST /api/v1/issues', () => {
   xtest('if "status" and "description", should return 201', async () => {
     // Act.
     const response = await request(app).post('/api/v1/issues').send({
-      status: '1 = in backlog',
+      status: '1 = backlog',
       description: 'containerize the backend',
     });
 
@@ -74,7 +74,7 @@ describe('POST /api/v1/issues', () => {
     expect(response.body).toEqual({
       id: 4,
       createdAt: null,
-      status: '1 = in backlog',
+      status: '1 = backlog',
       deadline: null,
       finishedAt: null,
       description: 'containerize the backend',

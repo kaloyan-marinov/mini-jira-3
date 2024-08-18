@@ -129,7 +129,7 @@ curl -v \
          "epic" : "ease of development",
          "finishedAt" : null,
          "id" : 2,
-         "status" : "1 = in backlog"
+         "status" : "1 = backlog"
       },
       {
          "createdAt" : null,
@@ -138,7 +138,7 @@ curl -v \
          "epic" : "backend",
          "finishedAt" : null,
          "id" : 3,
-         "status" : "1 = in backlog"
+         "status" : "1 = backlog"
       }
    ]
 }
@@ -151,7 +151,7 @@ curl -v \
   -X POST \
   -H "Content-Type: application/json" \
   -d "{
-         \"status\": \"1 = in backlog\"
+         \"status\": \"1 = backlog\"
     }" \
   localhost:5000/api/v1/issues \
   | json_pp
@@ -169,7 +169,7 @@ curl -v \
   -X POST \
   -H "Content-Type: application/json" \
   -d "{
-         \"status\": \"1 = in backlog\",
+         \"status\": \"1 = backlog\",
          \"epic\": \"backend\",
          \"description\": \"containerize the backend\"
     }" \
@@ -186,7 +186,7 @@ curl -v \
    "epic" : "backend",
    "finishedAt" : null,
    "id" : 4,
-   "status" : "1 = in backlog"
+   "status" : "1 = backlog"
 }
 ```
 
