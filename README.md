@@ -196,6 +196,7 @@ curl -v \
   -H "Content-Type: application/json" \
   -d "{
          \"status\": \"1 = backlog\",
+         \"deadline\": \"2024-08-19T09:00:00.000Z\",
          \"epic\": \"backend\",
          \"description\": \"containerize the backend\"
     }" \
@@ -206,12 +207,12 @@ curl -v \
 < HTTP/1.1 201 Created
 # ...
 {
-   "createdAt" : null,
-   "deadline" : null,
+   "__v" : 0,
+   "_id" : "66c072f415df7b3e99c5de5d",
+   "createdAt" : "2024-08-17T09:52:52.305Z",
+   "deadline" : "2024-08-19T09:00:00.000Z",
    "description" : "containerize the backend",
    "epic" : "backend",
-   "finishedAt" : null,
-   "id" : 4,
    "status" : "1 = backlog"
 }
 ```

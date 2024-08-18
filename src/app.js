@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const Issue = require('./models');
 
 const issues = [
   {
@@ -43,31 +44,20 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-app.post('/api/v1/issues', (req, res, next) => {
-  const { status, epic, description } = req.body;
+app.post('/api/v1/issues', async (req, res, next) => {
+  let newIssue;
 
-  if (!status || !description) {
+  try {
+    newIssue = await Issue.create(req.body);
+  } catch (err) {
+    console.error(err);
+
     res.status(400).json({
-      message:
-        "Each of 'status', 'description' must be specified in" +
-        " the HTTP request's body",
+      message: 'Unable to create a new issue.',
     });
 
     return;
   }
-
-  const existingIds = issues.map((issuer) => issuer.id);
-  const newId = Math.max(...existingIds) + 1;
-  const newIssue = {
-    id: newId,
-    createdAt: null,
-    status,
-    deadline: null,
-    finishedAt: null,
-    epic,
-    description,
-  };
-  issues.push(newIssue);
 
   res.status(201).json(newIssue);
 });
