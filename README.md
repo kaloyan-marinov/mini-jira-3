@@ -63,12 +63,13 @@ run automated tests
 
 [step 4]
 
-- create an empty database:
+create an empty database:
+
+- run a containerized MongoDB server
 
    ```bash
    docker run \
       --name container-m-j-3-mongo \
-      --add-host host.docker.internal:host-gateway \
       --mount source=volume-m-j-3-mongo,destination=/data/db \
       --env MONGO_INITDB_ROOT_USERNAME=$(grep -oP '^MONGO_USERNAME=\K.*' .env) \
 	   --env MONGO_INITDB_ROOT_PASSWORD=$(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
@@ -78,6 +79,31 @@ run automated tests
    ```
 
    <u>TODO: (2024/08/17, 11:00)</u> as of the commit that adds this line, the preceding command creates "a simple user with the role `root⁠` in the `admin` authentication database⁠" (cf. https://hub.docker.com/_/mongo ); investigate (a) what "creation scripts in /docker-entrypoint-initdb.d/*.js" (cf. ) would need to be created and (b) how the preceding commands would need to be changed _in order for_ a non-`root` user to be created (cf. https://www.mongodb.com/docs/manual/core/security-users/#user-authentication-database )
+
+- optionally, connect to the MongoDB server
+  by means of the `mongosh` command-line client
+
+   ```bash
+   docker container inspect container-m-j-3-mongo \
+      | grep IPAddress
+   ```
+
+   ```bash
+   export CONTAINER_M_J_3_MONGO_IP=<the-value-returned-by-the-preceding-command>
+   ```
+
+   ```bash
+   docker run \
+      -it \
+      --rm \
+      mongo:latest \
+         mongosh \
+         --host ${CONTAINER_M_J_3_MONGO_IP} \
+         --username $(grep -oP '^MONGO_USERNAME=\K.*' .env) \
+         --password $(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
+         --authenticationDatabase admin \
+         $(grep -oP '^MONGO_DATABASE=\K.*' .env)
+   ```
 
 [step 5]
 
