@@ -64,16 +64,21 @@ describe('POST /api/v1/issues', () => {
 
   test('if "status" and "description", should return 201', async () => {
     // Act.
-    const response = await request(app).post('/api/v1/issues').send({
-      status: '1 = backlog',
-      description: 'containerize the backend',
-    });
+    const response = await request(app)
+      .post('/api/v1/issues')
+      .send({
+        createdAt: new Date('2024-08-17T09:00:00.000Z'),
+        status: '1 = backlog',
+        deadline: new Date('2024-08-19T09:00:00.000Z'),
+        epic: 'backend',
+        description: 'containerize the backend',
+      });
 
     // Assert.
     expect(response.status).toEqual(201);
     expect(response.body).toEqual({
       id: 4,
-      createdAt: null,
+      createdAt: new Date(),
       status: '1 = backlog',
       deadline: null,
       finishedAt: null,
