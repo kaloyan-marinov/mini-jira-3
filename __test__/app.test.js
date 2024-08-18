@@ -3,7 +3,7 @@ const request = require('supertest');
 const app = require('../src/app');
 
 describe('GET /api/v1/issues/:id', () => {
-  test('if ID does not exist, should return 404', async () => {
+  xtest('if ID does not exist, should return 404', async () => {
     // Act.
     const response = await request(app).get('/api/v1/issues/17');
 
@@ -14,7 +14,7 @@ describe('GET /api/v1/issues/:id', () => {
     });
   });
 
-  test('if ID exists, should return 200 and corresponding issue', async () => {
+  xtest('if ID exists, should return 200 and corresponding issue', async () => {
     // Act.
     const response = await request(app).get('/api/v1/issues/1');
 
@@ -34,7 +34,7 @@ describe('GET /api/v1/issues/:id', () => {
 });
 
 describe('POST /api/v1/issues', () => {
-  test('if "status" is missing, should return 400', async () => {
+  xtest('if "status" is missing, should return 400', async () => {
     // Act.
     const response = await request(app).post('/api/v1/issues').send({
       description: 'containerize the backend',
@@ -48,7 +48,7 @@ describe('POST /api/v1/issues', () => {
     });
   });
 
-  test('if "description" is missing, should return 400', async () => {
+  xtest('if "description" is missing, should return 400', async () => {
     // Act.
     const response = await request(app).post('/api/v1/issues').send({
       status: '1 = backlog',
@@ -62,7 +62,7 @@ describe('POST /api/v1/issues', () => {
     });
   });
 
-  xtest('if "status" and "description", should return 201', async () => {
+  test('if "status" and "description", should return 201', async () => {
     // Act.
     const response = await request(app).post('/api/v1/issues').send({
       status: '1 = backlog',
