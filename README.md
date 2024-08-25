@@ -32,6 +32,8 @@ npm install
 
 run automated tests
 
+> <u>This note is important only if your operating system is Fedora 40.</u>
+>
 > recall that:
 >
 >  - The `mongodb-memory-server` package is a Node.js library
@@ -55,7 +57,9 @@ run automated tests
 >    it is possible to get the automated tests to pass
 >    **_by influencing which OpenSSL version the MongoDB binary uses at runtime_**:
 >    **_(without altering/modifying the core libraries in the host system)_**:
+>
 >     - install [Miniconda](https://docs.anaconda.com/miniconda/miniconda-install/)
+>
 >     - create a Conda environment that contains OpenSSL 1.1:
 >        ```bash
 >        $ conda create \
@@ -63,6 +67,7 @@ run automated tests
 >           --python=3.11 \
 >           --openssl=1.1
 >        ```
+>
 >     - verify that the preceding step worked as desired:
 >        ```bash
 >        $ conda activate python-3-11-plus-openssl-1-1

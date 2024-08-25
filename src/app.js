@@ -13,7 +13,7 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-app.post('/api/v1/issues', async (req, res, next) => {
+app.post('/api/v1/issues', async (req, res) => {
   let newIssue;
 
   try {
