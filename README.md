@@ -261,8 +261,8 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66c072f415df7b3e99c5de5d",
-   "createdAt" : "2024-08-17T09:52:52.305Z",
+   "_id" : "66c2dbf2d0d5b26a9bdfbc9f",
+   "createdAt" : "2024-08-19T05:45:22.243Z",
    "deadline" : "2024-08-19T09:00:00.000Z",
    "description" : "containerize the backend",
    "epic" : "backend",
@@ -271,8 +271,27 @@ curl -v \
 ```
 
 ```bash
+export ISSUE_1_ID=<the-_id-present-in-the-preceding-HTTP-response>
+
+export VALID_BUT_NONEXISTENT_ISSUE_ID=<same-as-ISSUE_1_ID-but-with-the-last-character-changed-to-something-else>
+```
+
+```bash
 curl -v \
   localhost:5000/api/v1/issues/17 \
+  | json_pp
+
+# ...
+< HTTP/1.1 400 Bad Request
+# ...
+{
+   "message" : "Invalid ID provided"
+}
+
+
+
+curl -v \
+  localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
   | json_pp
 
 # ...
@@ -284,21 +303,22 @@ curl -v \
 
 
 
+
 curl -v \
-  localhost:5000/api/v1/issues/1 \
+  localhost:5000/api/v1/issues/${ISSUE_1_ID} \
   | json_pp
 
 # ...
 < HTTP/1.1 200 OK
 # ...
 {
-   "createdAt" : null,
-   "deadline" : null,
-   "description" : "build a backend application using Express (without a persistence layer)",
+   "__v" : 0,
+   "_id" : "66c2dbf2d0d5b26a9bdfbc9f",
+   "createdAt" : "2024-08-19T05:45:22.243Z",
+   "deadline" : "2024-08-19T09:00:00.000Z",
+   "description" : "containerize the backend",
    "epic" : "backend",
-   "finishedAt" : null,
-   "id" : 1,
-   "status" : "3 = in progress"
+   "status" : "1 = backlog"
 }
 ```
 

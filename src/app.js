@@ -62,26 +62,42 @@ app.post('/api/v1/issues', async (req, res, next) => {
   res.status(201).json(newIssue);
 });
 
-app.get('/api/v1/issues', (req, res) => {
-  res.status(200).json({
-    resources: issues,
-  });
+app.get('/api/v1/issues/:id', async (req, res) => {
+  const issueId = req.params.id;
+  try {
+    const issue = await Issue.findById(issueId);
+
+    if (!issue) {
+      return res.status(404).json({
+        message: 'Resource not found',
+      });
+    }
+
+    res.status(200).json(issue);
+  } catch (err) {
+    res.status(400).json({
+      message: 'Invalid ID provided',
+    });
+  }
 });
 
-app.get('/api/v1/issues/:id', (req, res) => {
-  const issueId = parseInt(req.params.id);
-  // console.log(issueId);
-  const issue = issues.find((i) => i.id === issueId);
+app.get('/api/v1/issues/:id', async (req, res) => {
+  const issueId = req.params.id;
+  try {
+    const issue = await Issue.findById(issueId);
 
-  if (!issue) {
-    res.status(404).json({
-      message: 'Resource not found',
+    if (!issue) {
+      return res.status(404).json({
+        message: 'Resource not found',
+      });
+    }
+
+    res.status(200).json(issue);
+  } catch (err) {
+    res.status(400).json({
+      message: 'Invalid ID provided',
     });
-
-    return;
   }
-
-  res.status(200).json(issue);
 });
 
 app.put('/api/v1/issues/:id', (req, res) => {

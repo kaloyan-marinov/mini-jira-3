@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const request = require('supertest');
 
 const app = require('../src/app');
+const Issue = require('../src/models');
 
 console.log('process.env.HOME =', process.env.HOME);
 console.log('process.env.LD_LIBRARY_PATH =', process.env.LD_LIBRARY_PATH);
@@ -25,32 +26,41 @@ afterAll(async () => {
 });
 
 describe('GET /api/v1/issues/:id', () => {
-  xtest('if ID does not exist, should return 404', async () => {
+  test('if ID does not exist, should return 404', async () => {
     // Act.
     const response = await request(app).get('/api/v1/issues/17');
 
     // Assert.
-    expect(response.status).toEqual(404);
+    expect(response.status).toEqual(400);
     expect(response.body).toEqual({
-      message: 'Resource not found',
+      message: 'Invalid ID provided',
     });
   });
 
-  xtest('if ID exists, should return 200 and corresponding issue', async () => {
+  test('if ID exists, should return 200 and corresponding issue', async () => {
+    // Arrange.
+    const deadline = new Date('2024-08-19T06:17:17.170Z');
+    const issue = await Issue.create({
+      status: '1 = backlog',
+      deadline,
+      epic: 'ease of development',
+      description: 'introduce code coverage reports in HTML format',
+    });
+
     // Act.
-    const response = await request(app).get('/api/v1/issues/1');
+    const response = await request(app).get(`/api/v1/issues/${issue._id}`);
 
     // Assert.
     expect(response.status).toEqual(200);
     expect(response.body).toEqual({
-      id: 1,
-      createdAt: null,
-      status: '3 = in progress',
-      deadline: null,
-      finishedAt: null,
-      epic: 'backend',
-      description:
-        'build a backend application using Express (without a persistence layer)',
+      __v: expect.anything(),
+      _id: issue.id,
+      createdAt: issue.createdAt.toISOString(),
+      status: '1 = backlog',
+      deadline: deadline.toISOString(),
+      // finishedAt: null,
+      epic: 'ease of development',
+      description: 'introduce code coverage reports in HTML format',
     });
   });
 });
