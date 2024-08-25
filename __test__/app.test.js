@@ -117,3 +117,78 @@ describe('POST /api/v1/issues', () => {
     });
   });
 });
+
+describe('PUT /api/v1/issues/:id', () => {
+  test('if a invalid ID is provided, should return 400', async () => {
+    // Arrange.
+    const issue = await Issue.create({
+      status: '1 = backlog',
+      deadline: new Date('2024-08-20T20:34:07.386Z'),
+      description: 'code cvrg reports in HTML',
+    });
+
+    const issueId = issue._id.toString();
+    const invalidId = issueId.slice(0, issueId.length - 1);
+
+    // Act.
+    const response = await request(app).put(`/api/v1/issues/${invalidId}`);
+
+    // Assert.
+    expect(response.status).toEqual(400);
+    expect(response.body).toEqual({
+      message: 'Invalid ID provided',
+    });
+  });
+
+  test('if a non-existent ID is provided, should return 404', async () => {
+    // Arrange.
+    const issue = await Issue.create({
+      status: '1 = backlog',
+      deadline: new Date('2024-08-20T20:18:09.763Z'),
+      description: 'code cvrg reports in HTML',
+    });
+
+    const issueId = issue._id.toString();
+    const notLastDigitOfId =
+      issueId.charAt(issueId.length - 1) == '0' ? '1' : '0';
+    const nonexistentId =
+      issueId.slice(0, issueId.length - 1) + notLastDigitOfId;
+
+    // Act.
+    const response = await request(app).put(`/api/v1/issues/${nonexistentId}`);
+
+    // Assert.
+    expect(response.status).toEqual(404);
+    expect(response.body).toEqual({
+      message: 'Resource not found',
+    });
+  });
+
+  test('if a valid ID is provided, should return 200', async () => {
+    // Arrange.
+    const issue = await Issue.create({
+      status: '1 = backlog',
+      deadline: new Date('2024-08-20T20:38:18.162Z'),
+      description: 'code cvrg reports in HTML',
+    });
+
+    const issueId = issue._id.toString();
+
+    // Act.
+    const response = await request(app).put(`/api/v1/issues/${issueId}`).send({
+      status: '2 = selected',
+      description: 'generate code coverage reports in HTML format',
+    });
+
+    // Assert.
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual({
+      __v: expect.anything(),
+      _id: issueId,
+      createdAt: expect.anything(),
+      status: '2 = selected',
+      deadline: '2024-08-20T20:38:18.162Z',
+      description: 'generate code coverage reports in HTML format',
+    });
+  });
+});

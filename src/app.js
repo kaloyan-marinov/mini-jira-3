@@ -100,46 +100,31 @@ app.get('/api/v1/issues/:id', async (req, res) => {
   }
 });
 
-app.put('/api/v1/issues/:id', (req, res) => {
-  // Check if an existing issue is targeted.
-  const issueId = parseInt(req.params.id);
+app.put('/api/v1/issues/:id', async (req, res) => {
+  let issue;
+  const issueId = req.params.id;
+  try {
+    issue = await Issue.findById(issueId);
+  } catch (err) {
+    return res.status(400).json({
+      message: 'Invalid ID provided',
+    });
+  }
+  // TODO: (2024/08/20, 22:03)
+  //       the preceding `try`/`except` differs from the one in `app.get` -
+  //       look into rendering them consistent with each other
 
-  const issueIndex = issues.findIndex((i) => i.id === issueId);
-  // console.log(issueIndex);
-
-  if (issueIndex === -1) {
-    res.status(404).json({
+  if (!issue) {
+    return res.status(404).json({
       message: 'Resource not found',
     });
-
-    return;
   }
 
-  // Check if there is something relevant in the body of the incoming request.
-  const { status, epic, description } = req.body;
-
-  if (!status && !epic && !description) {
-    res.status(400).json({
-      message:
-        "At least one of 'status', 'epic', 'description' is missing from" +
-        " the HTTP request's body",
-    });
-
-    return;
-  }
-
-  // Update the targeted issue.
-  if (status) {
-    issues[issueIndex].status = status;
-  }
-  if (epic) {
-    issues[issueIndex].epic = epic;
-  }
-  if (description) {
-    issues[issueIndex].description = description;
-  }
-
-  res.status(200).json(issues[issueIndex]);
+  issue = await Issue.findByIdAndUpdate(issueId, req.body, {
+    new: true, // Causes the response to contain the updated JSON document.
+    runValidators: true,
+  });
+  res.status(200).json(issue);
 });
 
 app.delete('/api/v1/issues/:id', (req, res) => {

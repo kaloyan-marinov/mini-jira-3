@@ -330,26 +330,25 @@ curl -v \
   | json_pp
 
 # ...
-< HTTP/1.1 404 Not Found
+< HTTP/1.1 400 Bad Request
 # ...
 {
-   "message" : "Resource not found"
+   "message" : "Invalid ID provided"
 }
 ```
 
 ```bash
 curl -v \
   -X PUT \
-  localhost:5000/api/v1/issues/1 \
+  localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
   | json_pp
 
 # ...
-< HTTP/1.1 400 Bad Request
+< HTTP/1.1 404 Not Found
 # ...
 {
-   "message" : "At least one of 'status', 'epic', 'description' is missing from the HTTP request's body"
+   "message" : "Resource not found"
 }
-```
 
 ```bash
 curl -v \
@@ -358,19 +357,19 @@ curl -v \
   -d "{
          \"status\": \"4 = done\"
     }" \
-  localhost:5000/api/v1/issues/1 \
+  localhost:5000/api/v1/issues/${ISSUE_1_ID} \
   | json_pp
 
 # ...
 < HTTP/1.1 200 OK
 # ...
 {
-   "createdAt" : null,
-   "deadline" : null,
-   "description" : "build a backend application using Express (without a persistence layer)",
+   "__v" : 0,
+   "_id" : "66c4f458e3788fc8e79d0c89",
+   "createdAt" : "2024-08-20T19:54:00.804Z",
+   "deadline" : "2024-08-19T09:00:00.000Z",
+   "description" : "containerize the backend",
    "epic" : "backend",
-   "finishedAt" : null,
-   "id" : 1,
    "status" : "4 = done"
 }
 ```
