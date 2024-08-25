@@ -237,7 +237,7 @@ curl -v \
 ```bash
 export ISSUE_1_ID=<the-_id-present-in-the-preceding-HTTP-response>
 
-export VALID_BUT_NONEXISTENT_ISSUE_ID=<same-as-ISSUE_1_ID-but-with-the-last-character-changed-to-something-else>
+export VALID_BUT_NONEXISTENT_ISSUE_ID=<same-as-ISSUE_1_ID-but-with-the-last-character-changed-to-another-hexadecimal-digit>
 ```
 
 
