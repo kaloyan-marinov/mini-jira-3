@@ -2,37 +2,6 @@ const express = require('express');
 const morgan = require('morgan');
 const Issue = require('./models');
 
-const issues = [
-  {
-    id: 1,
-    createdAt: null,
-    status: '3 = in progress',
-    deadline: null,
-    finishedAt: null,
-    epic: 'backend',
-    description:
-      'build a backend application using Express (without a persistence layer)',
-  },
-  {
-    id: 2,
-    createdAt: null,
-    status: '1 = backlog',
-    deadline: null,
-    finishedAt: null,
-    epic: 'ease of development',
-    description: 'make it possible to use VS Code to serve the backend',
-  },
-  {
-    id: 3,
-    createdAt: null,
-    status: '1 = backlog',
-    deadline: null,
-    finishedAt: null,
-    epic: 'backend',
-    description: 'implement a persistence layer using MongoDB',
-  },
-];
-
 const app = express();
 
 // This middleware function enables the backend application
@@ -124,23 +93,27 @@ app.put('/api/v1/issues/:id', async (req, res) => {
   res.status(200).json(issue);
 });
 
-app.delete('/api/v1/issues/:id', (req, res) => {
-  // Check if an existing issue is targeted.
-  const issueId = parseInt(req.params.id);
+app.delete('/api/v1/issues/:id', async (req, res) => {
+  let issue;
+  const issueId = req.params.id;
 
-  const issueIndex = issues.findIndex((i) => i.id === issueId);
-
-  if (issueIndex === -1) {
-    res.status(404).json({
-      message: 'Resource not found',
+  try {
+    issue = await Issue.findById(issueId);
+  } catch (err) {
+    return res.status(400).json({
+      message: 'Invalid ID provided',
     });
-
-    return;
   }
 
-  issues.splice(issueIndex, 1);
+  if (!issue) {
+    return res.status(404).json({
+      message: 'Resource not found',
+    });
+  }
 
-  res.status(204).json({});
+  await issue.deleteOne();
+  res.set('Content-Length', '0');
+  res.status(204).end();
 });
 
 module.exports = app;

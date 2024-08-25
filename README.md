@@ -357,10 +357,26 @@ curl -v \
 }
 ```
 
+
+
 ```bash
 curl -v \
   -X DELETE \
   localhost:5000/api/v1/issues/17 \
+  | json_pp
+
+# ...
+< HTTP/1.1 400 Bad Request
+# ...
+{
+   "message" : "Invalid ID provided"
+}
+```
+
+```bash
+curl -v \
+  -X DELETE \
+  localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
   | json_pp
 
 # ...
@@ -374,7 +390,7 @@ curl -v \
 ```bash
 curl -v \
   -X DELETE \
-  localhost:5000/api/v1/issues/1
+  localhost:5000/api/v1/issues/${ISSUE_1_ID}
 
 # ...
 < HTTP/1.1 204 No Content

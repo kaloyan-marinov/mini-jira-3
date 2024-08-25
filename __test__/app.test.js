@@ -247,3 +247,71 @@ describe('GET /api/v1/issues', () => {
     });
   });
 });
+
+describe('DELETE /api/v1/issues/:id', () => {
+  test('if an invalid ID is provided, should return 400', async () => {
+    // Arrange.
+    const issue = await Issue.create({
+      status: '1 = backlog',
+      deadline: new Date('2024-08-22T20:40:41.277Z'),
+      description: 'generate code coverage reports in HTML format',
+    });
+
+    const issueId = issue._id.toString();
+    const invalidId = issueId.slice(0, issueId.length - 1);
+
+    // Act.
+    response = await request(app).delete(`/api/v1/issues/${invalidId}`);
+
+    // Assert.
+    expect(response.status).toEqual(400);
+    expect(response.body).toEqual({
+      message: 'Invalid ID provided',
+    });
+  });
+
+  test('if a non-existent ID is provided, should return 404', async () => {
+    // Arrange.
+    const issue = await Issue.create({
+      status: '1 = backlog',
+      deadline: new Date('2024-08-22T20:40:41.277Z'),
+      description: 'generate code coverage reports in HTML format',
+    });
+
+    const issueId = issue._id.toString();
+    const notLastDigitOfId =
+      issueId.charAt(issueId.length - 1) == '0' ? '1' : '0';
+    const nonexistentId =
+      issueId.slice(0, issueId.length - 1) + notLastDigitOfId;
+
+    // Act.
+    const response = await request(app).delete(
+      `/api/v1/issues/${nonexistentId}`
+    );
+
+    // Assert.
+    expect(response.status).toEqual(404);
+    expect(response.body).toEqual({
+      message: 'Resource not found',
+    });
+  });
+
+  test('if a valid ID is provided, should return 204', async () => {
+    // Arrange.
+    const issue = await Issue.create({
+      status: '1 = backlog',
+      deadline: new Date('2024-08-22T20:40:41.277Z'),
+      description: 'generate code coverage reports in HTML format',
+    });
+
+    const issueId = issue._id.toString();
+
+    // Act.
+    const response = await request(app).delete(`/api/v1/issues/${issueId}`);
+
+    // Assert.
+    expect(response.status).toEqual(204);
+    expect(response.headers['content-length']).toEqual('0');
+    expect(response.body).toEqual({});
+  });
+});
