@@ -26,7 +26,7 @@ afterAll(async () => {
 });
 
 describe('GET /api/v1/issues/:id', () => {
-  test('if ID does not exist, should return 404', async () => {
+  test('if an invalid ID is provided, should return 400', async () => {
     // Act.
     const response = await request(app).get('/api/v1/issues/17');
 
@@ -119,7 +119,7 @@ describe('POST /api/v1/issues', () => {
 });
 
 describe('PUT /api/v1/issues/:id', () => {
-  test('if a invalid ID is provided, should return 400', async () => {
+  test('if an invalid ID is provided, should return 400', async () => {
     // Arrange.
     const issue = await Issue.create({
       status: '1 = backlog',

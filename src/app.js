@@ -48,22 +48,23 @@ app.get('/api/v1/issues', async (req, res) => {
 });
 
 app.get('/api/v1/issues/:id', async (req, res) => {
+  let issue;
   const issueId = req.params.id;
   try {
-    const issue = await Issue.findById(issueId);
-
-    if (!issue) {
-      return res.status(404).json({
-        message: 'Resource not found',
-      });
-    }
-
-    res.status(200).json(issue);
+    issue = await Issue.findById(issueId);
   } catch (err) {
-    res.status(400).json({
+    return res.status(400).json({
       message: 'Invalid ID provided',
     });
   }
+
+  if (!issue) {
+    return res.status(404).json({
+      message: 'Resource not found',
+    });
+  }
+
+  res.status(200).json(issue);
 });
 
 app.put('/api/v1/issues/:id', async (req, res) => {
@@ -76,9 +77,6 @@ app.put('/api/v1/issues/:id', async (req, res) => {
       message: 'Invalid ID provided',
     });
   }
-  // TODO: (2024/08/20, 22:03)
-  //       the preceding `try`/`except` differs from the one in `app.get` -
-  //       look into rendering them consistent with each other
 
   if (!issue) {
     return res.status(404).json({
@@ -96,7 +94,6 @@ app.put('/api/v1/issues/:id', async (req, res) => {
 app.delete('/api/v1/issues/:id', async (req, res) => {
   let issue;
   const issueId = req.params.id;
-
   try {
     issue = await Issue.findById(issueId);
   } catch (err) {
