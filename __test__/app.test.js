@@ -226,22 +226,24 @@ describe('GET /api/v1/issues', () => {
     // Assert.
     expect(response.status).toEqual(200);
 
-    // TODO: (2024/08/20, 23:20) make this test lighter on manipulation/logic + easier to just read and understand
-    const issue1JSON = issue1.toJSON();
-    const issue2JSON = issue2.toJSON();
     expect(response.body).toEqual({
       resources: [
         {
-          ...issue1JSON,
-          _id: issue1JSON._id.toString(),
-          deadline: issue1JSON.deadline.toISOString(),
-          createdAt: issue1JSON.createdAt.toISOString(),
+          __v: expect.anything(),
+          _id: issue1._id.toString(),
+          createdAt: expect.anything(),
+          status: '3 = in progress',
+          deadline: '2024-08-20T21:07:45.759Z',
+          description: 'write tests for the other request-handling functions',
         },
         {
-          ...issue2JSON,
-          _id: issue2JSON._id.toString(),
-          deadline: issue2JSON.deadline.toISOString(),
-          createdAt: issue2JSON.createdAt.toISOString(),
+          __v: expect.anything(),
+          _id: issue2._id.toString(),
+          createdAt: expect.anything(),
+          status: '1 = backlog',
+          deadline: '2024-08-20T21:08:31.345Z',
+          description:
+            'switch from `const express = require(express)` to `import express from "express";"',
         },
       ],
     });
