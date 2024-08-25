@@ -26,7 +26,7 @@ afterAll(async () => {
 });
 
 // TODO: (2024/08/25, 23:12)
-//       re-arrange the groups of automated tests example requests
+//       re-arrange the groups of automated tests
 //       to match the order in `README.md` and in `src/app.js`
 
 describe('GET /api/v1/issues/:id', () => {
