@@ -32,6 +32,59 @@ npm install
 
 run automated tests
 
+> recall that:
+>
+>  - The `mongodb-memory-server` package is a Node.js library
+>    used for testing MongoDB interactions
+>    without requiring a running MongoDB instance.
+>
+>  - It typically downloads and runs a local, temporary MongoDB server
+>    for the duration of your tests.
+>
+> at the time of writing (i.e. as of 2024/08/25):
+>
+>  - the `mongodb-memory-server` package specifically requires OpenSSL 1.1
+>
+>  - if you run the automated tests on a Fedora 40 operating system,
+>    that will fail
+>    (because Fedora 40 has a different version of OpenSSL installed)
+>
+>  - the preceding 2 bulletpoints are a «TLDR version» of [this comment](https://github.com/kaloyan-marinov/mini-jira-3/commit/989785eb272e72fb4bc7d44d70e761ac7a2812d9#commitcomment-145809410)
+>
+>  - if your operating system is Fedora 40,
+>    it is possible to get the automated tests to pass
+>    **_by influencing which OpenSSL version the MongoDB binary uses at runtime_**:
+>    **_(without altering/modifying the core libraries in the host system)_**:
+>     - install [Miniconda](https://docs.anaconda.com/miniconda/miniconda-install/)
+>     - create a Conda environment that contains OpenSSL 1.1:
+>        ```bash
+>        $ conda create \
+>           --name=python-3-11-plus-openssl-1-1 \
+>           --python=3.11 \
+>           --openssl=1.1
+>        ```
+>     - verify that the preceding step worked as desired:
+>        ```bash
+>        $ conda activate python-3-11-plus-openssl-1-1
+>
+>        (python-3-11-plus-openssl-1-1) $ echo ${CONDA_PREFIX}
+>        ~/miniconda3/envs/python-3-11-plus-openssl-1-1
+>        (python-3-11-plus-openssl-1-1) $ which openssl
+>        ~/miniconda3/envs/python-3-11-plus-openssl-1-1/bin/openssl
+>        (python-3-11-plus-openssl-1-1) $ openssl version
+>        OpenSSL 1.1.1w  11 Sep 2023
+>
+>        (python-3-11-plus-openssl-1-1) $ conda deactivate
+>        ```
+>
+>     - ensure that each of the following bulletpoints is followed from within a terminal session,
+>       which has an environment variable called `LD_LIBRARY_PATH`,
+>       with that environment variable holding the value of `${CONDA_PREFIX}/lib` -
+>       one way of ensuring that is to create a file called `jest.config.js`
+>       and make it consist of the following single statement:
+>
+>       `process.env.LD_LIBRARY_PATH = '<the-value-of-${CONDA_PREFIX}/lib>';`;
+
 - to run all of the project's suite of automated tests <u>in regular mode</u>,
   issue the following command:
 
@@ -186,7 +239,7 @@ curl -v \
 < HTTP/1.1 400 Bad Request
 # ...
 {
-   "message" : "Each of 'status', 'description' must be specified in the HTTP request's body"
+   "message" : "Unable to create a new issue."
 }
 ```
 

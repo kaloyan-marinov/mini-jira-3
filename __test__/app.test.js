@@ -4,6 +4,9 @@ const request = require('supertest');
 
 const app = require('../src/app');
 
+console.log('process.env.HOME =', process.env.HOME);
+console.log('process.env.LD_LIBRARY_PATH =', process.env.LD_LIBRARY_PATH);
+
 let mongoMemoryServer;
 
 beforeAll(async () => {
