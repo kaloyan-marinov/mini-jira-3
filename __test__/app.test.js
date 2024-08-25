@@ -1,6 +1,25 @@
+const mms = require('mongodb-memory-server');
+const mongoose = require('mongoose');
 const request = require('supertest');
 
 const app = require('../src/app');
+
+let mongoMemoryServer;
+
+beforeAll(async () => {
+  mongoMemoryServer = await mms.MongoMemoryServer.create();
+  const uri = mongoMemoryServer.getUri();
+  await mongoose.connect(uri);
+});
+
+beforeEach(async () => {
+  await mongoose.connection.db.dropDatabase();
+});
+
+afterAll(async () => {
+  await mongoose.disconnect();
+  await mongoMemoryServer.stop();
+});
 
 describe('GET /api/v1/issues/:id', () => {
   xtest('if ID does not exist, should return 404', async () => {
@@ -77,11 +96,12 @@ describe('POST /api/v1/issues', () => {
     // Assert.
     expect(response.status).toEqual(201);
     expect(response.body).toEqual({
-      id: 4,
-      createdAt: new Date(),
+      __v: expect.anything(),
+      _id: expect.anything(),
+      createdAt: '2024-08-17T09:00:00.000Z',
       status: '1 = backlog',
-      deadline: null,
-      finishedAt: null,
+      deadline: '2024-08-19T09:00:00.000Z',
+      epic: 'backend',
       description: 'containerize the backend',
     });
   });
