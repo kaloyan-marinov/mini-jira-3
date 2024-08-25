@@ -182,6 +182,7 @@ then you can go on to
 launch another terminal window and,
 in it, issue the following requests to the HTTP server:
 
+<u>TODO: (2024/08/20, 22:55)</u> re-arrange the example requests in the following order: POST, GET, GET /:id, PUT /:id, DELETE /:id + do the same for the request handlers and the tests
 ```bash
 curl -v \
   localhost:5000/api/v1/issues \
@@ -193,31 +194,13 @@ curl -v \
 {
    "resources" : [
       {
-         "createdAt" : null,
-         "deadline" : null,
-         "description" : "build a backend application using Express (without a persistence layer)",
+         "__v" : 0,
+         "_id" : "66c4f458e3788fc8e79d0c89",
+         "createdAt" : "2024-08-20T19:54:00.804Z",
+         "deadline" : "2024-08-19T09:00:00.000Z",
+         "description" : "containerize the backend",
          "epic" : "backend",
-         "finishedAt" : null,
-         "id" : 1,
-         "status" : "3 = in progress"
-      },
-      {
-         "createdAt" : null,
-         "deadline" : null,
-         "description" : "make it possible to use VS Code to serve the backend",
-         "epic" : "ease of development",
-         "finishedAt" : null,
-         "id" : 2,
-         "status" : "1 = backlog"
-      },
-      {
-         "createdAt" : null,
-         "deadline" : null,
-         "description" : "implement a persistence layer using MongoDB",
-         "epic" : "backend",
-         "finishedAt" : null,
-         "id" : 3,
-         "status" : "1 = backlog"
+         "status" : "4 = done"
       }
    ]
 }

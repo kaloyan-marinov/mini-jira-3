@@ -62,21 +62,18 @@ app.post('/api/v1/issues', async (req, res, next) => {
   res.status(201).json(newIssue);
 });
 
-app.get('/api/v1/issues/:id', async (req, res) => {
-  const issueId = req.params.id;
+app.get('/api/v1/issues', async (req, res) => {
   try {
-    const issue = await Issue.findById(issueId);
+    const issues = await Issue.find();
 
-    if (!issue) {
-      return res.status(404).json({
-        message: 'Resource not found',
-      });
-    }
-
-    res.status(200).json(issue);
+    res.status(200).json({
+      resources: issues,
+    });
   } catch (err) {
-    res.status(400).json({
-      message: 'Invalid ID provided',
+    console.error(err);
+
+    res.status(500).json({
+      message: 'Failed to process your HTTP request',
     });
   }
 });

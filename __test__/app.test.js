@@ -192,3 +192,58 @@ describe('PUT /api/v1/issues/:id', () => {
     });
   });
 });
+
+describe('GET /api/v1/issues', () => {
+  test('if there are no Issue resources in the MongoDB server, should return 200 and an empty list', async () => {
+    // Act.
+    const response = await request(app).get('/api/v1/issues');
+
+    // Assert.
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual({
+      resources: [],
+    });
+  });
+
+  test('if there are Issue resources, should return 200 and representations of the resources', async () => {
+    // Arrange.
+    const issue1 = await Issue.create({
+      status: '3 = in progress',
+      deadline: new Date('2024-08-20T21:07:45.759Z'),
+      description: 'write tests for the other request-handling functions',
+    });
+
+    const issue2 = await Issue.create({
+      status: '1 = backlog',
+      deadline: new Date('2024-08-20T21:08:31.345Z'),
+      description:
+        'switch from `const express = require(express)` to `import express from "express";"',
+    });
+
+    // Act.
+    const response = await request(app).get('/api/v1/issues');
+
+    // Assert.
+    expect(response.status).toEqual(200);
+
+    // TODO: (2024/08/20, 23:20) make this test lighter on manipulation/logic + easier to just read and understand
+    const issue1JSON = issue1.toJSON();
+    const issue2JSON = issue2.toJSON();
+    expect(response.body).toEqual({
+      resources: [
+        {
+          ...issue1JSON,
+          _id: issue1JSON._id.toString(),
+          deadline: issue1JSON.deadline.toISOString(),
+          createdAt: issue1JSON.createdAt.toISOString(),
+        },
+        {
+          ...issue2JSON,
+          _id: issue2JSON._id.toString(),
+          deadline: issue2JSON.deadline.toISOString(),
+          createdAt: issue2JSON.createdAt.toISOString(),
+        },
+      ],
+    });
+  });
+});
