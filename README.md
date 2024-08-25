@@ -182,30 +182,6 @@ then you can go on to
 launch another terminal window and,
 in it, issue the following requests to the HTTP server:
 
-<u>TODO: (2024/08/20, 22:55)</u> re-arrange the example requests in the following order: POST, GET, GET /:id, PUT /:id, DELETE /:id + do the same for the request handlers and the tests
-```bash
-curl -v \
-  localhost:5000/api/v1/issues \
-  | json_pp
-
-# ...
-< HTTP/1.1 200 OK
-# ...
-{
-   "resources" : [
-      {
-         "__v" : 0,
-         "_id" : "66c4f458e3788fc8e79d0c89",
-         "createdAt" : "2024-08-20T19:54:00.804Z",
-         "deadline" : "2024-08-19T09:00:00.000Z",
-         "description" : "containerize the backend",
-         "epic" : "backend",
-         "status" : "4 = done"
-      }
-   ]
-}
-```
-
 
 
 ```bash
@@ -259,6 +235,33 @@ export ISSUE_1_ID=<the-_id-present-in-the-preceding-HTTP-response>
 export VALID_BUT_NONEXISTENT_ISSUE_ID=<same-as-ISSUE_1_ID-but-with-the-last-character-changed-to-something-else>
 ```
 
+
+
+```bash
+curl -v \
+  localhost:5000/api/v1/issues \
+  | json_pp
+
+# ...
+< HTTP/1.1 200 OK
+# ...
+{
+   "resources" : [
+      {
+         "__v" : 0,
+         "_id" : "66c4f458e3788fc8e79d0c89",
+         "createdAt" : "2024-08-20T19:54:00.804Z",
+         "deadline" : "2024-08-19T09:00:00.000Z",
+         "description" : "containerize the backend",
+         "epic" : "backend",
+         "status" : "4 = done"
+      }
+   ]
+}
+```
+
+
+
 ```bash
 curl -v \
   localhost:5000/api/v1/issues/17 \
@@ -270,9 +273,9 @@ curl -v \
 {
    "message" : "Invalid ID provided"
 }
+```
 
-
-
+```bash
 curl -v \
   localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
   | json_pp
@@ -283,10 +286,9 @@ curl -v \
 {
    "message" : "Resource not found"
 }
+```
 
-
-
-
+```bash
 curl -v \
   localhost:5000/api/v1/issues/${ISSUE_1_ID} \
   | json_pp
@@ -306,6 +308,7 @@ curl -v \
 ```
 
 
+
 ```bash
 curl -v \
   -X PUT \
@@ -332,6 +335,7 @@ curl -v \
 {
    "message" : "Resource not found"
 }
+```
 
 ```bash
 curl -v \

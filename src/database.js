@@ -13,7 +13,6 @@ const connectToDatabase = async () => {
       dbName: process.env.MONGO_DATABASE,
     }
   );
-  // const connection = await mongoose.connect(process.env.MONGO_URI);
 
   console.log(
     `Established connection to MongoDB host at ${connection.connection.host}:${connection.connection.port} ${connection.connection.db.databaseName}`

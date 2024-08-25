@@ -25,6 +25,10 @@ afterAll(async () => {
   await mongoMemoryServer.stop();
 });
 
+// TODO: (2024/08/25, 23:12)
+//       re-arrange the groups of automated tests example requests
+//       to match the order in `README.md` and in `src/app.js`
+
 describe('GET /api/v1/issues/:id', () => {
   test('if an invalid ID is provided, should return 400', async () => {
     // Act.
