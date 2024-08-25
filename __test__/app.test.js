@@ -56,7 +56,7 @@ describe('GET /api/v1/issues/:id', () => {
 });
 
 describe('POST /api/v1/issues', () => {
-  xtest('if "status" is missing, should return 400', async () => {
+  test('if "status" is missing, should return 400', async () => {
     // Act.
     const response = await request(app).post('/api/v1/issues').send({
       description: 'containerize the backend',
@@ -65,12 +65,11 @@ describe('POST /api/v1/issues', () => {
     // Assert.
     expect(response.status).toEqual(400);
     expect(response.body).toEqual({
-      message:
-        "Each of 'status', 'description' must be specified in the HTTP request's body",
+      message: 'Unable to create a new issue.',
     });
   });
 
-  xtest('if "description" is missing, should return 400', async () => {
+  test('if "description" is missing, should return 400', async () => {
     // Act.
     const response = await request(app).post('/api/v1/issues').send({
       status: '1 = backlog',
@@ -79,8 +78,7 @@ describe('POST /api/v1/issues', () => {
     // Assert.
     expect(response.status).toEqual(400);
     expect(response.body).toEqual({
-      message:
-        "Each of 'status', 'description' must be specified in the HTTP request's body",
+      message: 'Unable to create a new issue.',
     });
   });
 
