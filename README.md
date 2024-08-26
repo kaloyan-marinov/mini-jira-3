@@ -9,6 +9,18 @@ which is a pared-down version of [Jira](
 
 [step 1]
 
+create `.env` file within your local repository by taking the following steps:
+
+   ```bash
+   $ cp \
+      .env.template \
+      .env
+
+   # Edit the content of the created file as per the comments/instructions therein.
+   ```
+
+[step 2]
+
 install the package dependencies
 by issuing the following command:
 
@@ -16,9 +28,67 @@ by issuing the following command:
 npm install
 ```
 
-[step 2]
+[step 3]
 
 run automated tests
+
+> <u>This note is important only if your operating system is Fedora 40.</u>
+>
+> recall that:
+>
+>  - The `mongodb-memory-server` package is a Node.js library
+>    used for testing MongoDB interactions
+>    without requiring a running MongoDB instance.
+>
+>  - It typically downloads and runs a local, temporary MongoDB server
+>    for the duration of your tests.
+>
+> at the time of writing (i.e. as of 2024/08/25):
+>
+>  - the `mongodb-memory-server` package specifically requires OpenSSL 1.1
+>
+>  - if you run the automated tests on a Fedora 40 operating system,
+>    that will fail
+>    (because Fedora 40 has a different version of OpenSSL installed)
+>
+>  - the preceding 2 bulletpoints are a «TLDR version» of [this comment](https://github.com/kaloyan-marinov/mini-jira-3/commit/989785eb272e72fb4bc7d44d70e761ac7a2812d9#commitcomment-145809410)
+>
+>  - if your operating system is Fedora 40,
+>    it is possible to get the automated tests to pass
+>    **_by influencing which OpenSSL version the MongoDB binary uses at runtime_**
+>    **_(without altering/modifying the core libraries in the host system)_**:
+>
+>     - install [Miniconda](https://docs.anaconda.com/miniconda/miniconda-install/)
+>
+>     - create a Conda environment that contains OpenSSL 1.1:
+>        ```bash
+>        $ conda create \
+>           --name=python-3-11-plus-openssl-1-1 \
+>           --python=3.11 \
+>           --openssl=1.1
+>        ```
+>
+>     - verify that the preceding step worked as desired:
+>        ```bash
+>        $ conda activate python-3-11-plus-openssl-1-1
+>
+>        (python-3-11-plus-openssl-1-1) $ echo ${CONDA_PREFIX}
+>        ~/miniconda3/envs/python-3-11-plus-openssl-1-1
+>        (python-3-11-plus-openssl-1-1) $ which openssl
+>        ~/miniconda3/envs/python-3-11-plus-openssl-1-1/bin/openssl
+>        (python-3-11-plus-openssl-1-1) $ openssl version
+>        OpenSSL 1.1.1w  11 Sep 2023
+>
+>        (python-3-11-plus-openssl-1-1) $ conda deactivate
+>        ```
+>
+>     - ensure that each of the following bulletpoints is followed from within a terminal session,
+>       which has an environment variable called `LD_LIBRARY_PATH`,
+>       with that environment variable holding the value of `${CONDA_PREFIX}/lib` -
+>       one way of ensuring that is to create a file called `jest.config.js`
+>       and make it consist of the following single statement:
+>
+>       `process.env.LD_LIBRARY_PATH = '<the-value-of-${CONDA_PREFIX}/lib>';`;
 
 - to run all of the project's suite of automated tests <u>in regular mode</u>,
   issue the following command:
@@ -49,7 +119,51 @@ run automated tests
       --watchAll
    ```
 
-[step 3]
+[step 4]
+
+create an empty database:
+
+- run a containerized MongoDB server
+
+   ```bash
+   docker run \
+      --name container-m-j-3-mongo \
+      --mount source=volume-m-j-3-mongo,destination=/data/db \
+      --env MONGO_INITDB_ROOT_USERNAME=$(grep -oP '^MONGO_USERNAME=\K.*' .env) \
+      --env MONGO_INITDB_ROOT_PASSWORD=$(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
+      --env MONGO_INITDB_DATABASE=$(grep -oP '^MONGO_DATABASE=\K.*' .env) \
+      --publish 27017:27017 \
+      mongo:latest
+   ```
+
+   <u>TODO: (2024/08/17, 11:00)</u> as of the commit that adds this line, the preceding command creates "a simple user with the role `root⁠` in the `admin` authentication database⁠" (cf. https://hub.docker.com/_/mongo ); investigate (a) what "creation scripts in /docker-entrypoint-initdb.d/*.js" (cf. ) would need to be created and (b) how the preceding commands would need to be changed _in order for_ a non-`root` user to be created (cf. https://www.mongodb.com/docs/manual/core/security-users/#user-authentication-database )
+
+- optionally, connect to the MongoDB server
+  by means of the `mongosh` command-line client
+
+   ```bash
+   docker container inspect container-m-j-3-mongo \
+      | grep IPAddress
+   ```
+
+   ```bash
+   export CONTAINER_M_J_3_MONGO_IP=<the-value-returned-by-the-preceding-command>
+   ```
+
+   ```bash
+   docker run \
+      -it \
+      --rm \
+      mongo:latest \
+         mongosh \
+         --host ${CONTAINER_M_J_3_MONGO_IP} \
+         --username $(grep -oP '^MONGO_USERNAME=\K.*' .env) \
+         --password $(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
+         --authenticationDatabase admin \
+         $(grep -oP '^MONGO_DATABASE=\K.*' .env)
+   ```
+
+[step 5]
 
 start a process responsible for serving the application instance
 
@@ -66,12 +180,67 @@ start a process responsible for serving the application instance
 > it serves the application in debug mode
 > (i.e. it allows you to set breakpoints).
 
-[step 4]
+[step 6]
 
 if you have performed the preceding step successfully,
 then you can go on to
 launch another terminal window and,
 in it, issue the following requests to the HTTP server:
+
+
+
+```bash
+curl -v \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d "{
+         \"status\": \"1 = backlog\"
+    }" \
+  localhost:5000/api/v1/issues \
+  | json_pp
+
+# ...
+< HTTP/1.1 400 Bad Request
+# ...
+{
+   "message" : "Unable to create a new issue."
+}
+```
+
+```bash
+curl -v \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d "{
+         \"status\": \"1 = backlog\",
+         \"deadline\": \"2024-08-19T09:00:00.000Z\",
+         \"epic\": \"backend\",
+         \"description\": \"containerize the backend\"
+    }" \
+  localhost:5000/api/v1/issues \
+  | json_pp
+
+# ...
+< HTTP/1.1 201 Created
+# ...
+{
+   "__v" : 0,
+   "_id" : "66c2dbf2d0d5b26a9bdfbc9f",
+   "createdAt" : "2024-08-19T05:45:22.243Z",
+   "deadline" : "2024-08-19T09:00:00.000Z",
+   "description" : "containerize the backend",
+   "epic" : "backend",
+   "status" : "1 = backlog"
+}
+```
+
+```bash
+export ISSUE_1_ID=<the-_id-present-in-the-preceding-HTTP-response>
+
+export VALID_BUT_NONEXISTENT_ISSUE_ID=<same-as-ISSUE_1_ID-but-with-the-last-character-changed-to-another-hexadecimal-digit>
+```
+
+
 
 ```bash
 curl -v \
@@ -84,31 +253,13 @@ curl -v \
 {
    "resources" : [
       {
-         "createdAt" : null,
-         "deadline" : null,
-         "description" : "build a backend application using Express (without a persistence layer)",
+         "__v" : 0,
+         "_id" : "66c4f458e3788fc8e79d0c89",
+         "createdAt" : "2024-08-20T19:54:00.804Z",
+         "deadline" : "2024-08-19T09:00:00.000Z",
+         "description" : "containerize the backend",
          "epic" : "backend",
-         "finishedAt" : null,
-         "id" : 1,
-         "status" : "3 = in progress"
-      },
-      {
-         "createdAt" : null,
-         "deadline" : null,
-         "description" : "make it possible to use VS Code to serve the backend",
-         "epic" : "ease of development",
-         "finishedAt" : null,
-         "id" : 2,
-         "status" : "1 = in backlog"
-      },
-      {
-         "createdAt" : null,
-         "deadline" : null,
-         "description" : "implement a persistence layer using MongoDB",
-         "epic" : "backend",
-         "finishedAt" : null,
-         "id" : 3,
-         "status" : "1 = in backlog"
+         "status" : "4 = done"
       }
    ]
 }
@@ -118,51 +269,20 @@ curl -v \
 
 ```bash
 curl -v \
-  -X POST \
-  -H "Content-Type: application/json" \
-  -d "{
-         \"status\": \"1 = in backlog\"
-    }" \
-  localhost:5000/api/v1/issues \
+  localhost:5000/api/v1/issues/17 \
   | json_pp
 
 # ...
 < HTTP/1.1 400 Bad Request
 # ...
 {
-   "message" : "Each of 'status', 'description' must be specified in the HTTP request's body"
+   "message" : "Invalid ID provided"
 }
 ```
 
 ```bash
 curl -v \
-  -X POST \
-  -H "Content-Type: application/json" \
-  -d "{
-         \"status\": \"1 = in backlog\",
-         \"epic\": \"backend\",
-         \"description\": \"containerize the backend\"
-    }" \
-  localhost:5000/api/v1/issues \
-  | json_pp
-
-# ...
-< HTTP/1.1 201 Created
-# ...
-{
-   "createdAt" : null,
-   "deadline" : null,
-   "description" : "containerize the backend",
-   "epic" : "backend",
-   "finishedAt" : null,
-   "id" : 4,
-   "status" : "1 = in backlog"
-}
-```
-
-```bash
-curl -v \
-  localhost:5000/api/v1/issues/17 \
+  localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
   | json_pp
 
 # ...
@@ -171,26 +291,27 @@ curl -v \
 {
    "message" : "Resource not found"
 }
+```
 
-
-
+```bash
 curl -v \
-  localhost:5000/api/v1/issues/1 \
+  localhost:5000/api/v1/issues/${ISSUE_1_ID} \
   | json_pp
 
 # ...
 < HTTP/1.1 200 OK
 # ...
 {
-   "createdAt" : null,
-   "deadline" : null,
-   "description" : "build a backend application using Express (without a persistence layer)",
+   "__v" : 0,
+   "_id" : "66c2dbf2d0d5b26a9bdfbc9f",
+   "createdAt" : "2024-08-19T05:45:22.243Z",
+   "deadline" : "2024-08-19T09:00:00.000Z",
+   "description" : "containerize the backend",
    "epic" : "backend",
-   "finishedAt" : null,
-   "id" : 1,
-   "status" : "3 = in progress"
+   "status" : "1 = backlog"
 }
 ```
+
 
 
 ```bash
@@ -200,24 +321,24 @@ curl -v \
   | json_pp
 
 # ...
-< HTTP/1.1 404 Not Found
+< HTTP/1.1 400 Bad Request
 # ...
 {
-   "message" : "Resource not found"
+   "message" : "Invalid ID provided"
 }
 ```
 
 ```bash
 curl -v \
   -X PUT \
-  localhost:5000/api/v1/issues/1 \
+  localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
   | json_pp
 
 # ...
-< HTTP/1.1 400 Bad Request
+< HTTP/1.1 404 Not Found
 # ...
 {
-   "message" : "At least one of 'status', 'epic', 'description' is missing from the HTTP request's body"
+   "message" : "Resource not found"
 }
 ```
 
@@ -228,27 +349,43 @@ curl -v \
   -d "{
          \"status\": \"4 = done\"
     }" \
-  localhost:5000/api/v1/issues/1 \
+  localhost:5000/api/v1/issues/${ISSUE_1_ID} \
   | json_pp
 
 # ...
 < HTTP/1.1 200 OK
 # ...
 {
-   "createdAt" : null,
-   "deadline" : null,
-   "description" : "build a backend application using Express (without a persistence layer)",
+   "__v" : 0,
+   "_id" : "66c4f458e3788fc8e79d0c89",
+   "createdAt" : "2024-08-20T19:54:00.804Z",
+   "deadline" : "2024-08-19T09:00:00.000Z",
+   "description" : "containerize the backend",
    "epic" : "backend",
-   "finishedAt" : null,
-   "id" : 1,
    "status" : "4 = done"
+}
+```
+
+
+
+```bash
+curl -v \
+  -X DELETE \
+  localhost:5000/api/v1/issues/17 \
+  | json_pp
+
+# ...
+< HTTP/1.1 400 Bad Request
+# ...
+{
+   "message" : "Invalid ID provided"
 }
 ```
 
 ```bash
 curl -v \
   -X DELETE \
-  localhost:5000/api/v1/issues/17 \
+  localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
   | json_pp
 
 # ...
@@ -262,7 +399,7 @@ curl -v \
 ```bash
 curl -v \
   -X DELETE \
-  localhost:5000/api/v1/issues/1
+  localhost:5000/api/v1/issues/${ISSUE_1_ID}
 
 # ...
 < HTTP/1.1 204 No Content

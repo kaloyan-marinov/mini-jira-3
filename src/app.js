@@ -1,36 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
-
-const issues = [
-  {
-    id: 1,
-    createdAt: null,
-    status: '3 = in progress',
-    deadline: null,
-    finishedAt: null,
-    epic: 'backend',
-    description:
-      'build a backend application using Express (without a persistence layer)',
-  },
-  {
-    id: 2,
-    createdAt: null,
-    status: '1 = in backlog',
-    deadline: null,
-    finishedAt: null,
-    epic: 'ease of development',
-    description: 'make it possible to use VS Code to serve the backend',
-  },
-  {
-    id: 3,
-    createdAt: null,
-    status: '1 = in backlog',
-    deadline: null,
-    finishedAt: null,
-    epic: 'backend',
-    description: 'implement a persistence layer using MongoDB',
-  },
-];
+const Issue = require('./models');
 
 const app = express();
 
@@ -43,116 +13,104 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-app.post('/api/v1/issues', (req, res, next) => {
-  const { status, epic, description } = req.body;
+app.post('/api/v1/issues', async (req, res) => {
+  let newIssue;
 
-  if (!status || !description) {
+  try {
+    newIssue = await Issue.create(req.body);
+  } catch (err) {
+    console.error(err);
+
     res.status(400).json({
-      message:
-        "Each of 'status', 'description' must be specified in" +
-        " the HTTP request's body",
+      message: 'Unable to create a new issue.',
     });
 
     return;
   }
 
-  const existingIds = issues.map((issuer) => issuer.id);
-  const newId = Math.max(...existingIds) + 1;
-  const newIssue = {
-    id: newId,
-    createdAt: null,
-    status,
-    deadline: null,
-    finishedAt: null,
-    epic,
-    description,
-  };
-  issues.push(newIssue);
-
   res.status(201).json(newIssue);
 });
 
-app.get('/api/v1/issues', (req, res) => {
-  res.status(200).json({
-    resources: issues,
-  });
+app.get('/api/v1/issues', async (req, res) => {
+  try {
+    const issues = await Issue.find();
+
+    res.status(200).json({
+      resources: issues,
+    });
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      message: 'Failed to process your HTTP request',
+    });
+  }
 });
 
-app.get('/api/v1/issues/:id', (req, res) => {
-  const issueId = parseInt(req.params.id);
-  // console.log(issueId);
-  const issue = issues.find((i) => i.id === issueId);
+app.get('/api/v1/issues/:id', async (req, res) => {
+  let issue;
+  const issueId = req.params.id;
+  try {
+    issue = await Issue.findById(issueId);
+  } catch (err) {
+    return res.status(400).json({
+      message: 'Invalid ID provided',
+    });
+  }
 
   if (!issue) {
-    res.status(404).json({
+    return res.status(404).json({
       message: 'Resource not found',
     });
-
-    return;
   }
 
   res.status(200).json(issue);
 });
 
-app.put('/api/v1/issues/:id', (req, res) => {
-  // Check if an existing issue is targeted.
-  const issueId = parseInt(req.params.id);
+app.put('/api/v1/issues/:id', async (req, res) => {
+  let issue;
+  const issueId = req.params.id;
+  try {
+    issue = await Issue.findById(issueId);
+  } catch (err) {
+    return res.status(400).json({
+      message: 'Invalid ID provided',
+    });
+  }
 
-  const issueIndex = issues.findIndex((i) => i.id === issueId);
-  // console.log(issueIndex);
-
-  if (issueIndex === -1) {
-    res.status(404).json({
+  if (!issue) {
+    return res.status(404).json({
       message: 'Resource not found',
     });
-
-    return;
   }
 
-  // Check if there is something relevant in the body of the incoming request.
-  const { status, epic, description } = req.body;
-
-  if (!status && !epic && !description) {
-    res.status(400).json({
-      message:
-        "At least one of 'status', 'epic', 'description' is missing from" +
-        " the HTTP request's body",
-    });
-
-    return;
-  }
-
-  // Update the targeted issue.
-  if (status) {
-    issues[issueIndex].status = status;
-  }
-  if (epic) {
-    issues[issueIndex].epic = epic;
-  }
-  if (description) {
-    issues[issueIndex].description = description;
-  }
-
-  res.status(200).json(issues[issueIndex]);
+  issue = await Issue.findByIdAndUpdate(issueId, req.body, {
+    new: true, // Causes the response to contain the updated JSON document.
+    runValidators: true,
+  });
+  res.status(200).json(issue);
 });
 
-app.delete('/api/v1/issues/:id', (req, res) => {
-  // Check if an existing issue is targeted.
-  const issueId = parseInt(req.params.id);
-
-  const issueIndex = issues.findIndex((i) => i.id === issueId);
-
-  if (issueIndex === -1) {
-    res.status(404).json({
-      message: 'Resource not found',
+app.delete('/api/v1/issues/:id', async (req, res) => {
+  let issue;
+  const issueId = req.params.id;
+  try {
+    issue = await Issue.findById(issueId);
+  } catch (err) {
+    return res.status(400).json({
+      message: 'Invalid ID provided',
     });
-
-    return;
   }
 
-  issues.splice(issueIndex, 1);
+  if (!issue) {
+    return res.status(404).json({
+      message: 'Resource not found',
+    });
+  }
 
-  res.status(204).json({});
+  await issue.deleteOne();
+  res.set('Content-Length', '0');
+  res.status(204).end();
 });
 
 module.exports = app;
