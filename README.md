@@ -55,7 +55,7 @@ run automated tests
 >
 >  - if your operating system is Fedora 40,
 >    it is possible to get the automated tests to pass
->    **_by influencing which OpenSSL version the MongoDB binary uses at runtime_**:
+>    **_by influencing which OpenSSL version the MongoDB binary uses at runtime_**
 >    **_(without altering/modifying the core libraries in the host system)_**:
 >
 >     - install [Miniconda](https://docs.anaconda.com/miniconda/miniconda-install/)
