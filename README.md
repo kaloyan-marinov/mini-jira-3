@@ -130,7 +130,7 @@ create an empty database:
       --name container-m-j-3-mongo \
       --mount source=volume-m-j-3-mongo,destination=/data/db \
       --env MONGO_INITDB_ROOT_USERNAME=$(grep -oP '^MONGO_USERNAME=\K.*' .env) \
-	   --env MONGO_INITDB_ROOT_PASSWORD=$(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
+      --env MONGO_INITDB_ROOT_PASSWORD=$(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
       --env MONGO_INITDB_DATABASE=$(grep -oP '^MONGO_DATABASE=\K.*' .env) \
       --publish 27017:27017 \
       mongo:latest
