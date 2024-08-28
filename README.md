@@ -189,297 +189,307 @@ in it, issue the following requests to the HTTP server:
 
 
 
-```bash
-curl -v \
-  -X POST \
-  -H "Content-Type: application/json" \
-  -d "{
-         \"status\": \"1 = backlog\"
-    }" \
-  localhost:5000/api/v1/issues \
-  | json_pp
+- create one
 
-# ...
-< HTTP/1.1 400 Bad Request
-# ...
-{
-   "message" : "Unable to create a new issue."
-}
-```
+   ```bash
+   curl -v \
+   -X POST \
+   -H "Content-Type: application/json" \
+   -d "{
+            \"status\": \"1 = backlog\"
+      }" \
+   localhost:5000/api/v1/issues \
+   | json_pp
 
-```bash
-curl -v \
-  -X POST \
-  -H "Content-Type: application/json" \
-  -d "{
-         \"status\": \"1 = backlog\",
-         \"deadline\": \"2024-08-19T09:00:00.000Z\",
-         \"epic\": \"backend\",
-         \"description\": \"containerize the backend\"
-    }" \
-  localhost:5000/api/v1/issues \
-  | json_pp
+   # ...
+   < HTTP/1.1 400 Bad Request
+   # ...
+   {
+      "message" : "Unable to create a new issue."
+   }
+   ```
 
-# ...
-< HTTP/1.1 201 Created
-# ...
-{
-   "__v" : 0,
-   "_id" : "66c2dbf2d0d5b26a9bdfbc9f",
-   "createdAt" : "2024-08-19T05:45:22.243Z",
-   "deadline" : "2024-08-19T09:00:00.000Z",
-   "description" : "containerize the backend",
-   "epic" : "backend",
-   "status" : "1 = backlog"
-}
-```
+   ```bash
+   curl -v \
+   -X POST \
+   -H "Content-Type: application/json" \
+   -d "{
+            \"status\": \"1 = backlog\",
+            \"deadline\": \"2024-08-19T09:00:00.000Z\",
+            \"epic\": \"backend\",
+            \"description\": \"containerize the backend\"
+      }" \
+   localhost:5000/api/v1/issues \
+   | json_pp
 
-```bash
-curl -v \
-  -X POST \
-  -H "Content-Type: application/json" \
-  -d "{
-         \"status\": \"1 = backlog\",
-         \"deadline\": \"2024-08-28T19:45:08.246Z\",
-         \"epic\": \"backend\",
-         \"description\": \"convert the \`epic\` field to a \`parentId\` field\"
-    }" \
-  localhost:5000/api/v1/issues \
-  | json_pp
+   # ...
+   < HTTP/1.1 201 Created
+   # ...
+   {
+      "__v" : 0,
+      "_id" : "66c2dbf2d0d5b26a9bdfbc9f",
+      "createdAt" : "2024-08-19T05:45:22.243Z",
+      "deadline" : "2024-08-19T09:00:00.000Z",
+      "description" : "containerize the backend",
+      "epic" : "backend",
+      "status" : "1 = backlog"
+   }
+   ```
 
-# ...
-< HTTP/1.1 201 Created
-# ...
-```
+   ```bash
+   curl -v \
+   -X POST \
+   -H "Content-Type: application/json" \
+   -d "{
+            \"status\": \"1 = backlog\",
+            \"deadline\": \"2024-08-28T19:45:08.246Z\",
+            \"epic\": \"backend\",
+            \"description\": \"convert the \`epic\` field to a \`parentId\` field\"
+      }" \
+   localhost:5000/api/v1/issues \
+   | json_pp
 
-```bash
-curl -v \
-  -X POST \
-  -H "Content-Type: application/json" \
-  -d "{
-         \"status\": \"1 = backlog\",
-         \"deadline\": \"2024-08-28T19:45:24.081Z\",
-         \"epic\": \"frontend\",
-         \"description\": \"build a client (hopefully, a CLI tool combined with \`jq\`)\"
-    }" \
-  localhost:5000/api/v1/issues \
-  | json_pp
+   # ...
+   < HTTP/1.1 201 Created
+   # ...
+   ```
 
-# ...
-< HTTP/1.1 201 Created
-# ...
-```
+   ```bash
+   curl -v \
+   -X POST \
+   -H "Content-Type: application/json" \
+   -d "{
+            \"status\": \"1 = backlog\",
+            \"deadline\": \"2024-08-28T19:45:24.081Z\",
+            \"epic\": \"frontend\",
+            \"description\": \"build a client (hopefully, a CLI tool combined with \`jq\`)\"
+      }" \
+   localhost:5000/api/v1/issues \
+   | json_pp
 
-```bash
-export ISSUE_3_ID=<the-_id-present-in-the-preceding-HTTP-response>
+   # ...
+   < HTTP/1.1 201 Created
+   # ...
+   ```
 
-export VALID_BUT_NONEXISTENT_ISSUE_ID=<same-as-ISSUE_3_ID-but-with-the-last-character-changed-to-another-hexadecimal-digit>
-```
+   ```bash
+   export ISSUE_3_ID=<the-_id-present-in-the-preceding-HTTP-response>
 
-
-
-```bash
-curl -v \
-  localhost:5000/api/v1/issues \
-  | json_pp
-
-# ...
-< HTTP/1.1 200 OK
-# ...
-{
-   "resources" : [
-      {
-         "__v" : 0,
-         "_id" : "66cf7dbbc96812bec9925392",
-         "createdAt" : "2024-08-28T19:42:51.501Z",
-         "deadline" : "2024-08-19T09:00:00.000Z",
-         "description" : "containerize the backend",
-         "epic" : "backend",
-         "status" : "1 = backlog"
-      },
-      {
-         "__v" : 0,
-         "_id" : "66cf7eb7c96812bec9925394",
-         "createdAt" : "2024-08-28T19:47:03.691Z",
-         "deadline" : "2024-08-28T19:45:08.246Z",
-         "description" : "convert the `epic` field to a `parentId` field",
-         "epic" : "backend",
-         "status" : "1 = backlog"
-      },
-      {
-         "__v" : 0,
-         "_id" : "66cf7edfc96812bec9925396",
-         "createdAt" : "2024-08-28T19:47:43.611Z",
-         "deadline" : "2024-08-28T19:45:24.081Z",
-         "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "epic" : "frontend",
-         "status" : "1 = backlog"
-      }
-   ]
-}
-```
-
-```bash
-curl -v \
-  localhost:5000/api/v1/issues?epic=frontend \
-  | json_pp
-
-# ...
-< HTTP/1.1 200 OK
-# ...
-{
-   "resources" : [
-      {
-         "__v" : 0,
-         "_id" : "66cf7edfc96812bec9925396",
-         "createdAt" : "2024-08-28T19:47:43.611Z",
-         "deadline" : "2024-08-28T19:45:24.081Z",
-         "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "epic" : "frontend",
-         "status" : "1 = backlog"
-      }
-   ]
-}
-```
+   export VALID_BUT_NONEXISTENT_ISSUE_ID=<same-as-ISSUE_3_ID-but-with-the-last-character-changed-to-another-hexadecimal-digit>
+   ```
 
 
 
-```bash
-curl -v \
-  localhost:5000/api/v1/issues/17 \
-  | json_pp
+- retrieve multiple
 
-# ...
-< HTTP/1.1 400 Bad Request
-# ...
-{
-   "message" : "Invalid ID provided"
-}
-```
+   ```bash
+   curl -v \
+   localhost:5000/api/v1/issues \
+   | json_pp
 
-```bash
-curl -v \
-  localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
-  | json_pp
+   # ...
+   < HTTP/1.1 200 OK
+   # ...
+   {
+      "resources" : [
+         {
+            "__v" : 0,
+            "_id" : "66cf7dbbc96812bec9925392",
+            "createdAt" : "2024-08-28T19:42:51.501Z",
+            "deadline" : "2024-08-19T09:00:00.000Z",
+            "description" : "containerize the backend",
+            "epic" : "backend",
+            "status" : "1 = backlog"
+         },
+         {
+            "__v" : 0,
+            "_id" : "66cf7eb7c96812bec9925394",
+            "createdAt" : "2024-08-28T19:47:03.691Z",
+            "deadline" : "2024-08-28T19:45:08.246Z",
+            "description" : "convert the `epic` field to a `parentId` field",
+            "epic" : "backend",
+            "status" : "1 = backlog"
+         },
+         {
+            "__v" : 0,
+            "_id" : "66cf7edfc96812bec9925396",
+            "createdAt" : "2024-08-28T19:47:43.611Z",
+            "deadline" : "2024-08-28T19:45:24.081Z",
+            "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
+            "epic" : "frontend",
+            "status" : "1 = backlog"
+         }
+      ]
+   }
+   ```
 
-# ...
-< HTTP/1.1 404 Not Found
-# ...
-{
-   "message" : "Resource not found"
-}
-```
+   ```bash
+   curl -v \
+   localhost:5000/api/v1/issues?epic=frontend \
+   | json_pp
 
-```bash
-curl -v \
-  localhost:5000/api/v1/issues/${ISSUE_3_ID} \
-  | json_pp
-
-# ...
-< HTTP/1.1 200 OK
-# ...
-{
-   "__v" : 0,
-   "_id" : "66c2dbf2d0d5b26a9bdfbc9f",
-   "createdAt" : "2024-08-19T05:45:22.243Z",
-   "deadline" : "2024-08-19T09:00:00.000Z",
-   "description" : "containerize the backend",
-   "epic" : "backend",
-   "status" : "1 = backlog"
-}
-```
-
-
-
-```bash
-curl -v \
-  -X PUT \
-  localhost:5000/api/v1/issues/17 \
-  | json_pp
-
-# ...
-< HTTP/1.1 400 Bad Request
-# ...
-{
-   "message" : "Invalid ID provided"
-}
-```
-
-```bash
-curl -v \
-  -X PUT \
-  localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
-  | json_pp
-
-# ...
-< HTTP/1.1 404 Not Found
-# ...
-{
-   "message" : "Resource not found"
-}
-```
-
-```bash
-curl -v \
-  -X PUT \
-  -H "Content-Type: application/json" \
-  -d "{
-         \"status\": \"4 = done\"
-    }" \
-  localhost:5000/api/v1/issues/${ISSUE_3_ID} \
-  | json_pp
-
-# ...
-< HTTP/1.1 200 OK
-# ...
-{
-   "__v" : 0,
-   "_id" : "66c4f458e3788fc8e79d0c89",
-   "createdAt" : "2024-08-20T19:54:00.804Z",
-   "deadline" : "2024-08-19T09:00:00.000Z",
-   "description" : "containerize the backend",
-   "epic" : "backend",
-   "status" : "4 = done"
-}
-```
+   # ...
+   < HTTP/1.1 200 OK
+   # ...
+   {
+      "resources" : [
+         {
+            "__v" : 0,
+            "_id" : "66cf7edfc96812bec9925396",
+            "createdAt" : "2024-08-28T19:47:43.611Z",
+            "deadline" : "2024-08-28T19:45:24.081Z",
+            "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
+            "epic" : "frontend",
+            "status" : "1 = backlog"
+         }
+      ]
+   }
+   ```
 
 
 
-```bash
-curl -v \
-  -X DELETE \
-  localhost:5000/api/v1/issues/17 \
-  | json_pp
+- retrieve one
 
-# ...
-< HTTP/1.1 400 Bad Request
-# ...
-{
-   "message" : "Invalid ID provided"
-}
-```
+   ```bash
+   curl -v \
+   localhost:5000/api/v1/issues/17 \
+   | json_pp
 
-```bash
-curl -v \
-  -X DELETE \
-  localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
-  | json_pp
+   # ...
+   < HTTP/1.1 400 Bad Request
+   # ...
+   {
+      "message" : "Invalid ID provided"
+   }
+   ```
 
-# ...
-< HTTP/1.1 404 Not Found
-# ...
-{
-   "message" : "Resource not found"
-}
-```
+   ```bash
+   curl -v \
+   localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
+   | json_pp
 
-```bash
-curl -v \
-  -X DELETE \
-  localhost:5000/api/v1/issues/${ISSUE_3_ID}
+   # ...
+   < HTTP/1.1 404 Not Found
+   # ...
+   {
+      "message" : "Resource not found"
+   }
+   ```
 
-# ...
-< HTTP/1.1 204 No Content
-# ...
-# The body of the HTTP response is empty.
-```
+   ```bash
+   curl -v \
+   localhost:5000/api/v1/issues/${ISSUE_3_ID} \
+   | json_pp
+
+   # ...
+   < HTTP/1.1 200 OK
+   # ...
+   {
+      "__v" : 0,
+      "_id" : "66c2dbf2d0d5b26a9bdfbc9f",
+      "createdAt" : "2024-08-19T05:45:22.243Z",
+      "deadline" : "2024-08-19T09:00:00.000Z",
+      "description" : "containerize the backend",
+      "epic" : "backend",
+      "status" : "1 = backlog"
+   }
+   ```
+
+
+
+- update one
+
+   ```bash
+   curl -v \
+   -X PUT \
+   localhost:5000/api/v1/issues/17 \
+   | json_pp
+
+   # ...
+   < HTTP/1.1 400 Bad Request
+   # ...
+   {
+      "message" : "Invalid ID provided"
+   }
+   ```
+
+   ```bash
+   curl -v \
+   -X PUT \
+   localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
+   | json_pp
+
+   # ...
+   < HTTP/1.1 404 Not Found
+   # ...
+   {
+      "message" : "Resource not found"
+   }
+   ```
+
+   ```bash
+   curl -v \
+   -X PUT \
+   -H "Content-Type: application/json" \
+   -d "{
+            \"status\": \"4 = done\"
+      }" \
+   localhost:5000/api/v1/issues/${ISSUE_3_ID} \
+   | json_pp
+
+   # ...
+   < HTTP/1.1 200 OK
+   # ...
+   {
+      "__v" : 0,
+      "_id" : "66c4f458e3788fc8e79d0c89",
+      "createdAt" : "2024-08-20T19:54:00.804Z",
+      "deadline" : "2024-08-19T09:00:00.000Z",
+      "description" : "containerize the backend",
+      "epic" : "backend",
+      "status" : "4 = done"
+   }
+   ```
+
+
+
+- delete one
+
+   ```bash
+   curl -v \
+   -X DELETE \
+   localhost:5000/api/v1/issues/17 \
+   | json_pp
+
+   # ...
+   < HTTP/1.1 400 Bad Request
+   # ...
+   {
+      "message" : "Invalid ID provided"
+   }
+   ```
+
+   ```bash
+   curl -v \
+   -X DELETE \
+   localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
+   | json_pp
+
+   # ...
+   < HTTP/1.1 404 Not Found
+   # ...
+   {
+      "message" : "Resource not found"
+   }
+   ```
+
+   ```bash
+   curl -v \
+   -X DELETE \
+   localhost:5000/api/v1/issues/${ISSUE_3_ID}
+
+   # ...
+   < HTTP/1.1 204 No Content
+   # ...
+   # The body of the HTTP response is empty.
+   ```

@@ -25,50 +25,6 @@ afterAll(async () => {
   await mongoMemoryServer.stop();
 });
 
-// TODO: (2024/08/25, 23:12)
-//       re-arrange the groups of automated tests
-//       to match the order in `README.md` and in `src/app.js`
-
-describe('GET /api/v1/issues/:id', () => {
-  test('if an invalid ID is provided, should return 400', async () => {
-    // Act.
-    const response = await request(app).get('/api/v1/issues/17');
-
-    // Assert.
-    expect(response.status).toEqual(400);
-    expect(response.body).toEqual({
-      message: 'Invalid ID provided',
-    });
-  });
-
-  test('if ID exists, should return 200 and corresponding issue', async () => {
-    // Arrange.
-    const deadline = new Date('2024-08-19T06:17:17.170Z');
-    const issue = await Issue.create({
-      status: '1 = backlog',
-      deadline,
-      epic: 'ease of development',
-      description: 'introduce code coverage reports in HTML format',
-    });
-
-    // Act.
-    const response = await request(app).get(`/api/v1/issues/${issue._id}`);
-
-    // Assert.
-    expect(response.status).toEqual(200);
-    expect(response.body).toEqual({
-      __v: expect.anything(),
-      _id: issue.id,
-      createdAt: issue.createdAt.toISOString(),
-      status: '1 = backlog',
-      deadline: deadline.toISOString(),
-      // finishedAt: null,
-      epic: 'ease of development',
-      description: 'introduce code coverage reports in HTML format',
-    });
-  });
-});
-
 describe('POST /api/v1/issues', () => {
   test('if "status" is missing, should return 400', async () => {
     // Act.
@@ -118,6 +74,103 @@ describe('POST /api/v1/issues', () => {
       deadline: '2024-08-19T09:00:00.000Z',
       epic: 'backend',
       description: 'containerize the backend',
+    });
+  });
+});
+
+describe('GET /api/v1/issues', () => {
+  test('if there are no Issue resources in the MongoDB server, should return 200 and an empty list', async () => {
+    // Act.
+    const response = await request(app).get('/api/v1/issues');
+
+    // Assert.
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual({
+      resources: [],
+    });
+  });
+
+  test('if there are Issue resources, should return 200 and representations of the resources', async () => {
+    // Arrange.
+    const issue1 = await Issue.create({
+      status: '3 = in progress',
+      deadline: new Date('2024-08-20T21:07:45.759Z'),
+      description: 'write tests for the other request-handling functions',
+    });
+
+    const issue2 = await Issue.create({
+      status: '1 = backlog',
+      deadline: new Date('2024-08-20T21:08:31.345Z'),
+      description:
+        'switch from `const express = require(express)` to `import express from "express";"',
+    });
+
+    // Act.
+    const response = await request(app).get('/api/v1/issues');
+
+    // Assert.
+    expect(response.status).toEqual(200);
+
+    expect(response.body).toEqual({
+      resources: [
+        {
+          __v: expect.anything(),
+          _id: issue1._id.toString(),
+          createdAt: expect.anything(),
+          status: '3 = in progress',
+          deadline: '2024-08-20T21:07:45.759Z',
+          description: 'write tests for the other request-handling functions',
+        },
+        {
+          __v: expect.anything(),
+          _id: issue2._id.toString(),
+          createdAt: expect.anything(),
+          status: '1 = backlog',
+          deadline: '2024-08-20T21:08:31.345Z',
+          description:
+            'switch from `const express = require(express)` to `import express from "express";"',
+        },
+      ],
+    });
+  });
+});
+
+describe('GET /api/v1/issues/:id', () => {
+  test('if an invalid ID is provided, should return 400', async () => {
+    // Act.
+    const response = await request(app).get('/api/v1/issues/17');
+
+    // Assert.
+    expect(response.status).toEqual(400);
+    expect(response.body).toEqual({
+      message: 'Invalid ID provided',
+    });
+  });
+
+  test('if ID exists, should return 200 and corresponding issue', async () => {
+    // Arrange.
+    const deadline = new Date('2024-08-19T06:17:17.170Z');
+    const issue = await Issue.create({
+      status: '1 = backlog',
+      deadline,
+      epic: 'ease of development',
+      description: 'introduce code coverage reports in HTML format',
+    });
+
+    // Act.
+    const response = await request(app).get(`/api/v1/issues/${issue._id}`);
+
+    // Assert.
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual({
+      __v: expect.anything(),
+      _id: issue.id,
+      createdAt: issue.createdAt.toISOString(),
+      status: '1 = backlog',
+      deadline: deadline.toISOString(),
+      // finishedAt: null,
+      epic: 'ease of development',
+      description: 'introduce code coverage reports in HTML format',
     });
   });
 });
@@ -193,63 +246,6 @@ describe('PUT /api/v1/issues/:id', () => {
       status: '2 = selected',
       deadline: '2024-08-20T20:38:18.162Z',
       description: 'generate code coverage reports in HTML format',
-    });
-  });
-});
-
-describe('GET /api/v1/issues', () => {
-  test('if there are no Issue resources in the MongoDB server, should return 200 and an empty list', async () => {
-    // Act.
-    const response = await request(app).get('/api/v1/issues');
-
-    // Assert.
-    expect(response.status).toEqual(200);
-    expect(response.body).toEqual({
-      resources: [],
-    });
-  });
-
-  test('if there are Issue resources, should return 200 and representations of the resources', async () => {
-    // Arrange.
-    const issue1 = await Issue.create({
-      status: '3 = in progress',
-      deadline: new Date('2024-08-20T21:07:45.759Z'),
-      description: 'write tests for the other request-handling functions',
-    });
-
-    const issue2 = await Issue.create({
-      status: '1 = backlog',
-      deadline: new Date('2024-08-20T21:08:31.345Z'),
-      description:
-        'switch from `const express = require(express)` to `import express from "express";"',
-    });
-
-    // Act.
-    const response = await request(app).get('/api/v1/issues');
-
-    // Assert.
-    expect(response.status).toEqual(200);
-
-    expect(response.body).toEqual({
-      resources: [
-        {
-          __v: expect.anything(),
-          _id: issue1._id.toString(),
-          createdAt: expect.anything(),
-          status: '3 = in progress',
-          deadline: '2024-08-20T21:07:45.759Z',
-          description: 'write tests for the other request-handling functions',
-        },
-        {
-          __v: expect.anything(),
-          _id: issue2._id.toString(),
-          createdAt: expect.anything(),
-          status: '1 = backlog',
-          deadline: '2024-08-20T21:08:31.345Z',
-          description:
-            'switch from `const express = require(express)` to `import express from "express";"',
-        },
-      ],
     });
   });
 });
