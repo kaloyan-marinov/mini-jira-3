@@ -32,8 +32,24 @@ app.post('/api/v1/issues', async (req, res) => {
 });
 
 app.get('/api/v1/issues', async (req, res) => {
+  let query;
+
+  const queryRawStr = JSON.stringify(req.query);
+  console.log('queryRawStr', queryRawStr);
+
+  // Create the following Mongoose operators: `$in`, `$lt`, `$lte`, `$gt`, `$gte` .
+  const queryStr = queryRawStr.replace(
+    /\b(in|lt|lte|gt|gte)\b/g,
+    (match) => `$${match}`
+  );
+  console.log('queryStr', queryStr);
+  const queryJSON = JSON.parse(queryStr);
+  console.log('queryJSON', queryJSON);
+
+  query = Issue.find(queryJSON);
+
   try {
-    const issues = await Issue.find(req.query);
+    const issues = await query;
 
     res.status(200).json({
       resources: issues,

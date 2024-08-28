@@ -193,13 +193,13 @@ in it, issue the following requests to the HTTP server:
 
    ```bash
    curl -v \
-   -X POST \
-   -H "Content-Type: application/json" \
-   -d "{
-            \"status\": \"1 = backlog\"
-      }" \
-   localhost:5000/api/v1/issues \
-   | json_pp
+      -X POST \
+      -H "Content-Type: application/json" \
+      -d "{
+               \"status\": \"1 = backlog\"
+         }" \
+      localhost:5000/api/v1/issues \
+      | json_pp
 
    # ...
    < HTTP/1.1 400 Bad Request
@@ -211,16 +211,16 @@ in it, issue the following requests to the HTTP server:
 
    ```bash
    curl -v \
-   -X POST \
-   -H "Content-Type: application/json" \
-   -d "{
-            \"status\": \"1 = backlog\",
-            \"deadline\": \"2024-08-19T09:00:00.000Z\",
-            \"epic\": \"backend\",
-            \"description\": \"containerize the backend\"
-      }" \
-   localhost:5000/api/v1/issues \
-   | json_pp
+      -X POST \
+      -H "Content-Type: application/json" \
+      -d "{
+               \"status\": \"1 = backlog\",
+               \"deadline\": \"2024-08-19T09:00:00.000Z\",
+               \"epic\": \"backend\",
+               \"description\": \"containerize the backend\"
+         }" \
+      localhost:5000/api/v1/issues \
+      | json_pp
 
    # ...
    < HTTP/1.1 201 Created
@@ -238,16 +238,16 @@ in it, issue the following requests to the HTTP server:
 
    ```bash
    curl -v \
-   -X POST \
-   -H "Content-Type: application/json" \
-   -d "{
-            \"status\": \"1 = backlog\",
-            \"deadline\": \"2024-08-28T19:45:08.246Z\",
-            \"epic\": \"backend\",
-            \"description\": \"convert the \`epic\` field to a \`parentId\` field\"
-      }" \
-   localhost:5000/api/v1/issues \
-   | json_pp
+      -X POST \
+      -H "Content-Type: application/json" \
+      -d "{
+               \"status\": \"1 = backlog\",
+               \"deadline\": \"2024-08-28T19:45:08.246Z\",
+               \"epic\": \"backend\",
+               \"description\": \"convert the \`epic\` field to a \`parentId\` field\"
+         }" \
+      localhost:5000/api/v1/issues \
+      | json_pp
 
    # ...
    < HTTP/1.1 201 Created
@@ -256,16 +256,16 @@ in it, issue the following requests to the HTTP server:
 
    ```bash
    curl -v \
-   -X POST \
-   -H "Content-Type: application/json" \
-   -d "{
-            \"status\": \"1 = backlog\",
-            \"deadline\": \"2024-08-28T19:45:24.081Z\",
-            \"epic\": \"frontend\",
-            \"description\": \"build a client (hopefully, a CLI tool combined with \`jq\`)\"
-      }" \
-   localhost:5000/api/v1/issues \
-   | json_pp
+      -X POST \
+      -H "Content-Type: application/json" \
+      -d "{
+               \"status\": \"1 = backlog\",
+               \"deadline\": \"2024-08-28T19:45:24.081Z\",
+               \"epic\": \"frontend\",
+               \"description\": \"build a client (hopefully, a CLI tool combined with \`jq\`)\"
+         }" \
+      localhost:5000/api/v1/issues \
+      | json_pp
 
    # ...
    < HTTP/1.1 201 Created
@@ -284,8 +284,8 @@ in it, issue the following requests to the HTTP server:
 
    ```bash
    curl -v \
-   localhost:5000/api/v1/issues \
-   | json_pp
+      localhost:5000/api/v1/issues \
+      | json_pp
 
    # ...
    < HTTP/1.1 200 OK
@@ -325,8 +325,8 @@ in it, issue the following requests to the HTTP server:
 
    ```bash
    curl -v \
-   localhost:5000/api/v1/issues?epic=frontend \
-   | json_pp
+      localhost:5000/api/v1/issues?epic=frontend \
+      | json_pp
 
    # ...
    < HTTP/1.1 200 OK
@@ -346,14 +346,34 @@ in it, issue the following requests to the HTTP server:
    }
    ```
 
+   ```bash
+   curl -v \
+      'localhost:5000/api/v1/issues?deadline\[lte\]=2024-08-23' \
+      | json_pp
+   
+   {
+      "resources" : [
+         {
+            "__v" : 0,
+            "_id" : "66cf7dbbc96812bec9925392",
+            "createdAt" : "2024-08-28T19:42:51.501Z",
+            "deadline" : "2024-08-19T09:00:00.000Z",
+            "description" : "containerize the backend",
+            "epic" : "backend",
+            "status" : "3 = in progress"
+         }
+      ]
+   }
+   ```
+
 
 
 - retrieve one
 
    ```bash
    curl -v \
-   localhost:5000/api/v1/issues/17 \
-   | json_pp
+      localhost:5000/api/v1/issues/17 \
+      | json_pp
 
    # ...
    < HTTP/1.1 400 Bad Request
@@ -365,8 +385,8 @@ in it, issue the following requests to the HTTP server:
 
    ```bash
    curl -v \
-   localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
-   | json_pp
+      localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
+      | json_pp
 
    # ...
    < HTTP/1.1 404 Not Found
@@ -378,8 +398,8 @@ in it, issue the following requests to the HTTP server:
 
    ```bash
    curl -v \
-   localhost:5000/api/v1/issues/${ISSUE_3_ID} \
-   | json_pp
+      localhost:5000/api/v1/issues/${ISSUE_3_ID} \
+      | json_pp
 
    # ...
    < HTTP/1.1 200 OK
@@ -401,9 +421,9 @@ in it, issue the following requests to the HTTP server:
 
    ```bash
    curl -v \
-   -X PUT \
-   localhost:5000/api/v1/issues/17 \
-   | json_pp
+      -X PUT \
+      localhost:5000/api/v1/issues/17 \
+      | json_pp
 
    # ...
    < HTTP/1.1 400 Bad Request
@@ -415,9 +435,9 @@ in it, issue the following requests to the HTTP server:
 
    ```bash
    curl -v \
-   -X PUT \
-   localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
-   | json_pp
+      -X PUT \
+      localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
+      | json_pp
 
    # ...
    < HTTP/1.1 404 Not Found
@@ -429,13 +449,13 @@ in it, issue the following requests to the HTTP server:
 
    ```bash
    curl -v \
-   -X PUT \
-   -H "Content-Type: application/json" \
-   -d "{
-            \"status\": \"4 = done\"
-      }" \
-   localhost:5000/api/v1/issues/${ISSUE_3_ID} \
-   | json_pp
+      -X PUT \
+      -H "Content-Type: application/json" \
+      -d "{
+               \"status\": \"4 = done\"
+         }" \
+      localhost:5000/api/v1/issues/${ISSUE_3_ID} \
+      | json_pp
 
    # ...
    < HTTP/1.1 200 OK
@@ -457,9 +477,9 @@ in it, issue the following requests to the HTTP server:
 
    ```bash
    curl -v \
-   -X DELETE \
-   localhost:5000/api/v1/issues/17 \
-   | json_pp
+      -X DELETE \
+      localhost:5000/api/v1/issues/17 \
+      | json_pp
 
    # ...
    < HTTP/1.1 400 Bad Request
@@ -471,9 +491,9 @@ in it, issue the following requests to the HTTP server:
 
    ```bash
    curl -v \
-   -X DELETE \
-   localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
-   | json_pp
+      -X DELETE \
+      localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
+      | json_pp
 
    # ...
    < HTTP/1.1 404 Not Found
@@ -485,8 +505,8 @@ in it, issue the following requests to the HTTP server:
 
    ```bash
    curl -v \
-   -X DELETE \
-   localhost:5000/api/v1/issues/${ISSUE_3_ID}
+      -X DELETE \
+      localhost:5000/api/v1/issues/${ISSUE_3_ID}
 
    # ...
    < HTTP/1.1 204 No Content
