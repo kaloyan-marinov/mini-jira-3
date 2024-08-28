@@ -34,7 +34,19 @@ app.post('/api/v1/issues', async (req, res) => {
 app.get('/api/v1/issues', async (req, res) => {
   let query;
 
-  const queryRawStr = JSON.stringify(req.query);
+  // Exclude all query parameters,
+  // which do not get passed directly into the query
+  // but require to be processed separately.
+  const reqQuery = {
+    ...req.query,
+  };
+
+  const fieldsToExcludeFromReqQuery = ['select'];
+  for (f of fieldsToExcludeFromReqQuery) {
+    delete reqQuery[f];
+  }
+  console.log('reqQuery', reqQuery);
+  const queryRawStr = JSON.stringify(reqQuery);
   console.log('queryRawStr', queryRawStr);
 
   // Create the following Mongoose operators: `$in`, `$lt`, `$lte`, `$gt`, `$gte` .
@@ -46,7 +58,15 @@ app.get('/api/v1/issues', async (req, res) => {
   const queryJSON = JSON.parse(queryStr);
   console.log('queryJSON', queryJSON);
 
+  // Initialize the query.
   query = Issue.find(queryJSON);
+
+  // Make the query return only the fields
+  // specified by the value of the `select` query parameter.
+  if (req.query.select) {
+    const fields = req.query.select.split(',');
+    query = query.select(fields);
+  }
 
   try {
     const issues = await query;

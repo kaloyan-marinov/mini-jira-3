@@ -351,6 +351,9 @@ in it, issue the following requests to the HTTP server:
       'localhost:5000/api/v1/issues?deadline\[lte\]=2024-08-23' \
       | json_pp
    
+   # ...
+   < HTTP/1.1 200 OK
+   # ...
    {
       "resources" : [
          {
@@ -361,6 +364,35 @@ in it, issue the following requests to the HTTP server:
             "description" : "containerize the backend",
             "epic" : "backend",
             "status" : "3 = in progress"
+         }
+      ]
+   }
+   ```
+
+   ```bash
+   curl -v \
+      'localhost:5000/api/v1/issues?select=description,status' \
+      | json_pp
+   
+   # ...
+   < HTTP/1.1 200 OK
+   # ...
+   {
+      "resources" : [
+         {
+            "_id" : "66cf7dbbc96812bec9925392",
+            "description" : "containerize the backend",
+            "status" : "3 = in progress"
+         },
+         {
+            "_id" : "66cf7eb7c96812bec9925394",
+            "description" : "convert the `epic` field to a `parentId` field",
+            "status" : "1 = backlog"
+         },
+         {
+            "_id" : "66cf7edfc96812bec9925396",
+            "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
+            "status" : "2 = selected"
          }
       ]
    }
