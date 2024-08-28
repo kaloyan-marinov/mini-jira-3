@@ -33,7 +33,7 @@ app.post('/api/v1/issues', async (req, res) => {
 
 app.get('/api/v1/issues', async (req, res) => {
   try {
-    const issues = await Issue.find();
+    const issues = await Issue.find(req.query);
 
     res.status(200).json({
       resources: issues,
