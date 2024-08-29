@@ -86,6 +86,12 @@ describe('GET /api/v1/issues', () => {
     // Assert.
     expect(response.status).toEqual(200);
     expect(response.body).toEqual({
+      meta: {
+        total: 0,
+        prev: null,
+        curr: '/api/v1/issues?perPage=100&page=1',
+        next: null,
+      },
       resources: [],
     });
   });
@@ -112,6 +118,12 @@ describe('GET /api/v1/issues', () => {
     expect(response.status).toEqual(200);
 
     expect(response.body).toEqual({
+      meta: {
+        total: 2,
+        prev: null,
+        curr: '/api/v1/issues?perPage=100&page=1',
+        next: null,
+      },
       resources: [
         {
           __v: expect.anything(),

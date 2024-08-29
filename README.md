@@ -291,6 +291,12 @@ in it, issue the following requests to the HTTP server:
    < HTTP/1.1 200 OK
    # ...
    {
+      "meta" : {
+         "curr" : "/api/v1/issues?perPage=100&page=1",
+         "next" : null,
+         "prev" : null,
+         "total" : 3
+      },
       "resources" : [
          {
             "__v" : 0,
@@ -299,7 +305,7 @@ in it, issue the following requests to the HTTP server:
             "deadline" : "2024-08-19T09:00:00.000Z",
             "description" : "containerize the backend",
             "epic" : "backend",
-            "status" : "1 = backlog"
+            "status" : "3 = in progress"
          },
          {
             "__v" : 0,
@@ -317,7 +323,7 @@ in it, issue the following requests to the HTTP server:
             "deadline" : "2024-08-28T19:45:24.081Z",
             "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
             "epic" : "frontend",
-            "status" : "1 = backlog"
+            "status" : "2 = selected"
          }
       ]
    }
@@ -332,6 +338,12 @@ in it, issue the following requests to the HTTP server:
    < HTTP/1.1 200 OK
    # ...
    {
+      "meta" : {
+         "curr" : "/api/v1/issues?epic=frontend&perPage=100&page=1",
+         "next" : null,
+         "prev" : null,
+         "total" : 3
+      },
       "resources" : [
          {
             "__v" : 0,
@@ -340,12 +352,13 @@ in it, issue the following requests to the HTTP server:
             "deadline" : "2024-08-28T19:45:24.081Z",
             "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
             "epic" : "frontend",
-            "status" : "1 = backlog"
+            "status" : "2 = selected"
          }
       ]
    }
    ```
 
+   <u>TODO: (2024/08/29; 11:04)</u> consider whether this application needs to support Mongoose operators via URL query strings
    ```bash
    curl -v \
       'localhost:5000/api/v1/issues?deadline\[lte\]=2024-08-23' \
@@ -378,6 +391,12 @@ in it, issue the following requests to the HTTP server:
    < HTTP/1.1 200 OK
    # ...
    {
+      "meta" : {
+         "curr" : "/api/v1/issues?select=description%2Cstatus&perPage=100&page=1",
+         "next" : null,
+         "prev" : null,
+         "total" : 3
+      },
       "resources" : [
          {
             "_id" : "66cf7dbbc96812bec9925392",
@@ -407,6 +426,12 @@ in it, issue the following requests to the HTTP server:
    < HTTP/1.1 200 OK
    # ...
    {
+      "meta" : {
+         "curr" : "/api/v1/issues?sort=-status&perPage=100&page=1",
+         "next" : null,
+         "prev" : null,
+         "total" : 3
+      },
       "resources" : [
          {
             "__v" : 0,
@@ -446,6 +471,12 @@ in it, issue the following requests to the HTTP server:
    < HTTP/1.1 200 OK
    # ...
    {
+      "meta" : {
+         "curr" : "/api/v1/issues?sort=status&perPage=100&page=1",
+         "next" : null,
+         "prev" : null,
+         "total" : 3
+      },
       "resources" : [
          {
             "__v" : 0,
@@ -487,6 +518,12 @@ in it, issue the following requests to the HTTP server:
    < HTTP/1.1 200 OK
    # ...
    {
+      "meta" : {
+         "curr" : "/api/v1/issues?perPage=2&page=2",
+         "next" : null,
+         "prev" : "/api/v1/issues?perPage=2&page=1",
+         "total" : 3
+      },
       "resources" : [
          {
             "__v" : 0,

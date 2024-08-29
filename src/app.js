@@ -41,8 +41,13 @@ app.get('/api/v1/issues', async (req, res) => {
     ...req.query,
   };
 
+  const excludedParam2Value = {};
   const fieldsToExcludeFromReqQuery = ['select', 'sort', 'perPage', 'page'];
   for (f of fieldsToExcludeFromReqQuery) {
+    if (reqQuery[f]) {
+      excludedParam2Value[f] = reqQuery[f];
+    }
+
     delete reqQuery[f];
   }
   console.log('reqQuery', reqQuery);
@@ -79,17 +84,51 @@ app.get('/api/v1/issues', async (req, res) => {
   let perPage = parseInt(req.query.perPage) || 100;
   // console.log('perPage', perPage);
   perPage = Math.min(perPage, 100);
-  const page = parseInt(req.query.page) || 1;
+  let page = parseInt(req.query.page) || 1;
+  page = Math.max(page, 1);
   // console.log('perPage', perPage);
   // console.log('page', page);
-  const countDocumentsToSkip = (page - 1) * perPage;
-  // console.log('countDocumentsToSkip', countDocumentsToSkip);
-  query = query.skip(countDocumentsToSkip).limit(perPage);
+  const startIndex = (page - 1) * perPage;
+  const finalIndex = page * perPage;
+  // console.log('startIndex', startIndex);
+  query = query.skip(startIndex).limit(perPage);
 
   try {
     const issues = await query;
 
+    // Put together an «information bundle»,
+    // which indicates how to paginate beyond the returned `issues`.
+    // (That information bundle,
+    // which will be sent in the body of the HTTP response.)
+    const meta = {};
+
+    const total = await Issue.countDocuments();
+    meta.total = total;
+
+    const queryParams = new URLSearchParams({
+      ...reqQuery,
+      ...excludedParam2Value,
+    });
+    queryParams.set('perPage', perPage);
+    queryParams.set('page', page);
+    meta.curr = `/api/v1/issues` + `?` + queryParams.toString();
+
+    if (finalIndex < total) {
+      queryParams.set('page', page + 1);
+      meta.next = `/api/v1/issues` + `?` + queryParams.toString();
+    } else {
+      meta.next = null;
+    }
+
+    if (startIndex > 0 && issues.length > 0) {
+      queryParams.set('page', page - 1);
+      meta.prev = `/api/v1/issues` + `?` + queryParams.toString();
+    } else {
+      meta.prev = null;
+    }
+
     res.status(200).json({
+      meta,
       resources: issues,
     });
   } catch (err) {
