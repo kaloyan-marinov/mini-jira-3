@@ -478,6 +478,29 @@ in it, issue the following requests to the HTTP server:
    }
    ```
 
+   ```bash
+   curl -v \
+      'localhost:5000/api/v1/issues?perPage=2&page=2' \
+      | json_pp
+
+   # ...
+   < HTTP/1.1 200 OK
+   # ...
+   {
+      "resources" : [
+         {
+            "__v" : 0,
+            "_id" : "66cf7edfc96812bec9925396",
+            "createdAt" : "2024-08-28T19:47:43.611Z",
+            "deadline" : "2024-08-28T19:45:24.081Z",
+            "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
+            "epic" : "frontend",
+            "status" : "2 = selected"
+         }
+      ]
+   }
+   ```
+
 
 
 - retrieve one

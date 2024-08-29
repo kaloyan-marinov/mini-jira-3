@@ -41,7 +41,7 @@ app.get('/api/v1/issues', async (req, res) => {
     ...req.query,
   };
 
-  const fieldsToExcludeFromReqQuery = ['select', 'sort'];
+  const fieldsToExcludeFromReqQuery = ['select', 'sort', 'perPage', 'page'];
   for (f of fieldsToExcludeFromReqQuery) {
     delete reqQuery[f];
   }
@@ -73,6 +73,18 @@ app.get('/api/v1/issues', async (req, res) => {
     const sortBy = req.query.sort.split(',').join(' ');
     query = query.sort(sortBy);
   }
+
+  // Apply pagination.
+  // console.log('req.query.perPage', req.query.perPage);
+  let perPage = parseInt(req.query.perPage) || 100;
+  // console.log('perPage', perPage);
+  perPage = Math.min(perPage, 100);
+  const page = parseInt(req.query.page) || 1;
+  // console.log('perPage', perPage);
+  // console.log('page', page);
+  const countDocumentsToSkip = (page - 1) * perPage;
+  // console.log('countDocumentsToSkip', countDocumentsToSkip);
+  query = query.skip(countDocumentsToSkip).limit(perPage);
 
   try {
     const issues = await query;
