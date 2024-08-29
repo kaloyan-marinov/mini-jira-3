@@ -41,7 +41,7 @@ app.get('/api/v1/issues', async (req, res) => {
     ...req.query,
   };
 
-  const fieldsToExcludeFromReqQuery = ['select'];
+  const fieldsToExcludeFromReqQuery = ['select', 'sort'];
   for (f of fieldsToExcludeFromReqQuery) {
     delete reqQuery[f];
   }
@@ -66,6 +66,12 @@ app.get('/api/v1/issues', async (req, res) => {
   if (req.query.select) {
     const fields = req.query.select.split(',');
     query = query.select(fields);
+  }
+
+  // Apply sorting.
+  if (req.query.sort) {
+    const sortBy = req.query.sort.split(',').join(' ');
+    query = query.sort(sortBy);
   }
 
   try {

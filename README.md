@@ -398,6 +398,86 @@ in it, issue the following requests to the HTTP server:
    }
    ```
 
+   ```bash
+   curl -v \
+      'localhost:5000/api/v1/issues?sort=-status' \
+      | json_pp
+
+   # ...
+   < HTTP/1.1 200 OK
+   # ...
+   {
+      "resources" : [
+         {
+            "__v" : 0,
+            "_id" : "66cf7dbbc96812bec9925392",
+            "createdAt" : "2024-08-28T19:42:51.501Z",
+            "deadline" : "2024-08-19T09:00:00.000Z",
+            "description" : "containerize the backend",
+            "epic" : "backend",
+            "status" : "3 = in progress"
+         },
+         {
+            "__v" : 0,
+            "_id" : "66cf7edfc96812bec9925396",
+            "createdAt" : "2024-08-28T19:47:43.611Z",
+            "deadline" : "2024-08-28T19:45:24.081Z",
+            "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
+            "epic" : "frontend",
+            "status" : "2 = selected"
+         },
+         {
+            "__v" : 0,
+            "_id" : "66cf7eb7c96812bec9925394",
+            "createdAt" : "2024-08-28T19:47:03.691Z",
+            "deadline" : "2024-08-28T19:45:08.246Z",
+            "description" : "convert the `epic` field to a `parentId` field",
+            "epic" : "backend",
+            "status" : "1 = backlog"
+         }
+      ]
+   }
+
+   curl -v \
+      'localhost:5000/api/v1/issues?sort=status' \
+      | json_pp
+   
+   # ...
+   < HTTP/1.1 200 OK
+   # ...
+   {
+      "resources" : [
+         {
+            "__v" : 0,
+            "_id" : "66cf7eb7c96812bec9925394",
+            "createdAt" : "2024-08-28T19:47:03.691Z",
+            "deadline" : "2024-08-28T19:45:08.246Z",
+            "description" : "convert the `epic` field to a `parentId` field",
+            "epic" : "backend",
+            "status" : "1 = backlog"
+         },
+         {
+            "__v" : 0,
+            "_id" : "66cf7edfc96812bec9925396",
+            "createdAt" : "2024-08-28T19:47:43.611Z",
+            "deadline" : "2024-08-28T19:45:24.081Z",
+            "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
+            "epic" : "frontend",
+            "status" : "2 = selected"
+         },
+         {
+            "__v" : 0,
+            "_id" : "66cf7dbbc96812bec9925392",
+            "createdAt" : "2024-08-28T19:42:51.501Z",
+            "deadline" : "2024-08-19T09:00:00.000Z",
+            "description" : "containerize the backend",
+            "epic" : "backend",
+            "status" : "3 = in progress"
+         }
+      ]
+   }
+   ```
+
 
 
 - retrieve one
