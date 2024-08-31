@@ -4,6 +4,7 @@ const request = require('supertest');
 
 const app = require('../src/app');
 const Issue = require('../src/models');
+const decodeQueryStringWithinUrl = require('../src/utilities');
 
 console.log('process.env.HOME =', process.env.HOME);
 console.log('process.env.LD_LIBRARY_PATH =', process.env.LD_LIBRARY_PATH);
@@ -145,6 +146,56 @@ describe('GET /api/v1/issues', () => {
       ],
     });
   });
+
+  test(
+    'if there are Issue resources and "select" is present as a URL query parameter,' +
+      ' should return 200 and representations of the resources',
+    async () => {
+      // Arrange.
+      const issue1 = await Issue.create({
+        status: '2 = selected',
+        deadline: new Date('2024-08-31T08:25:06.701Z'),
+        description: 'fill out the tax return',
+      });
+
+      const issue2 = await Issue.create({
+        status: '1 = backlog',
+        deadline: new Date('2024-08-31T08:26:06.701Z'),
+        description: 'submit the tax return',
+      });
+
+      // Act.
+      const response = await request(app).get(
+        '/api/v1/issues?select=status,description'
+      );
+
+      // Assert.
+      expect(response.status).toEqual(200);
+
+      expect(response.body).toEqual({
+        meta: {
+          total: 2,
+          prev: null,
+          curr: decodeQueryStringWithinUrl(
+            '/api/v1/issues?select=status,description&perPage=100&page=1'
+          ),
+          next: null,
+        },
+        resources: [
+          {
+            _id: issue1._id.toString(),
+            status: '2 = selected',
+            description: 'fill out the tax return',
+          },
+          {
+            _id: issue2._id.toString(),
+            status: '1 = backlog',
+            description: 'submit the tax return',
+          },
+        ],
+      });
+    }
+  );
 });
 
 describe('GET /api/v1/issues/:id', () => {

@@ -94,7 +94,13 @@ run automated tests
   issue the following command:
 
    ```bash
-   npm run test
+   npm run test -- \
+      --coverage \
+      --collectCoverageFrom="./src/**"
+
+   # The preceding command generates a file located at
+   # `coverage/lcov-report/index.html`
+   # which can be opened in a web browser.
    ```
 
 - to run a specific automated test <u>in debug mode</u>,
@@ -116,7 +122,13 @@ run automated tests
 
    ```bash
    npm run test -- \
+      --coverage \
+      --collectCoverageFrom="./src/**" \
       --watchAll
+
+   # The preceding command generates a file located at
+   # `coverage/lcov-report/index.html`
+   # which can be opened in a web browser.
    ```
 
 [step 4]
