@@ -266,6 +266,8 @@ curl -v \
 # ...
 ```
 
+<u>TODO: (2024/08/31, 19:20) swap the order of the last 2 HTTP requests ("and their statuses")</u>
+
 ```bash
 curl -v \
    -X POST \
@@ -341,7 +343,7 @@ curl -v \
 }
 ```
 
-<u>TODO: (2024/08/31, 19:04) the `total` returned in the response to the next request is incorrect - write a test, which catches this bug, and fix the request-handling function</u>
+<u>TODO: (2024/08/31, 19:04) the `total` returned in the response to the next request is incorrect - that is a bug; the commit introducing this line also introduces a test, which catches the bug</u>
 
 ```bash
 curl -v \

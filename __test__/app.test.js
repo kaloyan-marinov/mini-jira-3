@@ -148,6 +148,71 @@ describe('GET /api/v1/issues', () => {
   });
 
   test(
+    'if there are Issue resource' +
+      ' and the URL query parameters represent a request filtering for filtering,' +
+      ' should return 200, a correct total, and representation of the resources',
+    async () => {
+      // Arrange.
+      const issue1 = await Issue.create({
+        status: '1 = backlog',
+        deadline: new Date('2024-08-31T21:43:31.696Z'),
+        description: 'containerize the backend',
+        epic: 'backend',
+      });
+
+      const issue2 = await Issue.create({
+        status: '1 = backlog',
+        deadline: new Date('2024-08-31T22:43:31.696Z'),
+        description:
+          'build a client (hopefully, a CLI tool combined with "jq")',
+        epic: 'frontend',
+      });
+
+      const issue3 = await Issue.create({
+        status: '1 = backlog',
+        deadline: new Date('2024-08-31T23:43:31.696Z'),
+        description: 'convert the "epic" field to a "parentId" field',
+        epic: 'backend',
+      });
+
+      // Act.
+      const response = await request(app).get('/api/v1/issues?epic=backend');
+
+      // Assert.
+      expect(response.status).toEqual(200);
+
+      expect(response.body).toEqual({
+        meta: {
+          total: 2,
+          prev: null,
+          curr: '/api/v1/issues?epic=backend&perPage=100&page=1',
+          next: null,
+        },
+        resources: [
+          {
+            __v: expect.anything(),
+            _id: issue1._id.toString(),
+            createdAt: expect.anything(),
+            status: '1 = backlog',
+            deadline: '2024-08-31T21:43:31.696Z',
+            description: 'containerize the backend',
+            epic: 'backend',
+          },
+          {
+            __v: expect.anything(),
+            _id: issue3._id.toString(),
+            createdAt: expect.anything(),
+            status: '1 = backlog',
+            deadline: '2024-08-31T23:43:31.696Z',
+            description: 'convert the "epic" field to a "parentId" field',
+            epic: 'backend',
+          },
+        ],
+      });
+    }
+  );
+
+  test(
     'if there are Issue resources and "select" is present as a URL query parameter,' +
       ' should return 200 and representations of the resources',
     async () => {
