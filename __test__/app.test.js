@@ -274,6 +274,50 @@ describe('GET /api/v1/issues', () => {
       });
     }
   );
+
+  test(
+    'if there are multiple pages of Issue resources,' +
+      ' should return 200 and a correct «information bundle» about pagination',
+    async () => {
+      // Arrange.
+      const indices = Array.from({ length: 5 }, (value, idx) => idx);
+
+      for (const idx of indices) {
+        await Issue.create({
+          status: '1 = backlog',
+          deadline: new Date(`2024-09-0${idx + 1}T16:41:47.722Z`),
+          description: `carry out step ${idx + 1}`,
+        });
+      }
+
+      // Act.
+      const response = await request(app).get(
+        '/api/v1/issues?perPage=1&page=3'
+      );
+
+      // Assert.
+      expect(response.status).toEqual(200);
+
+      expect(response.body).toEqual({
+        meta: {
+          total: 5,
+          prev: '/api/v1/issues?perPage=1&page=2',
+          curr: '/api/v1/issues?perPage=1&page=3',
+          next: '/api/v1/issues?perPage=1&page=4',
+        },
+        resources: [
+          {
+            __v: expect.anything(),
+            _id: expect.anything(),
+            createdAt: expect.anything(),
+            status: '1 = backlog',
+            deadline: '2024-09-03T16:41:47.722Z',
+            description: 'carry out step 3',
+          },
+        ],
+      });
+    }
+  );
 });
 
 describe('GET /api/v1/issues/:id', () => {
