@@ -196,6 +196,84 @@ describe('GET /api/v1/issues', () => {
       });
     }
   );
+
+  test(
+    'if there are Issue resources and "sort" is present as a URL query parameter,' +
+      ' should return 200 and representations of the resources',
+    async () => {
+      // Arrange.
+      const issue1 = await Issue.create({
+        status: '2 = selected',
+        deadline: new Date('2024-08-31T09:58:50.783Z'),
+        description:
+          'supplement the «information bundle» about pagination' +
+          ' with URLs for "first" and "last"',
+      });
+
+      const issue2 = await Issue.create({
+        status: '3 = in progress',
+        deadline: new Date('2024-08-31T09:59:50.783Z'),
+        description:
+          'enable the handler for GET requests' +
+          ' to select only certain fields, to sort, and to paginate',
+      });
+
+      // Act. (Request a sorting in descending order.)
+      const response1 = await request(app).get('/api/v1/issues?sort=-status');
+
+      // Assert.
+      expect(response1.status).toEqual(200);
+
+      const expectedResources1 = [
+        {
+          __v: expect.anything(),
+          _id: issue2._id.toString(),
+          createdAt: expect.anything(),
+          status: '3 = in progress',
+          deadline: '2024-08-31T09:59:50.783Z',
+          description:
+            'enable the handler for GET requests' +
+            ' to select only certain fields, to sort, and to paginate',
+        },
+        {
+          __v: expect.anything(),
+          _id: issue1._id.toString(),
+          createdAt: expect.anything(),
+          status: '2 = selected',
+          deadline: '2024-08-31T09:58:50.783Z',
+          description:
+            'supplement the «information bundle» about pagination' +
+            ' with URLs for "first" and "last"',
+        },
+      ];
+      expect(response1.body).toEqual({
+        meta: {
+          total: 2,
+          prev: null,
+          curr: '/api/v1/issues?sort=-status&perPage=100&page=1',
+          next: null,
+        },
+        resources: expectedResources1,
+      });
+
+      // Act. (Request a sorting in ascending order.)
+      const response2 = await request(app).get('/api/v1/issues?sort=status');
+
+      // Assert.
+      expect(response2.status).toEqual(200);
+
+      const expectedResources2 = expectedResources1.reverse();
+      expect(response2.body).toEqual({
+        meta: {
+          total: 2,
+          prev: null,
+          curr: '/api/v1/issues?sort=status&perPage=100&page=1',
+          next: null,
+        },
+        resources: expectedResources2,
+      });
+    }
+  );
 });
 
 describe('GET /api/v1/issues/:id', () => {
