@@ -91,19 +91,19 @@ app.get('/api/v1/issues', async (req, res) => {
   const startIndex = (page - 1) * perPage;
   const finalIndex = page * perPage;
   // console.log('startIndex', startIndex);
-  query = query.skip(startIndex).limit(perPage);
 
   try {
-    const issues = await query;
-
     // Put together an «information bundle»,
     // which indicates how to paginate beyond the returned `issues`.
     // (That information bundle,
     // which will be sent in the body of the HTTP response.)
     const meta = {};
 
-    const total = await Issue.countDocuments();
+    const total = await query.clone().countDocuments();
     meta.total = total;
+
+    query = query.skip(startIndex).limit(perPage);
+    const issues = await query;
 
     const queryParams = new URLSearchParams({
       ...reqQuery,
