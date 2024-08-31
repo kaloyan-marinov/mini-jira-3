@@ -226,35 +226,8 @@ curl -v \
    -X POST \
    -H "Content-Type: application/json" \
    -d "{
-      \"status\": \"1 = backlog\",
-      \"deadline\": \"2024-08-19T09:00:00.000Z\",
-      \"epic\": \"backend\",
-      \"description\": \"containerize the backend\"
-   }" \
-   localhost:5000/api/v1/issues \
-   | json_pp
-
-# ...
-< HTTP/1.1 201 Created
-# ...
-{
-   "__v" : 0,
-   "_id" : "66d34ee97d5c88082550469d",
-   "createdAt" : "2024-08-31T17:12:09.320Z",
-   "deadline" : "2024-08-19T09:00:00.000Z",
-   "description" : "containerize the backend",
-   "epic" : "backend",
-   "status" : "1 = backlog"
-}
-```
-
-```bash
-curl -v \
-   -X POST \
-   -H "Content-Type: application/json" \
-   -d "{
-      \"status\": \"2 = selected\",
-      \"deadline\": \"2024-08-28T19:45:08.246Z\",
+      \"status\": \"3 = in progress\",
+      \"deadline\": \"2024-08-31T21:08:36.367Z\",
       \"epic\": \"backend\",
       \"description\": \"convert the \`epic\` field to a \`parentId\` field\"
    }" \
@@ -264,17 +237,24 @@ curl -v \
 # ...
 < HTTP/1.1 201 Created
 # ...
+{
+   "__v" : 0,
+   "_id" : "66d3949e139d0bb7b82243ae",
+   "createdAt" : "2024-08-31T22:09:34.087Z",
+   "deadline" : "2024-08-31T21:08:36.367Z",
+   "description" : "convert the `epic` field to a `parentId` field",
+   "epic" : "backend",
+   "status" : "3 = in progress"
+}
 ```
-
-<u>TODO: (2024/08/31, 19:20) swap the order of the last 2 HTTP requests ("and their statuses")</u>
 
 ```bash
 curl -v \
    -X POST \
    -H "Content-Type: application/json" \
    -d "{
-      \"status\": \"3 = in progress\",
-      \"deadline\": \"2024-08-28T19:45:24.081Z\",
+      \"status\": \"1 = backlog\",
+      \"deadline\": \"2024-08-31T22:08:36.367Z\",
       \"epic\": \"frontend\",
       \"description\": \"build a client (hopefully, a CLI tool combined with \`jq\`)\"
    }" \
@@ -285,6 +265,26 @@ curl -v \
 < HTTP/1.1 201 Created
 # ...
 ```
+
+```bash
+curl -v \
+   -X POST \
+   -H "Content-Type: application/json" \
+   -d "{
+      \"status\": \"2 = selected\",
+      \"deadline\": \"2024-08-31T23:08:36.367Z\",
+      \"epic\": \"backend\",
+      \"description\": \"containerize the backend\"
+   }" \
+   localhost:5000/api/v1/issues \
+   | json_pp
+
+# ...
+< HTTP/1.1 201 Created
+# ...
+```
+
+
 
 ```bash
 export ISSUE_3_ID=<the-_id-present-in-the-preceding-HTTP-response>
@@ -314,36 +314,34 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66d34ee97d5c88082550469d",
-         "createdAt" : "2024-08-31T17:12:09.320Z",
-         "deadline" : "2024-08-19T09:00:00.000Z",
-         "description" : "containerize the backend",
+         "_id" : "66d3949e139d0bb7b82243ae",
+         "createdAt" : "2024-08-31T22:09:34.087Z",
+         "deadline" : "2024-08-31T21:08:36.367Z",
+         "description" : "convert the `epic` field to a `parentId` field",
          "epic" : "backend",
+         "status" : "3 = in progress"
+      },
+      {
+         "__v" : 0,
+         "_id" : "66d394b1139d0bb7b82243b0",
+         "createdAt" : "2024-08-31T22:09:53.919Z",
+         "deadline" : "2024-08-31T22:08:36.367Z",
+         "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
+         "epic" : "frontend",
          "status" : "1 = backlog"
       },
       {
          "__v" : 0,
-         "_id" : "66d34f007d5c88082550469f",
-         "createdAt" : "2024-08-31T17:12:32.817Z",
-         "deadline" : "2024-08-28T19:45:08.246Z",
-         "description" : "convert the `epic` field to a `parentId` field",
+         "_id" : "66d394d3139d0bb7b82243b2",
+         "createdAt" : "2024-08-31T22:10:27.679Z",
+         "deadline" : "2024-08-31T23:08:36.367Z",
+         "description" : "containerize the backend",
          "epic" : "backend",
          "status" : "2 = selected"
-      },
-      {
-         "__v" : 0,
-         "_id" : "66d34f1e7d5c8808255046a1",
-         "createdAt" : "2024-08-31T17:13:02.467Z",
-         "deadline" : "2024-08-28T19:45:24.081Z",
-         "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "epic" : "frontend",
-         "status" : "3 = in progress"
       }
    ]
 }
 ```
-
-<u>TODO: (2024/08/31, 19:04) the `total` returned in the response to the next request is incorrect - that is a bug; the commit introducing this line also introduces a test, which catches the bug</u>
 
 ```bash
 curl -v \
@@ -358,17 +356,17 @@ curl -v \
       "curr" : "/api/v1/issues?epic=frontend&perPage=100&page=1",
       "next" : null,
       "prev" : null,
-      "total" : 3
+      "total" : 1
    },
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66d34f1e7d5c8808255046a1",
-         "createdAt" : "2024-08-31T17:13:02.467Z",
-         "deadline" : "2024-08-28T19:45:24.081Z",
+         "_id" : "66d394b1139d0bb7b82243b0",
+         "createdAt" : "2024-08-31T22:09:53.919Z",
+         "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
          "epic" : "frontend",
-         "status" : "3 = in progress"
+         "status" : "1 = backlog"
       }
    ]
 }
@@ -378,7 +376,7 @@ curl -v \
 
 ```bash
 curl -v \
-   'localhost:5000/api/v1/issues?deadline\[lte\]=2024-08-23' \
+   'localhost:5000/api/v1/issues?status\[lt\]=3' \
    | json_pp
 
 # ...
@@ -386,20 +384,29 @@ curl -v \
 # ...
 {
    "meta" : {
-      "curr" : "/api/v1/issues?deadline=%5Bobject+Object%5D&perPage=100&page=1",
+      "curr" : "/api/v1/issues?status=%5Bobject+Object%5D&perPage=100&page=1",
       "next" : null,
       "prev" : null,
-      "total" : 3
+      "total" : 2
    },
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66d34ee97d5c88082550469d",
-         "createdAt" : "2024-08-31T17:12:09.320Z",
-         "deadline" : "2024-08-19T09:00:00.000Z",
+         "_id" : "66d394b1139d0bb7b82243b0",
+         "createdAt" : "2024-08-31T22:09:53.919Z",
+         "deadline" : "2024-08-31T22:08:36.367Z",
+         "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
+         "epic" : "frontend",
+         "status" : "1 = backlog"
+      },
+      {
+         "__v" : 0,
+         "_id" : "66d394d3139d0bb7b82243b2",
+         "createdAt" : "2024-08-31T22:10:27.679Z",
+         "deadline" : "2024-08-31T23:08:36.367Z",
          "description" : "containerize the backend",
          "epic" : "backend",
-         "status" : "1 = backlog"
+         "status" : "2 = selected"
       }
    ]
 }
@@ -422,19 +429,19 @@ curl -v \
    },
    "resources" : [
       {
-         "_id" : "66d34ee97d5c88082550469d",
-         "description" : "containerize the backend",
+         "_id" : "66d3949e139d0bb7b82243ae",
+         "description" : "convert the `epic` field to a `parentId` field",
+         "status" : "3 = in progress"
+      },
+      {
+         "_id" : "66d394b1139d0bb7b82243b0",
+         "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
          "status" : "1 = backlog"
       },
       {
-         "_id" : "66d34f007d5c88082550469f",
-         "description" : "convert the `epic` field to a `parentId` field",
+         "_id" : "66d394d3139d0bb7b82243b2",
+         "description" : "containerize the backend",
          "status" : "2 = selected"
-      },
-      {
-         "_id" : "66d34f1e7d5c8808255046a1",
-         "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "status" : "3 = in progress"
       }
    ]
 }
@@ -458,29 +465,29 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66d34f1e7d5c8808255046a1",
-         "createdAt" : "2024-08-31T17:13:02.467Z",
-         "deadline" : "2024-08-28T19:45:24.081Z",
-         "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "epic" : "frontend",
+         "_id" : "66d3949e139d0bb7b82243ae",
+         "createdAt" : "2024-08-31T22:09:34.087Z",
+         "deadline" : "2024-08-31T21:08:36.367Z",
+         "description" : "convert the `epic` field to a `parentId` field",
+         "epic" : "backend",
          "status" : "3 = in progress"
       },
       {
          "__v" : 0,
-         "_id" : "66d34f007d5c88082550469f",
-         "createdAt" : "2024-08-31T17:12:32.817Z",
-         "deadline" : "2024-08-28T19:45:08.246Z",
-         "description" : "convert the `epic` field to a `parentId` field",
+         "_id" : "66d394d3139d0bb7b82243b2",
+         "createdAt" : "2024-08-31T22:10:27.679Z",
+         "deadline" : "2024-08-31T23:08:36.367Z",
+         "description" : "containerize the backend",
          "epic" : "backend",
          "status" : "2 = selected"
       },
       {
          "__v" : 0,
-         "_id" : "66d34ee97d5c88082550469d",
-         "createdAt" : "2024-08-31T17:12:09.320Z",
-         "deadline" : "2024-08-19T09:00:00.000Z",
-         "description" : "containerize the backend",
-         "epic" : "backend",
+         "_id" : "66d394b1139d0bb7b82243b0",
+         "createdAt" : "2024-08-31T22:09:53.919Z",
+         "deadline" : "2024-08-31T22:08:36.367Z",
+         "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
+         "epic" : "frontend",
          "status" : "1 = backlog"
       }
    ]
@@ -505,29 +512,29 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66d34ee97d5c88082550469d",
-         "createdAt" : "2024-08-31T17:12:09.320Z",
-         "deadline" : "2024-08-19T09:00:00.000Z",
-         "description" : "containerize the backend",
-         "epic" : "backend",
+         "_id" : "66d394b1139d0bb7b82243b0",
+         "createdAt" : "2024-08-31T22:09:53.919Z",
+         "deadline" : "2024-08-31T22:08:36.367Z",
+         "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
+         "epic" : "frontend",
          "status" : "1 = backlog"
       },
       {
          "__v" : 0,
-         "_id" : "66d34f007d5c88082550469f",
-         "createdAt" : "2024-08-31T17:12:32.817Z",
-         "deadline" : "2024-08-28T19:45:08.246Z",
-         "description" : "convert the `epic` field to a `parentId` field",
+         "_id" : "66d394d3139d0bb7b82243b2",
+         "createdAt" : "2024-08-31T22:10:27.679Z",
+         "deadline" : "2024-08-31T23:08:36.367Z",
+         "description" : "containerize the backend",
          "epic" : "backend",
          "status" : "2 = selected"
       },
       {
          "__v" : 0,
-         "_id" : "66d34f1e7d5c8808255046a1",
-         "createdAt" : "2024-08-31T17:13:02.467Z",
-         "deadline" : "2024-08-28T19:45:24.081Z",
-         "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "epic" : "frontend",
+         "_id" : "66d3949e139d0bb7b82243ae",
+         "createdAt" : "2024-08-31T22:09:34.087Z",
+         "deadline" : "2024-08-31T21:08:36.367Z",
+         "description" : "convert the `epic` field to a `parentId` field",
+         "epic" : "backend",
          "status" : "3 = in progress"
       }
    ]
@@ -552,12 +559,12 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66d34f1e7d5c8808255046a1",
-         "createdAt" : "2024-08-31T17:13:02.467Z",
-         "deadline" : "2024-08-28T19:45:24.081Z",
-         "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "epic" : "frontend",
-         "status" : "3 = in progress"
+         "_id" : "66d394d3139d0bb7b82243b2",
+         "createdAt" : "2024-08-31T22:10:27.679Z",
+         "deadline" : "2024-08-31T23:08:36.367Z",
+         "description" : "containerize the backend",
+         "epic" : "backend",
+         "status" : "2 = selected"
       }
    ]
 }
@@ -603,12 +610,12 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66d34f1e7d5c8808255046a1",
-   "createdAt" : "2024-08-31T17:13:02.467Z",
-   "deadline" : "2024-08-28T19:45:24.081Z",
-   "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-   "epic" : "frontend",
-   "status" : "3 = in progress"
+   "_id" : "66d394d3139d0bb7b82243b2",
+   "createdAt" : "2024-08-31T22:10:27.679Z",
+   "deadline" : "2024-08-31T23:08:36.367Z",
+   "description" : "containerize the backend",
+   "epic" : "backend",
+   "status" : "2 = selected"
 }
 ```
 
@@ -649,7 +656,7 @@ curl -v \
    -X PUT \
    -H "Content-Type: application/json" \
    -d "{
-      \"status\": \"4 = done\"
+      \"status\": \"3 = in progress\"
    }" \
    localhost:5000/api/v1/issues/${ISSUE_3_ID} \
    | json_pp
@@ -659,12 +666,12 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66d34f1e7d5c8808255046a1",
-   "createdAt" : "2024-08-31T17:13:02.467Z",
-   "deadline" : "2024-08-28T19:45:24.081Z",
-   "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-   "epic" : "frontend",
-   "status" : "4 = done"
+   "_id" : "66d394d3139d0bb7b82243b2",
+   "createdAt" : "2024-08-31T22:10:27.679Z",
+   "deadline" : "2024-08-31T23:08:36.367Z",
+   "description" : "containerize the backend",
+   "epic" : "backend",
+   "status" : "3 = in progress"
 }
 ```
 
