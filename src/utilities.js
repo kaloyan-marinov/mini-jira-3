@@ -26,13 +26,11 @@ exports.determinePaginationInfoInitial = (
     throw Error('"total" must be a strictly positive integer');
   }
 
-  // console.log('reqQueryPerPage', reqQueryPerPage);
   let perPage = parseInt(reqQueryPerPage) || MAX_PER_PAGE;
   perPage = Math.min(perPage, MAX_PER_PAGE);
 
   const pageLast = Math.ceil(total / perPage);
 
-  // console.log('reqQueryPage', reqQueryPage);
   let page = parseInt(reqQueryPage) || 1;
   page = page < 1 ? 1 : page;
   page = page > pageLast ? pageLast : page;

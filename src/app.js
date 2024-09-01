@@ -54,9 +54,7 @@ app.get('/api/v1/issues', async (req, res) => {
 
     delete reqQuery[f];
   }
-  console.log('reqQuery', reqQuery);
   const queryRawStr = JSON.stringify(reqQuery);
-  console.log('queryRawStr', queryRawStr);
 
   // Create the following Mongoose operators: `$in`, `$lt`, `$lte`, `$gt`, `$gte` .
   const queryStr = queryRawStr.replace(
