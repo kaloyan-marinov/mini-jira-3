@@ -11,8 +11,8 @@ console.log('process.env.LD_LIBRARY_PATH =', process.env.LD_LIBRARY_PATH);
 
 let mongoMemoryServer;
 
-// For debugging, set the timeout for each test case the specified amount of time.
-// const MILLISECONDS_IN_FIVE_MINUTES = 5 * 60 * 1000;
+// // For debugging, set the timeout for each test case to the specified amount of time.
+// // const MILLISECONDS_IN_FIVE_MINUTES = 5 * 60 * 1000;
 // jest.setTimeout(MILLISECONDS_IN_FIVE_MINUTES);
 
 beforeAll(async () => {
