@@ -67,27 +67,14 @@ app.get('/api/v1/issues', async (req, res) => {
   // Apply filtering criteria.
   query = Issue.find(queryJSON);
 
-  // Make the query return only the fields
-  // specified by the value of the `select` query parameter.
-  if (req.query.select) {
-    const fields = req.query.select.split(',');
-    query = query.select(fields);
-  }
-
-  // Apply sorting.
-  if (req.query.sort) {
-    const sortBy = req.query.sort.split(',').join(' ');
-    query = query.sort(sortBy);
-  }
-
   // Initialize an «information bundle»
   // which, in a step-by-step fashion, will be supplemented with information
   // about how to paginate beyond the returned resources.
   // (The final version of that bundle will be sent in the body of the HTTP response.)
   const meta = {};
 
-  // Supplement the information bundle with the number of all resources,
-  // which match the filtering criteria.
+  //  - Supplement the information bundle with the number of all resources,
+  //    which match the filtering criteria.
   try {
     const queryClone = query.clone();
     const total = await queryClone.countDocuments();
@@ -116,8 +103,8 @@ app.get('/api/v1/issues', async (req, res) => {
     return;
   }
 
-  // Supplement the information bundle with the indices of
-  // the first, previous, current, next, and last pages.
+  //  - Supplement the information bundle with the indices of
+  //    the first, previous, current, next, and last pages.
   const { perPage, pageFirst, pagePrev, pageCurr, pageNext, pageLast } =
     determinePaginationInfo(req.query.perPage, req.query.page, meta.total);
 
@@ -141,6 +128,19 @@ app.get('/api/v1/issues', async (req, res) => {
     meta.prev = `/api/v1/issues` + `?` + queryParams.toString();
   } else {
     meta.prev = null;
+  }
+
+  // Make the query return only the fields
+  // specified by the value of the `select` query parameter.
+  if (req.query.select) {
+    const fields = req.query.select.split(',');
+    query = query.select(fields);
+  }
+
+  // Apply sorting.
+  if (req.query.sort) {
+    const sortBy = req.query.sort.split(',').join(' ');
+    query = query.sort(sortBy);
   }
 
   // Apply pagination.
