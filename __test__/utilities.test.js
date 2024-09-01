@@ -31,30 +31,22 @@ describe('decodeQueryStringWithinUrl', () => {
 });
 
 describe('determinePaginationInfo', () => {
-  // TODO: (2024/09/01, 11:16)
-  //      refine the implementation for the case `total === 0` + update this test accordingly
-  test('if "total" is 0, should ...', () => {
+  test('if "total" is 0, should throw an error', () => {
     // Arrage.
     const reqQueryPerPage = '10';
     const reqQueryPage = '1';
     const total = 0;
 
-    // Act.
-    const paginationInfo = determinePaginationInfo(
-      reqQueryPerPage,
-      reqQueryPage,
-      total
+    const funcThatWillThrowError = () => {
+      return determinePaginationInfo(reqQueryPerPage, reqQueryPage, total);
+    };
+
+    // Act. + Assert.
+    const expectedError = new Error(
+      '"total" must be a strictly positive integer'
     );
 
-    // Assert.
-    expect(paginationInfo).toEqual({
-      perPage: 10,
-      pageFirst: 1,
-      pagePrev: -1,
-      pageCurr: 0,
-      pageNext: null,
-      pageLast: 0,
-    });
+    expect(funcThatWillThrowError).toThrowError(expectedError);
   });
 
   test('the happy path when "reqQueryPage" equals a number', () => {
