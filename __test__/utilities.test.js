@@ -4,7 +4,18 @@ const {
 } = require('../src/utilities');
 
 describe('decodeQueryStringWithinUrl', () => {
-  test('should replace each "," with "%2C"', () => {
+  test('if no query parameters, should return the same URL', () => {
+    // Arrange.
+    const url = 'localhost:5000/api/v1/issues';
+
+    // Act.
+    const urlWithQueryStringDecoded = decodeQueryStringWithinUrl(url);
+
+    // Assert.
+    expect(urlWithQueryStringDecoded).toEqual('localhost:5000/api/v1/issues');
+  });
+
+  test('if query parameters, should replace each "," with "%2C"', () => {
     // Arrange.
     const url =
       'localhost:5000?parameter_1=value_1_1,value_2_1&parameter_2=value_2_1';
