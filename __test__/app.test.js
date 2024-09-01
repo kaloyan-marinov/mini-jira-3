@@ -275,8 +275,7 @@ describe('GET /api/v1/issues', () => {
         status: '2 = selected',
         deadline: new Date('2024-08-31T09:58:50.783Z'),
         description:
-          'supplement the «information bundle» about pagination' +
-          ' with URLs for "first" and "last"',
+          'supplement the pagination-info bundle with URLs for "first" and "last"',
       });
 
       const issue2 = await Issue.create({
@@ -311,8 +310,7 @@ describe('GET /api/v1/issues', () => {
           status: '2 = selected',
           deadline: '2024-08-31T09:58:50.783Z',
           description:
-            'supplement the «information bundle» about pagination' +
-            ' with URLs for "first" and "last"',
+            'supplement the pagination-info bundle with URLs for "first" and "last"',
         },
       ];
       expect(response1.body).toEqual({
@@ -346,7 +344,7 @@ describe('GET /api/v1/issues', () => {
 
   test(
     'if there are multiple pages of Issue resources,' +
-      ' should return 200 and a correct «information bundle» about pagination',
+      ' should return 200 and a correct pagination-info bundle',
     async () => {
       // Arrange.
       const indices = Array.from({ length: 5 }, (value, idx) => idx);

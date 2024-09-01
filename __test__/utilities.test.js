@@ -1,6 +1,6 @@
 const {
   decodeQueryStringWithinUrl,
-  determinePaginationInfo,
+  determinePaginationInfoInitial,
 } = require('../src/utilities');
 
 describe('decodeQueryStringWithinUrl', () => {
@@ -30,7 +30,7 @@ describe('decodeQueryStringWithinUrl', () => {
   });
 });
 
-describe('determinePaginationInfo', () => {
+describe('determinePaginationInfoInitial', () => {
   test('if "total" is 0, should throw an error', () => {
     // Arrage.
     const reqQueryPerPage = '10';
@@ -38,7 +38,11 @@ describe('determinePaginationInfo', () => {
     const total = 0;
 
     const funcThatWillThrowError = () => {
-      return determinePaginationInfo(reqQueryPerPage, reqQueryPage, total);
+      return determinePaginationInfoInitial(
+        reqQueryPerPage,
+        reqQueryPage,
+        total
+      );
     };
 
     // Act. + Assert.
@@ -56,14 +60,14 @@ describe('determinePaginationInfo', () => {
     const total = 103;
 
     // Act.
-    const paginationInfo = determinePaginationInfo(
+    const paginationInfoInitial = determinePaginationInfoInitial(
       reqQueryPerPage,
       reqQueryPage,
       total
     );
 
     // Assert.
-    expect(paginationInfo).toEqual({
+    expect(paginationInfoInitial).toEqual({
       perPage: 10,
       pageFirst: 1,
       pagePrev: 4,
@@ -80,14 +84,14 @@ describe('determinePaginationInfo', () => {
     const total = 103;
 
     // Act.
-    const paginationInfo = determinePaginationInfo(
+    const paginationInfoInitial = determinePaginationInfoInitial(
       reqQueryPerPage,
       reqQueryPage,
       total
     );
 
     // Assert.
-    expect(paginationInfo).toEqual({
+    expect(paginationInfoInitial).toEqual({
       perPage: 10,
       pageFirst: 1,
       pagePrev: null,

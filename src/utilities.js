@@ -17,7 +17,11 @@ exports.decodeQueryStringWithinUrl = (url) => {
 
 const MAX_PER_PAGE = 100;
 
-exports.determinePaginationInfo = (reqQueryPerPage, reqQueryPage, total) => {
+exports.determinePaginationInfoInitial = (
+  reqQueryPerPage,
+  reqQueryPage,
+  total
+) => {
   if (typeof total !== 'number' || total <= 0) {
     throw Error('"total" must be a strictly positive integer');
   }

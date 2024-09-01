@@ -1,7 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const Issue = require('./models');
-const { determinePaginationInfo } = require('./utilities');
+const { determinePaginationInfoInitial } = require('./utilities');
 
 const app = express();
 
@@ -67,18 +67,18 @@ app.get('/api/v1/issues', async (req, res) => {
   // Apply filtering criteria.
   query = Issue.find(queryJSON);
 
-  // Initialize an «information bundle»
+  // Create an empty pagination-info bundle
   // which, in a step-by-step fashion, will be supplemented with information
   // about how to paginate beyond the returned resources.
-  // (The final version of that bundle will be sent in the body of the HTTP response.)
-  const meta = {};
+  // (The completed bundle will be sent in the body of the HTTP response.)
+  const paginationInfoFinal = {};
 
-  //  - Supplement the information bundle with the number of all resources,
+  //  - Supplement the pagination-info bundle with the number of all resources,
   //    which match the filtering criteria.
   try {
     const queryClone = query.clone();
     const total = await queryClone.countDocuments();
-    meta.total = total;
+    paginationInfoFinal.total = total;
   } catch (err) {
     console.error(err);
 
@@ -89,7 +89,7 @@ app.get('/api/v1/issues', async (req, res) => {
     return;
   }
 
-  if (meta.total === 0) {
+  if (paginationInfoFinal.total === 0) {
     res.status(200).json({
       meta: {
         total: 0,
@@ -103,10 +103,14 @@ app.get('/api/v1/issues', async (req, res) => {
     return;
   }
 
-  //  - Supplement the information bundle with the indices of
+  //  - Supplement the pagination-info bundle with the indices of
   //    the first, previous, current, next, and last pages.
   const { perPage, pageFirst, pagePrev, pageCurr, pageNext, pageLast } =
-    determinePaginationInfo(req.query.perPage, req.query.page, meta.total);
+    determinePaginationInfoInitial(
+      req.query.perPage,
+      req.query.page,
+      paginationInfoFinal.total
+    );
 
   const queryParams = new URLSearchParams({
     ...reqQuery,
@@ -114,21 +118,25 @@ app.get('/api/v1/issues', async (req, res) => {
   });
   queryParams.set('perPage', perPage);
   queryParams.set('page', pageCurr);
-  meta.curr = `/api/v1/issues` + `?` + queryParams.toString();
+  paginationInfoFinal.curr = `/api/v1/issues` + `?` + queryParams.toString();
 
   if (pageNext) {
     queryParams.set('page', pageNext);
-    meta.next = `/api/v1/issues` + `?` + queryParams.toString();
+    paginationInfoFinal.next = `/api/v1/issues` + `?` + queryParams.toString();
   } else {
-    meta.next = null;
+    paginationInfoFinal.next = null;
   }
 
   if (pagePrev) {
     queryParams.set('page', pagePrev);
-    meta.prev = `/api/v1/issues` + `?` + queryParams.toString();
+    paginationInfoFinal.prev = `/api/v1/issues` + `?` + queryParams.toString();
   } else {
-    meta.prev = null;
+    paginationInfoFinal.prev = null;
   }
+
+  // TODO: (2024/09/01, 16:09)
+  //      supplement the pagination-info bundle
+  //      with URLs for "first" and "last"
 
   // Make the query return only the fields
   // specified by the value of the `select` query parameter.
@@ -150,7 +158,7 @@ app.get('/api/v1/issues', async (req, res) => {
     const issues = await query;
 
     res.status(200).json({
-      meta,
+      meta: paginationInfoFinal,
       resources: issues,
     });
   } catch (err) {
