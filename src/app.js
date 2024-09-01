@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const Issue = require('./models');
+const { determinePaginationInfo } = require('./utilities');
 
 const app = express();
 
@@ -79,53 +80,69 @@ app.get('/api/v1/issues', async (req, res) => {
     query = query.sort(sortBy);
   }
 
-  // Apply pagination.
-  // console.log('req.query.perPage', req.query.perPage);
-  let perPage = parseInt(req.query.perPage) || 100;
-  // console.log('perPage', perPage);
-  perPage = Math.min(perPage, 100);
-  let page = parseInt(req.query.page) || 1;
-  page = Math.max(page, 1);
-  // console.log('perPage', perPage);
-  // console.log('page', page);
-  const startIndex = (page - 1) * perPage;
-  const finalIndex = page * perPage;
-  // console.log('startIndex', startIndex);
+  // Put together an «information bundle»,
+  // which indicates how to paginate beyond the returned `issues`.
+  // (That information bundle will be sent in the body of the HTTP response.)
+  const meta = {};
 
   try {
-    // Put together an «information bundle»,
-    // which indicates how to paginate beyond the returned `issues`.
-    // (That information bundle,
-    // which will be sent in the body of the HTTP response.)
-    const meta = {};
-
-    const total = await query.clone().countDocuments();
+    const queryClone = query.clone();
+    const total = await queryClone.countDocuments();
     meta.total = total;
+  } catch (err) {
+    console.error(err);
 
-    query = query.skip(startIndex).limit(perPage);
-    const issues = await query;
-
-    const queryParams = new URLSearchParams({
-      ...reqQuery,
-      ...excludedParam2Value,
+    res.status(500).json({
+      message: 'Failed to process your HTTP request',
     });
-    queryParams.set('perPage', perPage);
-    queryParams.set('page', page);
-    meta.curr = `/api/v1/issues` + `?` + queryParams.toString();
 
-    if (finalIndex < total) {
-      queryParams.set('page', page + 1);
-      meta.next = `/api/v1/issues` + `?` + queryParams.toString();
-    } else {
-      meta.next = null;
-    }
+    return;
+  }
 
-    if (startIndex > 0 && issues.length > 0) {
-      queryParams.set('page', page - 1);
-      meta.prev = `/api/v1/issues` + `?` + queryParams.toString();
-    } else {
-      meta.prev = null;
-    }
+  if (meta.total === 0) {
+    res.status(200).json({
+      meta: {
+        total: 0,
+        prev: null,
+        curr: '/api/v1/issues',
+        next: null,
+      },
+      resources: [],
+    });
+
+    return;
+  }
+
+  const { perPage, pageFirst, pagePrev, pageCurr, pageNext, pageLast } =
+    determinePaginationInfo(req.query.perPage, req.query.page, meta.total);
+
+  const queryParams = new URLSearchParams({
+    ...reqQuery,
+    ...excludedParam2Value,
+  });
+  queryParams.set('perPage', perPage);
+  queryParams.set('page', pageCurr);
+  meta.curr = `/api/v1/issues` + `?` + queryParams.toString();
+
+  if (pageNext) {
+    queryParams.set('page', pageNext);
+    meta.next = `/api/v1/issues` + `?` + queryParams.toString();
+  } else {
+    meta.next = null;
+  }
+
+  if (pagePrev) {
+    queryParams.set('page', pagePrev);
+    meta.prev = `/api/v1/issues` + `?` + queryParams.toString();
+  } else {
+    meta.prev = null;
+  }
+
+  // Apply pagination.
+  const startIndex = (pageCurr - 1) * perPage;
+  query = query.skip(startIndex).limit(perPage);
+  try {
+    const issues = await query;
 
     res.status(200).json({
       meta,
