@@ -236,6 +236,7 @@ curl -v \
 
 # ...
 < HTTP/1.1 201 Created
+< Location: /api/v1/issues/66d4bc0775ddfdd6c15a594f
 # ...
 {
    "__v" : 0,

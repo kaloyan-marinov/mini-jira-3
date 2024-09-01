@@ -29,7 +29,10 @@ app.post('/api/v1/issues', async (req, res) => {
     return;
   }
 
-  res.status(201).json(newIssue);
+  res
+    .status(201)
+    .set('Location', `/api/v1/issues/${newIssue._id.toString()}`)
+    .json(newIssue);
 });
 
 app.get('/api/v1/issues', async (req, res) => {

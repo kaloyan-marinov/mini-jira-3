@@ -71,6 +71,9 @@ describe('POST /api/v1/issues', () => {
 
     // Assert.
     expect(response.status).toEqual(201);
+    expect(response.headers.location).toEqual(
+      `/api/v1/issues/${response.body._id}`
+    );
     expect(response.body).toEqual({
       __v: expect.anything(),
       _id: expect.anything(),
