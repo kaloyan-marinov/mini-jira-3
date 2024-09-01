@@ -71,7 +71,7 @@ app.get('/api/v1/issues', async (req, res) => {
   // which, in a step-by-step fashion, will be supplemented with information
   // about how to paginate beyond the returned resources.
   // (The completed bundle will be sent in the body of the HTTP response.)
-  const paginationInfoFinal = {};
+  let paginationInfoFinal = {};
 
   //  - Supplement the pagination-info bundle with the number of all resources,
   //    which match the filtering criteria.
@@ -90,13 +90,17 @@ app.get('/api/v1/issues', async (req, res) => {
   }
 
   if (paginationInfoFinal.total === 0) {
+    paginationInfoFinal = {
+      total: 0,
+      first: '/api/v1/issues?page=1',
+      prev: null,
+      curr: '/api/v1/issues',
+      next: null,
+      last: '/api/v1/issues?page=1',
+    };
+
     res.status(200).json({
-      meta: {
-        total: 0,
-        prev: null,
-        curr: '/api/v1/issues',
-        next: null,
-      },
+      meta: paginationInfoFinal,
       resources: [],
     });
 
@@ -117,6 +121,17 @@ app.get('/api/v1/issues', async (req, res) => {
     ...excludedParam2Value,
   });
   queryParams.set('perPage', perPage);
+
+  queryParams.set('page', pageFirst);
+  paginationInfoFinal.first = `/api/v1/issues` + `?` + queryParams.toString();
+
+  if (pagePrev) {
+    queryParams.set('page', pagePrev);
+    paginationInfoFinal.prev = `/api/v1/issues` + `?` + queryParams.toString();
+  } else {
+    paginationInfoFinal.prev = null;
+  }
+
   queryParams.set('page', pageCurr);
   paginationInfoFinal.curr = `/api/v1/issues` + `?` + queryParams.toString();
 
@@ -127,16 +142,8 @@ app.get('/api/v1/issues', async (req, res) => {
     paginationInfoFinal.next = null;
   }
 
-  if (pagePrev) {
-    queryParams.set('page', pagePrev);
-    paginationInfoFinal.prev = `/api/v1/issues` + `?` + queryParams.toString();
-  } else {
-    paginationInfoFinal.prev = null;
-  }
-
-  // TODO: (2024/09/01, 16:09)
-  //      supplement the pagination-info bundle
-  //      with URLs for "first" and "last"
+  queryParams.set('page', pageLast);
+  paginationInfoFinal.last = `/api/v1/issues` + `?` + queryParams.toString();
 
   // Make the query return only the fields
   // specified by the value of the `select` query parameter.

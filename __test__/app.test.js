@@ -93,9 +93,11 @@ describe('GET /api/v1/issues', () => {
     expect(response.body).toEqual({
       meta: {
         total: 0,
+        first: `/api/v1/issues?page=1`,
         prev: null,
         curr: '/api/v1/issues',
         next: null,
+        last: `/api/v1/issues?page=1`,
       },
       resources: [],
     });
@@ -125,9 +127,11 @@ describe('GET /api/v1/issues', () => {
     expect(response.body).toEqual({
       meta: {
         total: 2,
+        first: '/api/v1/issues?perPage=100&page=1',
         prev: null,
         curr: '/api/v1/issues?perPage=100&page=1',
         next: null,
+        last: '/api/v1/issues?perPage=100&page=1',
       },
       resources: [
         {
@@ -188,9 +192,11 @@ describe('GET /api/v1/issues', () => {
       expect(response.body).toEqual({
         meta: {
           total: 2,
+          first: '/api/v1/issues?epic=backend&perPage=100&page=1',
           prev: null,
           curr: '/api/v1/issues?epic=backend&perPage=100&page=1',
           next: null,
+          last: '/api/v1/issues?epic=backend&perPage=100&page=1',
         },
         resources: [
           {
@@ -241,14 +247,17 @@ describe('GET /api/v1/issues', () => {
       // Assert.
       expect(response.status).toEqual(200);
 
+      const currUrl = decodeQueryStringWithinUrl(
+        '/api/v1/issues?select=status,description&perPage=100&page=1'
+      );
       expect(response.body).toEqual({
         meta: {
           total: 2,
+          first: currUrl,
           prev: null,
-          curr: decodeQueryStringWithinUrl(
-            '/api/v1/issues?select=status,description&perPage=100&page=1'
-          ),
+          curr: currUrl,
           next: null,
+          last: currUrl,
         },
         resources: [
           {
@@ -316,9 +325,11 @@ describe('GET /api/v1/issues', () => {
       expect(response1.body).toEqual({
         meta: {
           total: 2,
+          first: '/api/v1/issues?sort=-status&perPage=100&page=1',
           prev: null,
           curr: '/api/v1/issues?sort=-status&perPage=100&page=1',
           next: null,
+          last: '/api/v1/issues?sort=-status&perPage=100&page=1',
         },
         resources: expectedResources1,
       });
@@ -333,9 +344,11 @@ describe('GET /api/v1/issues', () => {
       expect(response2.body).toEqual({
         meta: {
           total: 2,
+          first: '/api/v1/issues?sort=status&perPage=100&page=1',
           prev: null,
           curr: '/api/v1/issues?sort=status&perPage=100&page=1',
           next: null,
+          last: '/api/v1/issues?sort=status&perPage=100&page=1',
         },
         resources: expectedResources2,
       });
@@ -368,9 +381,11 @@ describe('GET /api/v1/issues', () => {
       expect(response.body).toEqual({
         meta: {
           total: 5,
+          first: '/api/v1/issues?perPage=1&page=1',
           prev: '/api/v1/issues?perPage=1&page=2',
           curr: '/api/v1/issues?perPage=1&page=3',
           next: '/api/v1/issues?perPage=1&page=4',
+          last: '/api/v1/issues?perPage=1&page=5',
         },
         resources: [
           {
