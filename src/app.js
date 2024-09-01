@@ -64,7 +64,7 @@ app.get('/api/v1/issues', async (req, res) => {
   const queryJSON = JSON.parse(queryStr);
   console.log('queryJSON', queryJSON);
 
-  // Initialize the query.
+  // Apply filtering criteria.
   query = Issue.find(queryJSON);
 
   // Make the query return only the fields
@@ -80,11 +80,14 @@ app.get('/api/v1/issues', async (req, res) => {
     query = query.sort(sortBy);
   }
 
-  // Put together an «information bundle»,
-  // which indicates how to paginate beyond the returned `issues`.
-  // (That information bundle will be sent in the body of the HTTP response.)
+  // Initialize an «information bundle»
+  // which, in a step-by-step fashion, will be supplemented with information
+  // about how to paginate beyond the returned resources.
+  // (The final version of that bundle will be sent in the body of the HTTP response.)
   const meta = {};
 
+  // Supplement the information bundle with the number of all resources,
+  // which match the filtering criteria.
   try {
     const queryClone = query.clone();
     const total = await queryClone.countDocuments();
@@ -113,6 +116,8 @@ app.get('/api/v1/issues', async (req, res) => {
     return;
   }
 
+  // Supplement the information bundle with the indices of
+  // the first, previous, current, next, and last pages.
   const { perPage, pageFirst, pagePrev, pageCurr, pageNext, pageLast } =
     determinePaginationInfo(req.query.perPage, req.query.page, meta.total);
 

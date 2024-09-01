@@ -21,8 +21,6 @@ exports.decodeQueryStringWithinUrl = (url) => {
 
 const MAX_PER_PAGE = 100;
 
-// TODO: (2024/09/01, 10:19)
-//      write a test for the case when `total === 0`
 exports.determinePaginationInfo = (reqQueryPerPage, reqQueryPage, total) => {
   // console.log('reqQueryPerPage', reqQueryPerPage);
   let perPage = parseInt(reqQueryPerPage) || MAX_PER_PAGE;
