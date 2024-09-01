@@ -239,8 +239,8 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66d3949e139d0bb7b82243ae",
-   "createdAt" : "2024-08-31T22:09:34.087Z",
+   "_id" : "66d4bc0775ddfdd6c15a594f",
+   "createdAt" : "2024-09-01T19:09:59.779Z",
    "deadline" : "2024-08-31T21:08:36.367Z",
    "description" : "convert the `epic` field to a `parentId` field",
    "epic" : "backend",
@@ -307,6 +307,8 @@ curl -v \
 {
    "meta" : {
       "curr" : "/api/v1/issues?perPage=100&page=1",
+      "first" : "/api/v1/issues?perPage=100&page=1",
+      "last" : "/api/v1/issues?perPage=100&page=1",
       "next" : null,
       "prev" : null,
       "total" : 3
@@ -314,8 +316,8 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66d3949e139d0bb7b82243ae",
-         "createdAt" : "2024-08-31T22:09:34.087Z",
+         "_id" : "66d4bc0775ddfdd6c15a594f",
+         "createdAt" : "2024-09-01T19:09:59.779Z",
          "deadline" : "2024-08-31T21:08:36.367Z",
          "description" : "convert the `epic` field to a `parentId` field",
          "epic" : "backend",
@@ -323,8 +325,8 @@ curl -v \
       },
       {
          "__v" : 0,
-         "_id" : "66d394b1139d0bb7b82243b0",
-         "createdAt" : "2024-08-31T22:09:53.919Z",
+         "_id" : "66d4bc1675ddfdd6c15a5951",
+         "createdAt" : "2024-09-01T19:10:14.645Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
          "epic" : "frontend",
@@ -332,8 +334,8 @@ curl -v \
       },
       {
          "__v" : 0,
-         "_id" : "66d394d3139d0bb7b82243b2",
-         "createdAt" : "2024-08-31T22:10:27.679Z",
+         "_id" : "66d4bc2075ddfdd6c15a5953",
+         "createdAt" : "2024-09-01T19:10:24.140Z",
          "deadline" : "2024-08-31T23:08:36.367Z",
          "description" : "containerize the backend",
          "epic" : "backend",
@@ -354,6 +356,8 @@ curl -v \
 {
    "meta" : {
       "curr" : "/api/v1/issues?epic=frontend&perPage=100&page=1",
+      "first" : "/api/v1/issues?epic=frontend&perPage=100&page=1",
+      "last" : "/api/v1/issues?epic=frontend&perPage=100&page=1",
       "next" : null,
       "prev" : null,
       "total" : 1
@@ -361,8 +365,8 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66d394b1139d0bb7b82243b0",
-         "createdAt" : "2024-08-31T22:09:53.919Z",
+         "_id" : "66d4bc1675ddfdd6c15a5951",
+         "createdAt" : "2024-09-01T19:10:14.645Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
          "epic" : "frontend",
@@ -385,6 +389,8 @@ curl -v \
 {
    "meta" : {
       "curr" : "/api/v1/issues?status=%5Bobject+Object%5D&perPage=100&page=1",
+      "first" : "/api/v1/issues?status=%5Bobject+Object%5D&perPage=100&page=1",
+      "last" : "/api/v1/issues?status=%5Bobject+Object%5D&perPage=100&page=1",
       "next" : null,
       "prev" : null,
       "total" : 2
@@ -392,8 +398,8 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66d394b1139d0bb7b82243b0",
-         "createdAt" : "2024-08-31T22:09:53.919Z",
+         "_id" : "66d4bc1675ddfdd6c15a5951",
+         "createdAt" : "2024-09-01T19:10:14.645Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
          "epic" : "frontend",
@@ -401,8 +407,8 @@ curl -v \
       },
       {
          "__v" : 0,
-         "_id" : "66d394d3139d0bb7b82243b2",
-         "createdAt" : "2024-08-31T22:10:27.679Z",
+         "_id" : "66d4bc2075ddfdd6c15a5953",
+         "createdAt" : "2024-09-01T19:10:24.140Z",
          "deadline" : "2024-08-31T23:08:36.367Z",
          "description" : "containerize the backend",
          "epic" : "backend",
@@ -423,23 +429,25 @@ curl -v \
 {
    "meta" : {
       "curr" : "/api/v1/issues?select=description%2Cstatus&perPage=100&page=1",
+      "first" : "/api/v1/issues?select=description%2Cstatus&perPage=100&page=1",
+      "last" : "/api/v1/issues?select=description%2Cstatus&perPage=100&page=1",
       "next" : null,
       "prev" : null,
       "total" : 3
    },
    "resources" : [
       {
-         "_id" : "66d3949e139d0bb7b82243ae",
+         "_id" : "66d4bc0775ddfdd6c15a594f",
          "description" : "convert the `epic` field to a `parentId` field",
          "status" : "3 = in progress"
       },
       {
-         "_id" : "66d394b1139d0bb7b82243b0",
+         "_id" : "66d4bc1675ddfdd6c15a5951",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
          "status" : "1 = backlog"
       },
       {
-         "_id" : "66d394d3139d0bb7b82243b2",
+         "_id" : "66d4bc2075ddfdd6c15a5953",
          "description" : "containerize the backend",
          "status" : "2 = selected"
       }
@@ -458,6 +466,8 @@ curl -v \
 {
    "meta" : {
       "curr" : "/api/v1/issues?sort=-status&perPage=100&page=1",
+      "first" : "/api/v1/issues?sort=-status&perPage=100&page=1",
+      "last" : "/api/v1/issues?sort=-status&perPage=100&page=1",
       "next" : null,
       "prev" : null,
       "total" : 3
@@ -465,8 +475,8 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66d3949e139d0bb7b82243ae",
-         "createdAt" : "2024-08-31T22:09:34.087Z",
+         "_id" : "66d4bc0775ddfdd6c15a594f",
+         "createdAt" : "2024-09-01T19:09:59.779Z",
          "deadline" : "2024-08-31T21:08:36.367Z",
          "description" : "convert the `epic` field to a `parentId` field",
          "epic" : "backend",
@@ -474,8 +484,8 @@ curl -v \
       },
       {
          "__v" : 0,
-         "_id" : "66d394d3139d0bb7b82243b2",
-         "createdAt" : "2024-08-31T22:10:27.679Z",
+         "_id" : "66d4bc2075ddfdd6c15a5953",
+         "createdAt" : "2024-09-01T19:10:24.140Z",
          "deadline" : "2024-08-31T23:08:36.367Z",
          "description" : "containerize the backend",
          "epic" : "backend",
@@ -483,8 +493,8 @@ curl -v \
       },
       {
          "__v" : 0,
-         "_id" : "66d394b1139d0bb7b82243b0",
-         "createdAt" : "2024-08-31T22:09:53.919Z",
+         "_id" : "66d4bc1675ddfdd6c15a5951",
+         "createdAt" : "2024-09-01T19:10:14.645Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
          "epic" : "frontend",
@@ -505,6 +515,8 @@ curl -v \
 {
    "meta" : {
       "curr" : "/api/v1/issues?sort=status&perPage=100&page=1",
+      "first" : "/api/v1/issues?sort=status&perPage=100&page=1",
+      "last" : "/api/v1/issues?sort=status&perPage=100&page=1",
       "next" : null,
       "prev" : null,
       "total" : 3
@@ -512,8 +524,8 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66d394b1139d0bb7b82243b0",
-         "createdAt" : "2024-08-31T22:09:53.919Z",
+         "_id" : "66d4bc1675ddfdd6c15a5951",
+         "createdAt" : "2024-09-01T19:10:14.645Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
          "epic" : "frontend",
@@ -521,8 +533,8 @@ curl -v \
       },
       {
          "__v" : 0,
-         "_id" : "66d394d3139d0bb7b82243b2",
-         "createdAt" : "2024-08-31T22:10:27.679Z",
+         "_id" : "66d4bc2075ddfdd6c15a5953",
+         "createdAt" : "2024-09-01T19:10:24.140Z",
          "deadline" : "2024-08-31T23:08:36.367Z",
          "description" : "containerize the backend",
          "epic" : "backend",
@@ -530,8 +542,8 @@ curl -v \
       },
       {
          "__v" : 0,
-         "_id" : "66d3949e139d0bb7b82243ae",
-         "createdAt" : "2024-08-31T22:09:34.087Z",
+         "_id" : "66d4bc0775ddfdd6c15a594f",
+         "createdAt" : "2024-09-01T19:09:59.779Z",
          "deadline" : "2024-08-31T21:08:36.367Z",
          "description" : "convert the `epic` field to a `parentId` field",
          "epic" : "backend",
@@ -552,6 +564,8 @@ curl -v \
 {
    "meta" : {
       "curr" : "/api/v1/issues?perPage=2&page=2",
+      "first" : "/api/v1/issues?perPage=2&page=1",
+      "last" : "/api/v1/issues?perPage=2&page=2",
       "next" : null,
       "prev" : "/api/v1/issues?perPage=2&page=1",
       "total" : 3
@@ -559,8 +573,8 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66d394d3139d0bb7b82243b2",
-         "createdAt" : "2024-08-31T22:10:27.679Z",
+         "_id" : "66d4bc2075ddfdd6c15a5953",
+         "createdAt" : "2024-09-01T19:10:24.140Z",
          "deadline" : "2024-08-31T23:08:36.367Z",
          "description" : "containerize the backend",
          "epic" : "backend",
@@ -610,8 +624,8 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66d394d3139d0bb7b82243b2",
-   "createdAt" : "2024-08-31T22:10:27.679Z",
+   "_id" : "66d4bc2075ddfdd6c15a5953",
+   "createdAt" : "2024-09-01T19:10:24.140Z",
    "deadline" : "2024-08-31T23:08:36.367Z",
    "description" : "containerize the backend",
    "epic" : "backend",
@@ -666,8 +680,8 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66d394d3139d0bb7b82243b2",
-   "createdAt" : "2024-08-31T22:10:27.679Z",
+   "_id" : "66d4bc2075ddfdd6c15a5953",
+   "createdAt" : "2024-09-01T19:10:24.140Z",
    "deadline" : "2024-08-31T23:08:36.367Z",
    "description" : "containerize the backend",
    "epic" : "backend",
