@@ -1,7 +1,3 @@
-// TODO: (2024/08/31, 11:26)
-//      create a separate file,
-//      which tests this function on its own
-//                  (= implements automated tests for this function in isolation)
 exports.decodeQueryStringWithinUrl = (url) => {
   const [baseUrl, queryStringRaw] = url.split('?');
 

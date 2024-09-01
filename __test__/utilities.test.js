@@ -1,4 +1,23 @@
-const { determinePaginationInfo } = require('../src/utilities');
+const {
+  decodeQueryStringWithinUrl,
+  determinePaginationInfo,
+} = require('../src/utilities');
+
+describe('decodeQueryStringWithinUrl', () => {
+  test('should replace each "," with "%2C"', () => {
+    // Arrange.
+    const url =
+      'localhost:5000?parameter_1=value_1_1,value_2_1&parameter_2=value_2_1';
+
+    // Act.
+    const urlWithQueryStringDecoded = decodeQueryStringWithinUrl(url);
+
+    // Assert.
+    expect(urlWithQueryStringDecoded).toEqual(
+      'localhost:5000?parameter_1=value_1_1%2Cvalue_2_1&parameter_2=value_2_1'
+    );
+  });
+});
 
 describe('determinePaginationInfo', () => {
   // TODO: (2024/09/01, 11:16)
