@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const NAME_OF_ISSUE_MODEL = 'Issue';
+
 const IssueSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
@@ -24,9 +26,14 @@ const IssueSchema = new mongoose.Schema({
   finishedAt: {
     type: Date,
   },
-  // TODO: (2024/08/17, 11:27) convert the following to a nullable reference to `this._id`
-  epic: {
-    type: String,
+  parentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: NAME_OF_ISSUE_MODEL,
+    default: null, // Allows the field to be nullable.
+    // TODO: (2024/08/28, 21:23)
+    //        find out how to create a secondary index on this field
+    //        https://mongoosejs.com/docs/guide.html#indexes
+    // index: true,
   },
   description: {
     type: String,
@@ -34,6 +41,6 @@ const IssueSchema = new mongoose.Schema({
   },
 });
 
-const Issue = new mongoose.model('Issue', IssueSchema);
+const Issue = new mongoose.model(NAME_OF_ISSUE_MODEL, IssueSchema);
 
 module.exports = Issue;
