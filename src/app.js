@@ -17,11 +17,37 @@ if (process.env.NODE_ENV === 'development') {
 app.post('/api/v1/issues', async (req, res) => {
   let newIssue;
 
+  if (req.body.parentId) {
+    let parentIssue;
+
+    try {
+      parentIssue = await Issue.findById(req.body.parentId);
+    } catch (err) {
+      console.error(err);
+
+      res.status(400).json({
+        message: 'The value provided for "parentId" is invalid',
+      });
+
+      return;
+    }
+
+    if (!parentIssue) {
+      res.status(400).json({
+        message: 'The value provided for `parentId` is non-existent',
+      });
+
+      return;
+    }
+  }
+
   try {
     newIssue = await Issue.create(req.body);
   } catch (err) {
     console.error(err);
 
+    // TODO: (2024/09/02, 05:02)
+    //      shouldn't the following be 500 ?
     res.status(400).json({
       message: 'Unable to create a new issue.',
     });
