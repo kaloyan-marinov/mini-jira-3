@@ -11,9 +11,9 @@ console.log('process.env.LD_LIBRARY_PATH =', process.env.LD_LIBRARY_PATH);
 
 let mongoMemoryServer;
 
-// // For debugging, set the timeout for each test case to the specified amount of time.
-// // const MILLISECONDS_IN_FIVE_MINUTES = 5 * 60 * 1000;
-// jest.setTimeout(MILLISECONDS_IN_FIVE_MINUTES);
+// For debugging, set the timeout for each test case to the specified amount of time.
+const MILLISECONDS_IN_FIVE_MINUTES = 5 * 60 * 1000;
+jest.setTimeout(MILLISECONDS_IN_FIVE_MINUTES);
 
 beforeAll(async () => {
   mongoMemoryServer = await mms.MongoMemoryServer.create();
@@ -686,6 +686,62 @@ describe('DELETE /api/v1/issues/:id', () => {
       message: 'Resource not found',
     });
   });
+
+  test(
+    'if a valid ID is provider' +
+      ' but there exist issues whose `parentId` equals the provided one,' +
+      ' should return 400',
+    async () => {
+      // Arrange.
+      // TODO: (2024/09/02, 22:29)
+      //      the JSON object below is duplicated -
+      //      extract it into a constant somehow
+      const issueEpic1 = await Issue.create({
+        status: '3 = in progress',
+        deadline: new Date('2024-09-02T02:45:36.214Z'),
+        description: 'backend',
+      });
+
+      // TODO: (2024/09/02, 22:30)
+      //      extract `issueEpic1._id.toString()` into a its own variable
+      const issue1 = await Issue.create({
+        status: '1 = backlog',
+        deadline: new Date('2024-08-31T21:43:31.696Z'),
+        description: 'containerize the backend',
+        parentId: issueEpic1._id.toString(),
+      });
+      const issue2 = await Issue.create({
+        status: '1 = backlog',
+        deadline: new Date('2024-08-31T23:43:31.696Z'),
+        description: 'convert the "epic" field to a "parentId" field',
+        parentId: issueEpic1._id.toString(),
+      });
+
+      // Act.
+      const response = await request(app).delete(
+        `/api/v1/issues/${issueEpic1._id.toString()}`
+      );
+
+      // Assert.
+      expect(response.status).toEqual(400);
+      // TODO: (2024/09/02, 22:54)
+      //      this test fails at the preceding statement
+      //
+      //      that is a bug
+      //
+      //      this automated test that catches the bug
+      //
+      //      fix the bug, getting this test to PASS
+      expect(response.body).toEqual({
+        message: 'TBD',
+      });
+
+      const issueEpic1StillExists = await Issue.findById(issue2._id);
+      expect(issueEpic1StillExists.toJSON()).toEqual(issueEpic1.toJSON());
+
+      expect(2 + 2).toEqual(5);
+    }
+  );
 
   test('if a valid ID is provided, should return 204', async () => {
     // Arrange.

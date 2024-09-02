@@ -252,18 +252,6 @@ app.put('/api/v1/issues/:id', async (req, res) => {
   res.status(200).json(issue);
 });
 
-// TODO: (2024/09/02, 06:06)
-//      bug:
-//      if issue A is the parent of issue B
-//      and an HTTP client issues a request for deleting issue A,
-//      the HTTP response has a status code of 204
-//      and
-//      issue A gets deleted from the database
-//      _but_ the `parentId` of issue B remains set to the `_id` of the now-deleted issue A ;
-//
-//      write an automated test that catches the bug
-//
-//      fix the bug
 app.delete('/api/v1/issues/:id', async (req, res) => {
   let issue;
   const issueId = req.params.id;
