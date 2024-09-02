@@ -87,76 +87,84 @@ describe('POST /api/v1/issues', () => {
 });
 
 describe('GET /api/v1/issues', () => {
-  test('if there are no Issue resources in the MongoDB server, should return 200 and an empty list', async () => {
-    // Act.
-    const response = await request(app).get('/api/v1/issues');
+  test(
+    'if there are no Issue resources in the MongoDB server,' +
+      ' should return 200 and an empty list',
+    async () => {
+      // Act.
+      const response = await request(app).get('/api/v1/issues');
 
-    // Assert.
-    expect(response.status).toEqual(200);
-    expect(response.body).toEqual({
-      meta: {
-        total: 0,
-        first: `/api/v1/issues?page=1`,
-        prev: null,
-        curr: '/api/v1/issues',
-        next: null,
-        last: `/api/v1/issues?page=1`,
-      },
-      resources: [],
-    });
-  });
-
-  test('if there are Issue resources, should return 200 and representations of the resources', async () => {
-    // Arrange.
-    const issue1 = await Issue.create({
-      status: '3 = in progress',
-      deadline: new Date('2024-08-20T21:07:45.759Z'),
-      description: 'write tests for the other request-handling functions',
-    });
-
-    const issue2 = await Issue.create({
-      status: '1 = backlog',
-      deadline: new Date('2024-08-20T21:08:31.345Z'),
-      description:
-        'switch from `const express = require(express)` to `import express from "express";"',
-    });
-
-    // Act.
-    const response = await request(app).get('/api/v1/issues');
-
-    // Assert.
-    expect(response.status).toEqual(200);
-
-    expect(response.body).toEqual({
-      meta: {
-        total: 2,
-        first: '/api/v1/issues?perPage=100&page=1',
-        prev: null,
-        curr: '/api/v1/issues?perPage=100&page=1',
-        next: null,
-        last: '/api/v1/issues?perPage=100&page=1',
-      },
-      resources: [
-        {
-          __v: expect.anything(),
-          _id: issue1._id.toString(),
-          createdAt: expect.anything(),
-          status: '3 = in progress',
-          deadline: '2024-08-20T21:07:45.759Z',
-          description: 'write tests for the other request-handling functions',
+      // Assert.
+      expect(response.status).toEqual(200);
+      expect(response.body).toEqual({
+        meta: {
+          total: 0,
+          first: `/api/v1/issues?page=1`,
+          prev: null,
+          curr: '/api/v1/issues',
+          next: null,
+          last: `/api/v1/issues?page=1`,
         },
-        {
-          __v: expect.anything(),
-          _id: issue2._id.toString(),
-          createdAt: expect.anything(),
-          status: '1 = backlog',
-          deadline: '2024-08-20T21:08:31.345Z',
-          description:
-            'switch from `const express = require(express)` to `import express from "express";"',
+        resources: [],
+      });
+    }
+  );
+
+  test(
+    'if there are Issue resources,' +
+      ' should return 200 and representations of the resources',
+    async () => {
+      // Arrange.
+      const issue1 = await Issue.create({
+        status: '3 = in progress',
+        deadline: new Date('2024-08-20T21:07:45.759Z'),
+        description: 'write tests for the other request-handling functions',
+      });
+
+      const issue2 = await Issue.create({
+        status: '1 = backlog',
+        deadline: new Date('2024-08-20T21:08:31.345Z'),
+        description:
+          'switch from `const express = require(express)` to `import express from "express";"',
+      });
+
+      // Act.
+      const response = await request(app).get('/api/v1/issues');
+
+      // Assert.
+      expect(response.status).toEqual(200);
+
+      expect(response.body).toEqual({
+        meta: {
+          total: 2,
+          first: '/api/v1/issues?perPage=100&page=1',
+          prev: null,
+          curr: '/api/v1/issues?perPage=100&page=1',
+          next: null,
+          last: '/api/v1/issues?perPage=100&page=1',
         },
-      ],
-    });
-  });
+        resources: [
+          {
+            __v: expect.anything(),
+            _id: issue1._id.toString(),
+            createdAt: expect.anything(),
+            status: '3 = in progress',
+            deadline: '2024-08-20T21:07:45.759Z',
+            description: 'write tests for the other request-handling functions',
+          },
+          {
+            __v: expect.anything(),
+            _id: issue2._id.toString(),
+            createdAt: expect.anything(),
+            status: '1 = backlog',
+            deadline: '2024-08-20T21:08:31.345Z',
+            description:
+              'switch from `const express = require(express)` to `import express from "express";"',
+          },
+        ],
+      });
+    }
+  );
 
   test(
     'if there are Issue resource' +
