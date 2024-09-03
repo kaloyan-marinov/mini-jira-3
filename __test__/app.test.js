@@ -4,7 +4,10 @@ const request = require('supertest');
 
 const app = require('../src/app');
 const Issue = require('../src/models');
-const { decodeQueryStringWithinUrl } = require('../src/utilities');
+const {
+  corruptIdOfMongooseObject,
+  decodeQueryStringWithinUrl,
+} = require('../src/utilities');
 
 console.log('process.env.HOME =', process.env.HOME);
 console.log('process.env.LD_LIBRARY_PATH =', process.env.LD_LIBRARY_PATH);
@@ -122,14 +125,7 @@ describe('POST /api/v1/issues', () => {
     // Arrange.
     const issue = await Issue.create(JSON_4_ISSUE_EPIC_1);
 
-    // TODO: (2024/09/02, 05:16)
-    //      the following code-block is duplicated -
-    //      extract it into a utility function
-    const issueId = issue._id.toString();
-    const notLastDigitOfId =
-      issueId.charAt(issueId.length - 1) == '0' ? '1' : '0';
-    const nonexistentId =
-      issueId.slice(0, issueId.length - 1) + notLastDigitOfId;
+    const nonexistentId = corruptIdOfMongooseObject(issue);
 
     // Act.
     const response = await request(app)
@@ -586,11 +582,7 @@ describe('PUT /api/v1/issues/:id', () => {
       description: 'code cvrg reports in HTML',
     });
 
-    const issueId = issue._id.toString();
-    const notLastDigitOfId =
-      issueId.charAt(issueId.length - 1) == '0' ? '1' : '0';
-    const nonexistentId =
-      issueId.slice(0, issueId.length - 1) + notLastDigitOfId;
+    const nonexistentId = corruptIdOfMongooseObject(issue);
 
     // Act.
     const response = await request(app).put(`/api/v1/issues/${nonexistentId}`);
@@ -662,11 +654,7 @@ describe('DELETE /api/v1/issues/:id', () => {
       description: 'generate code coverage reports in HTML format',
     });
 
-    const issueId = issue._id.toString();
-    const notLastDigitOfId =
-      issueId.charAt(issueId.length - 1) == '0' ? '1' : '0';
-    const nonexistentId =
-      issueId.slice(0, issueId.length - 1) + notLastDigitOfId;
+    const nonexistentId = corruptIdOfMongooseObject(issue);
 
     // Act.
     const response = await request(app).delete(

@@ -1,3 +1,17 @@
+exports.corruptIdOfMongooseObject = (mongooseObj) => {
+  /*
+  Create a valid Mongoose ID
+  which, however, does not exist in a Mongoose model.
+  */
+
+  const objId = mongooseObj._id.toString();
+
+  const notLastDigitOfId = objId.charAt(objId.length - 1) == '0' ? '1' : '0';
+  const nonexistentId = objId.slice(0, objId.length - 1) + notLastDigitOfId;
+
+  return nonexistentId;
+};
+
 exports.decodeQueryStringWithinUrl = (url) => {
   const [baseUrl, queryStringRaw] = url.split('?');
 
