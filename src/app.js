@@ -214,15 +214,19 @@ app.get('/api/v1/issues/:id', async (req, res) => {
   try {
     issue = await Issue.findById(issueId);
   } catch (err) {
-    return res.status(400).json({
+    res.status(400).json({
       message: 'Invalid ID provided',
     });
+
+    return;
   }
 
   if (!issue) {
-    return res.status(404).json({
+    res.status(404).json({
       message: 'Resource not found',
     });
+
+    return;
   }
 
   res.status(200).json(issue);
@@ -234,15 +238,19 @@ app.put('/api/v1/issues/:id', async (req, res) => {
   try {
     issue = await Issue.findById(issueId);
   } catch (err) {
-    return res.status(400).json({
+    res.status(400).json({
       message: 'Invalid ID provided',
     });
+
+    return;
   }
 
   if (!issue) {
-    return res.status(404).json({
+    res.status(404).json({
       message: 'Resource not found',
     });
+
+    return;
   }
 
   issue = await Issue.findByIdAndUpdate(issueId, req.body, {
@@ -258,9 +266,11 @@ app.delete('/api/v1/issues/:id', async (req, res) => {
   try {
     issue = await Issue.findById(issueId);
   } catch (err) {
-    return res.status(400).json({
+    res.status(400).json({
       message: 'Invalid ID provided',
     });
+
+    return;
   }
 
   let countChildren;
@@ -269,9 +279,11 @@ app.delete('/api/v1/issues/:id', async (req, res) => {
       parentId: issueId,
     }).countDocuments();
   } catch (err) {
-    return res.status(500).json({
+    res.status(500).json({
       message: 'Failed to process your HTTP request',
     });
+
+    return;
   }
   if (countChildren > 0) {
     res.status(400).json({
@@ -284,9 +296,11 @@ app.delete('/api/v1/issues/:id', async (req, res) => {
   }
 
   if (!issue) {
-    return res.status(404).json({
+    res.status(404).json({
       message: 'Resource not found',
     });
+
+    return;
   }
 
   await issue.deleteOne();
