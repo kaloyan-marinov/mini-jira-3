@@ -15,6 +15,18 @@ let mongoMemoryServer;
 // const MILLISECONDS_IN_FIVE_MINUTES = 5 * 60 * 1000;
 // jest.setTimeout(MILLISECONDS_IN_FIVE_MINUTES);
 
+const JSON_4_ISSUE_EPIC_1 = {
+  status: '3 = in progress',
+  deadline: new Date('2024-09-02T02:45:36.214Z'),
+  description: 'backend',
+};
+
+const JSON_4_ISSUE_EPIC_2 = {
+  status: '1 = backlog',
+  deadline: new Date('2024-09-02T03:28:39.611Z'),
+  description: 'frontend',
+};
+
 beforeAll(async () => {
   mongoMemoryServer = await mms.MongoMemoryServer.create();
   const uri = mongoMemoryServer.getUri();
@@ -108,14 +120,7 @@ describe('POST /api/v1/issues', () => {
 
   test('if "parentId" is non-existent, should returnd 400', async () => {
     // Arrange.
-    // TODO: (2024/09/02, 05:14)
-    //      the JSON object below is duplicated -
-    //      extract it into a constant somehow
-    const issue = await Issue.create({
-      status: '3 = in progress',
-      deadline: new Date('2024-09-02T02:45:36.214Z'),
-      description: 'backend',
-    });
+    const issue = await Issue.create(JSON_4_ISSUE_EPIC_1);
 
     // TODO: (2024/09/02, 05:16)
     //      the following code-block is duplicated -
@@ -145,11 +150,7 @@ describe('POST /api/v1/issues', () => {
 
   test('if "status" and "description" and "parentId", should return 201', async () => {
     // Arrange.
-    const issue = await Issue.create({
-      status: '3 = in progress',
-      deadline: new Date('2024-09-02T02:45:36.214Z'),
-      description: 'backend',
-    });
+    const issue = await Issue.create(JSON_4_ISSUE_EPIC_1);
 
     // Act.
     const response = await request(app)
@@ -266,16 +267,8 @@ describe('GET /api/v1/issues', () => {
       ' should return 200, a correct total, and representation of the resources',
     async () => {
       // Arrange.
-      const issueEpic1 = await Issue.create({
-        status: '3 = in progress',
-        deadline: new Date('2024-09-02T02:45:36.214Z'),
-        description: 'backend',
-      });
-      const issueEpic2 = await Issue.create({
-        status: '1 = backlog',
-        deadline: new Date('2024-09-02T03:28:39.611Z'),
-        description: 'frontend',
-      });
+      const issueEpic1 = await Issue.create(JSON_4_ISSUE_EPIC_1);
+      const issueEpic2 = await Issue.create(JSON_4_ISSUE_EPIC_2);
 
       // TODO: (2024/09/02, 05:34)
       //      extract `issueEpic1._id.toString()` into a its own variable
@@ -693,14 +686,7 @@ describe('DELETE /api/v1/issues/:id', () => {
       ' should return 400',
     async () => {
       // Arrange.
-      // TODO: (2024/09/02, 22:29)
-      //      the JSON object below is duplicated -
-      //      extract it into a constant somehow
-      const issueEpic1 = await Issue.create({
-        status: '3 = in progress',
-        deadline: new Date('2024-09-02T02:45:36.214Z'),
-        description: 'backend',
-      });
+      const issueEpic1 = await Issue.create(JSON_4_ISSUE_EPIC_1);
 
       // TODO: (2024/09/02, 22:30)
       //      extract `issueEpic1._id.toString()` into a its own variable
