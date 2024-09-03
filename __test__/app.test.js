@@ -11,9 +11,9 @@ console.log('process.env.LD_LIBRARY_PATH =', process.env.LD_LIBRARY_PATH);
 
 let mongoMemoryServer;
 
-// For debugging, set the timeout for each test case to the specified amount of time.
-const MILLISECONDS_IN_FIVE_MINUTES = 5 * 60 * 1000;
-jest.setTimeout(MILLISECONDS_IN_FIVE_MINUTES);
+// // For debugging, set the timeout for each test case to the specified amount of time.
+// const MILLISECONDS_IN_FIVE_MINUTES = 5 * 60 * 1000;
+// jest.setTimeout(MILLISECONDS_IN_FIVE_MINUTES);
 
 beforeAll(async () => {
   mongoMemoryServer = await mms.MongoMemoryServer.create();
@@ -724,22 +724,15 @@ describe('DELETE /api/v1/issues/:id', () => {
 
       // Assert.
       expect(response.status).toEqual(400);
-      // TODO: (2024/09/02, 22:54)
-      //      this test fails at the preceding statement
-      //
-      //      that is a bug
-      //
-      //      this automated test that catches the bug
-      //
-      //      fix the bug, getting this test to PASS
       expect(response.body).toEqual({
-        message: 'TBD',
+        message:
+          'Cannot delete the targeted issue,' +
+          ` because there exist 2 other issues` +
+          ' whose `parentId` points to the targeted issue',
       });
 
-      const issueEpic1StillExists = await Issue.findById(issue2._id);
+      const issueEpic1StillExists = await Issue.findById(issueEpic1._id);
       expect(issueEpic1StillExists.toJSON()).toEqual(issueEpic1.toJSON());
-
-      expect(2 + 2).toEqual(5);
     }
   );
 

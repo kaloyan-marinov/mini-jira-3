@@ -263,6 +263,26 @@ app.delete('/api/v1/issues/:id', async (req, res) => {
     });
   }
 
+  let countChildren;
+  try {
+    countChildren = await Issue.find({
+      parentId: issueId,
+    }).countDocuments();
+  } catch (err) {
+    return res.status(500).json({
+      message: 'Failed to process your HTTP request',
+    });
+  }
+  if (countChildren > 0) {
+    res.status(400).json({
+      message:
+        'Cannot delete the targeted issue,' +
+        ` because there exist ${countChildren} other issues` +
+        ' whose `parentId` points to the targeted issue',
+    });
+    return;
+  }
+
   if (!issue) {
     return res.status(404).json({
       message: 'Resource not found',
