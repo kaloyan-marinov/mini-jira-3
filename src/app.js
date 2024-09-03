@@ -46,8 +46,6 @@ app.post('/api/v1/issues', async (req, res) => {
   } catch (err) {
     console.error(err);
 
-    // TODO: (2024/09/02, 05:02)
-    //      shouldn't the following be 500 ?
     res.status(400).json({
       message: 'Unable to create a new issue.',
     });
