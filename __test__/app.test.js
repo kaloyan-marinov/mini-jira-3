@@ -270,13 +270,13 @@ describe('GET /api/v1/issues', () => {
       const issueEpic1 = await Issue.create(JSON_4_ISSUE_EPIC_1);
       const issueEpic2 = await Issue.create(JSON_4_ISSUE_EPIC_2);
 
-      // TODO: (2024/09/02, 05:34)
-      //      extract `issueEpic1._id.toString()` into a its own variable
+      const issueEpic1Id = issueEpic1._id.toString();
+
       const issue1 = await Issue.create({
         status: '1 = backlog',
         deadline: new Date('2024-08-31T21:43:31.696Z'),
         description: 'containerize the backend',
-        parentId: issueEpic1._id.toString(),
+        parentId: issueEpic1Id,
       });
 
       const issue2 = await Issue.create({
@@ -291,12 +291,12 @@ describe('GET /api/v1/issues', () => {
         status: '1 = backlog',
         deadline: new Date('2024-08-31T23:43:31.696Z'),
         description: 'convert the "epic" field to a "parentId" field',
-        parentId: issueEpic1._id.toString(),
+        parentId: issueEpic1Id,
       });
 
       // Act.
       const response = await request(app).get(
-        `/api/v1/issues?parentId=${issueEpic1._id.toString()}`
+        `/api/v1/issues?parentId=${issueEpic1Id}`
       );
 
       // Assert.
@@ -305,11 +305,11 @@ describe('GET /api/v1/issues', () => {
       expect(response.body).toEqual({
         meta: {
           total: 2,
-          first: `/api/v1/issues?parentId=${issueEpic1._id.toString()}&perPage=100&page=1`,
+          first: `/api/v1/issues?parentId=${issueEpic1Id}&perPage=100&page=1`,
           prev: null,
-          curr: `/api/v1/issues?parentId=${issueEpic1._id.toString()}&perPage=100&page=1`,
+          curr: `/api/v1/issues?parentId=${issueEpic1Id}&perPage=100&page=1`,
           next: null,
-          last: `/api/v1/issues?parentId=${issueEpic1._id.toString()}&perPage=100&page=1`,
+          last: `/api/v1/issues?parentId=${issueEpic1Id}&perPage=100&page=1`,
         },
         resources: [
           {
@@ -319,7 +319,7 @@ describe('GET /api/v1/issues', () => {
             status: '1 = backlog',
             deadline: '2024-08-31T21:43:31.696Z',
             description: 'containerize the backend',
-            parentId: issueEpic1._id.toString(),
+            parentId: issueEpic1Id,
           },
           {
             __v: expect.anything(),
@@ -328,7 +328,7 @@ describe('GET /api/v1/issues', () => {
             status: '1 = backlog',
             deadline: '2024-08-31T23:43:31.696Z',
             description: 'convert the "epic" field to a "parentId" field',
-            parentId: issueEpic1._id.toString(),
+            parentId: issueEpic1Id,
           },
         ],
       });
@@ -681,31 +681,31 @@ describe('DELETE /api/v1/issues/:id', () => {
   });
 
   test(
-    'if a valid ID is provider' +
+    'if a valid ID is provided' +
       ' but there exist issues whose `parentId` equals the provided one,' +
       ' should return 400',
     async () => {
       // Arrange.
       const issueEpic1 = await Issue.create(JSON_4_ISSUE_EPIC_1);
 
-      // TODO: (2024/09/02, 22:30)
-      //      extract `issueEpic1._id.toString()` into a its own variable
+      const issueEpic1Id = issueEpic1._id.toString();
+
       const issue1 = await Issue.create({
         status: '1 = backlog',
         deadline: new Date('2024-08-31T21:43:31.696Z'),
         description: 'containerize the backend',
-        parentId: issueEpic1._id.toString(),
+        parentId: issueEpic1Id,
       });
       const issue2 = await Issue.create({
         status: '1 = backlog',
         deadline: new Date('2024-08-31T23:43:31.696Z'),
         description: 'convert the "epic" field to a "parentId" field',
-        parentId: issueEpic1._id.toString(),
+        parentId: issueEpic1Id,
       });
 
       // Act.
       const response = await request(app).delete(
-        `/api/v1/issues/${issueEpic1._id.toString()}`
+        `/api/v1/issues/${issueEpic1Id}`
       );
 
       // Assert.
@@ -717,7 +717,7 @@ describe('DELETE /api/v1/issues/:id', () => {
           ' whose `parentId` points to the targeted issue',
       });
 
-      const issueEpic1StillExists = await Issue.findById(issueEpic1._id);
+      const issueEpic1StillExists = await Issue.findById(issueEpic1Id);
       expect(issueEpic1StillExists.toJSON()).toEqual(issueEpic1.toJSON());
     }
   );
