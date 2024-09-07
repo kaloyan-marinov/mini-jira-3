@@ -36,8 +36,24 @@ beforeAll(async () => {
   await mongoose.connect(uri);
 });
 
+const PROCESS_ENV_ORIGINAL = process.env;
+
 beforeEach(async () => {
   await mongoose.connection.db.dropDatabase();
+
+  process.env = {
+    ...PROCESS_ENV_ORIGINAL,
+    BACKEND_SECRET_KEY:
+      'this-must-be-very-secure-and-must-not-be-shared-with-anyone-else',
+    BACKEND_USER_ID: '17',
+    BACKEND_USERNAME: 'test-username',
+    BACKEND_PASSWORD: 'test-password',
+    BACKEND_JWT_EXPIRES_IN: '17m',
+  };
+});
+
+afterEach(() => {
+  process.env = PROCESS_ENV_ORIGINAL;
 });
 
 afterAll(async () => {
@@ -46,27 +62,10 @@ afterAll(async () => {
 });
 
 describe('POST /api/v1/tokens', () => {
-  const PROCESS_ENV_ORIGINAL = process.env;
-
-  afterEach(() => {
-    process.env = PROCESS_ENV_ORIGINAL;
-  });
-
   test(
     'if a client sends a correct set of Basic Auth credentials,' +
       ' should return 200',
     async () => {
-      // Arrange.
-      process.env = {
-        ...PROCESS_ENV_ORIGINAL,
-        BACKEND_SECRET_KEY:
-          'this-must-be-very-secure-and-must-not-be-shared-with-anyone-else',
-        BACKEND_USER_ID: '17',
-        BACKEND_USERNAME: 'test-username',
-        BACKEND_PASSWORD: 'test-password',
-        BACKEND_JWT_EXPIRES_IN: '17m',
-      };
-
       // Act.
       const response = await request(app)
         .post('/api/v1/tokens')
@@ -82,30 +81,14 @@ describe('POST /api/v1/tokens', () => {
 });
 
 describe('POST /api/v1/issues', () => {
-  const PROCESS_ENV_ORIGINAL = process.env;
-
   let accessToken;
 
   beforeEach(async () => {
-    process.env = {
-      ...PROCESS_ENV_ORIGINAL,
-      BACKEND_SECRET_KEY:
-        'this-must-be-very-secure-and-must-not-be-shared-with-anyone-else',
-      BACKEND_USER_ID: '17',
-      BACKEND_USERNAME: 'test-username',
-      BACKEND_PASSWORD: 'test-password',
-      BACKEND_JWT_EXPIRES_IN: '17m',
-    };
-
     const response = await request(app)
       .post('/api/v1/tokens')
       .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
 
     accessToken = response.body.accessToken;
-  });
-
-  afterEach(() => {
-    process.env = PROCESS_ENV_ORIGINAL;
   });
 
   test('if "status" is missing, should return 400', async () => {
@@ -248,30 +231,14 @@ describe('POST /api/v1/issues', () => {
 });
 
 describe('GET /api/v1/issues', () => {
-  const PROCESS_ENV_ORIGINAL = process.env;
-
   let accessToken;
 
   beforeEach(async () => {
-    process.env = {
-      ...PROCESS_ENV_ORIGINAL,
-      BACKEND_SECRET_KEY:
-        'this-must-be-very-secure-and-must-not-be-shared-with-anyone-else',
-      BACKEND_USER_ID: '17',
-      BACKEND_USERNAME: 'test-username',
-      BACKEND_PASSWORD: 'test-password',
-      BACKEND_JWT_EXPIRES_IN: '17m',
-    };
-
     const response = await request(app)
       .post('/api/v1/tokens')
       .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
 
     accessToken = response.body.accessToken;
-  });
-
-  afterEach(() => {
-    process.env = PROCESS_ENV_ORIGINAL;
   });
 
   test(
@@ -673,30 +640,14 @@ describe('GET /api/v1/issues', () => {
 });
 
 describe('GET /api/v1/issues/:id', () => {
-  const PROCESS_ENV_ORIGINAL = process.env;
-
   let accessToken;
 
   beforeEach(async () => {
-    process.env = {
-      ...PROCESS_ENV_ORIGINAL,
-      BACKEND_SECRET_KEY:
-        'this-must-be-very-secure-and-must-not-be-shared-with-anyone-else',
-      BACKEND_USER_ID: '17',
-      BACKEND_USERNAME: 'test-username',
-      BACKEND_PASSWORD: 'test-password',
-      BACKEND_JWT_EXPIRES_IN: '17m',
-    };
-
     const response = await request(app)
       .post('/api/v1/tokens')
       .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
 
     accessToken = response.body.accessToken;
-  });
-
-  afterEach(() => {
-    process.env = PROCESS_ENV_ORIGINAL;
   });
 
   test('if an invalid ID is provided, should return 400', async () => {
@@ -741,30 +692,14 @@ describe('GET /api/v1/issues/:id', () => {
 });
 
 describe('PUT /api/v1/issues/:id', () => {
-  const PROCESS_ENV_ORIGINAL = process.env;
-
   let accessToken;
 
   beforeEach(async () => {
-    process.env = {
-      ...PROCESS_ENV_ORIGINAL,
-      BACKEND_SECRET_KEY:
-        'this-must-be-very-secure-and-must-not-be-shared-with-anyone-else',
-      BACKEND_USER_ID: '17',
-      BACKEND_USERNAME: 'test-username',
-      BACKEND_PASSWORD: 'test-password',
-      BACKEND_JWT_EXPIRES_IN: '17m',
-    };
-
     const response = await request(app)
       .post('/api/v1/tokens')
       .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
 
     accessToken = response.body.accessToken;
-  });
-
-  afterEach(() => {
-    process.env = PROCESS_ENV_ORIGINAL;
   });
 
   test('if an invalid ID is provided, should return 400', async () => {
@@ -846,30 +781,14 @@ describe('PUT /api/v1/issues/:id', () => {
 });
 
 describe('DELETE /api/v1/issues/:id', () => {
-  const PROCESS_ENV_ORIGINAL = process.env;
-
   let accessToken;
 
   beforeEach(async () => {
-    process.env = {
-      ...PROCESS_ENV_ORIGINAL,
-      BACKEND_SECRET_KEY:
-        'this-must-be-very-secure-and-must-not-be-shared-with-anyone-else',
-      BACKEND_USER_ID: '17',
-      BACKEND_USERNAME: 'test-username',
-      BACKEND_PASSWORD: 'test-password',
-      BACKEND_JWT_EXPIRES_IN: '17m',
-    };
-
     const response = await request(app)
       .post('/api/v1/tokens')
       .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
 
     accessToken = response.body.accessToken;
-  });
-
-  afterEach(() => {
-    process.env = PROCESS_ENV_ORIGINAL;
   });
 
   test('if an invalid ID is provided, should return 400', async () => {
