@@ -65,7 +65,7 @@ app.post('/api/v1/tokens', async (req, res) => {
   });
 });
 
-app.post('/api/v1/issues', async (req, res) => {
+const tokenAuth = async (req, res, next) => {
   const headerAuth = req.headers.authorization;
   if (!headerAuth) {
     res.status(400).json({
@@ -102,6 +102,15 @@ app.post('/api/v1/issues', async (req, res) => {
 
     return;
   }
+
+  req.userId = jwtPayload.userId;
+
+  next();
+};
+
+app.post('/api/v1/issues', tokenAuth, async (req, res) => {
+  console.log('req.userId = ', req.userId);
+  console.log('typeof req.userId = ', typeof req.userId);
 
   let newIssue;
 
