@@ -267,6 +267,7 @@ describe('GET /api/v1/issues', () => {
       const issueEpic2 = await Issue.create(JSON_4_ISSUE_EPIC_2);
 
       const issueEpic1Id = issueEpic1._id.toString();
+      const issueEpic2Id = issueEpic2._id.toString();
 
       const issue1 = await Issue.create({
         status: '1 = backlog',
@@ -291,14 +292,14 @@ describe('GET /api/v1/issues', () => {
       });
 
       // Act.
-      const response = await request(app).get(
+      const response1 = await request(app).get(
         `/api/v1/issues?parentId=${issueEpic1Id}`
       );
 
       // Assert.
-      expect(response.status).toEqual(200);
+      expect(response1.status).toEqual(200);
 
-      expect(response.body).toEqual({
+      expect(response1.body).toEqual({
         meta: {
           total: 2,
           first: `/api/v1/issues?parentId=${issueEpic1Id}&perPage=100&page=1`,
@@ -328,6 +329,53 @@ describe('GET /api/v1/issues', () => {
           },
         ],
       });
+
+      // Act.
+      const response2 = await request(app).get('/api/v1/issues?parentId=null');
+
+      // Assert.
+      expect(response2.status).toEqual(200);
+
+      const expectedBodyOfResponse2 = {
+        meta: {
+          total: 2,
+          first: '/api/v1/issues?parentId=null&perPage=100&page=1',
+          prev: null,
+          curr: '/api/v1/issues?parentId=null&perPage=100&page=1',
+          next: null,
+          last: '/api/v1/issues?parentId=null&perPage=100&page=1',
+        },
+        resources: [
+          {
+            __v: expect.anything(),
+            _id: issueEpic1Id,
+            createdAt: expect.anything(),
+            status: '3 = in progress',
+            deadline: '2024-09-02T02:45:36.214Z',
+            description: 'backend',
+            parentId: null,
+          },
+          {
+            __v: expect.anything(),
+            _id: issueEpic2Id,
+            createdAt: expect.anything(),
+            status: '1 = backlog',
+            deadline: '2024-09-02T03:28:39.611Z',
+            description: 'frontend',
+            parentId: null,
+          },
+        ],
+      };
+      expect(response2.body).toEqual(expectedBodyOfResponse2);
+
+      // Act.
+      const response3 = await request(app).get('/api/v1/issues?parentId=');
+
+      // Assert.
+      expect(response3.status).toEqual(200);
+
+      const expectedBodyOfResponse3 = { ...expectedBodyOfResponse2 };
+      expect(response3.body).toEqual(expectedBodyOfResponse3);
     }
   );
 

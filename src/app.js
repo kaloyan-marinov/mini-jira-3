@@ -59,10 +59,6 @@ app.post('/api/v1/issues', async (req, res) => {
     .json(newIssue);
 });
 
-// TODO: (2024/09/02, 06:20)
-//      does this handler make it possible
-//      to obtain all Issue resources without a `parentId`?
-//      write an automated test for that scenario
 app.get('/api/v1/issues', async (req, res) => {
   let query;
 
@@ -75,13 +71,23 @@ app.get('/api/v1/issues', async (req, res) => {
 
   const excludedParam2Value = {};
   const fieldsToExcludeFromReqQuery = ['select', 'sort', 'perPage', 'page'];
-  for (f of fieldsToExcludeFromReqQuery) {
+  for (const f of fieldsToExcludeFromReqQuery) {
     if (reqQuery[f]) {
       excludedParam2Value[f] = reqQuery[f];
     }
 
     delete reqQuery[f];
   }
+
+  // Allow for the `parentId` query parameter to be set to «a void value».
+  const nullValuesForParentId = new Set(['', 'null']);
+  if (
+    reqQuery.hasOwnProperty('parentId') &&
+    nullValuesForParentId.has(reqQuery['parentId'])
+  ) {
+    reqQuery['parentId'] = null;
+  }
+
   const queryRawStr = JSON.stringify(reqQuery);
 
   // Create the following Mongoose operators: `$in`, `$lt`, `$lte`, `$gt`, `$gte` .
