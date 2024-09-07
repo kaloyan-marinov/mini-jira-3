@@ -156,7 +156,7 @@ app.post('/api/v1/issues', tokenAuth, async (req, res) => {
     .json(newIssue);
 });
 
-app.get('/api/v1/issues', async (req, res) => {
+app.get('/api/v1/issues', tokenAuth, async (req, res) => {
   let query;
 
   // Exclude all query parameters,
@@ -309,7 +309,7 @@ app.get('/api/v1/issues', async (req, res) => {
   }
 });
 
-app.get('/api/v1/issues/:id', async (req, res) => {
+app.get('/api/v1/issues/:id', tokenAuth, async (req, res) => {
   let issue;
   const issueId = req.params.id;
   try {
@@ -333,7 +333,7 @@ app.get('/api/v1/issues/:id', async (req, res) => {
   res.status(200).json(issue);
 });
 
-app.put('/api/v1/issues/:id', async (req, res) => {
+app.put('/api/v1/issues/:id', tokenAuth, async (req, res) => {
   let issue;
   const issueId = req.params.id;
   try {
@@ -361,7 +361,7 @@ app.put('/api/v1/issues/:id', async (req, res) => {
   res.status(200).json(issue);
 });
 
-app.delete('/api/v1/issues/:id', async (req, res) => {
+app.delete('/api/v1/issues/:id', tokenAuth, async (req, res) => {
   let issue;
   const issueId = req.params.id;
   try {

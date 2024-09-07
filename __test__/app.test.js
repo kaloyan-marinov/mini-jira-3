@@ -248,12 +248,36 @@ describe('POST /api/v1/issues', () => {
 });
 
 describe('GET /api/v1/issues', () => {
+  const PROCESS_ENV_ORIGINAL = process.env;
+
+  let accessToken;
+
+  beforeEach(async () => {
+    process.env = {
+      ...PROCESS_ENV_ORIGINAL,
+      BACKEND_SECRET_KEY:
+        'this-must-be-very-secure-and-must-not-be-shared-with-anyone-else',
+      BACKEND_USER_ID: '17',
+      BACKEND_USERNAME: 'test-username',
+      BACKEND_PASSWORD: 'test-password',
+      BACKEND_JWT_EXPIRES_IN: '17m',
+    };
+
+    const response = await request(app)
+      .post('/api/v1/tokens')
+      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+
+    accessToken = response.body.accessToken;
+  });
+
   test(
     'if there are no Issue resources in the MongoDB server,' +
       ' should return 200 and an empty list',
     async () => {
       // Act.
-      const response = await request(app).get('/api/v1/issues');
+      const response = await request(app)
+        .get('/api/v1/issues')
+        .set('Authorization', 'Bearer ' + accessToken);
 
       // Assert.
       expect(response.status).toEqual(200);
@@ -290,7 +314,9 @@ describe('GET /api/v1/issues', () => {
       });
 
       // Act.
-      const response = await request(app).get('/api/v1/issues');
+      const response = await request(app)
+        .get('/api/v1/issues')
+        .set('Authorization', 'Bearer ' + accessToken);
 
       // Assert.
       expect(response.status).toEqual(200);
@@ -364,9 +390,9 @@ describe('GET /api/v1/issues', () => {
       });
 
       // Act.
-      const response1 = await request(app).get(
-        `/api/v1/issues?parentId=${issueEpic1Id}`
-      );
+      const response1 = await request(app)
+        .get(`/api/v1/issues?parentId=${issueEpic1Id}`)
+        .set('Authorization', 'Bearer ' + accessToken);
 
       // Assert.
       expect(response1.status).toEqual(200);
@@ -403,7 +429,9 @@ describe('GET /api/v1/issues', () => {
       });
 
       // Act.
-      const response2 = await request(app).get('/api/v1/issues?parentId=null');
+      const response2 = await request(app)
+        .get('/api/v1/issues?parentId=null')
+        .set('Authorization', 'Bearer ' + accessToken);
 
       // Assert.
       expect(response2.status).toEqual(200);
@@ -441,7 +469,9 @@ describe('GET /api/v1/issues', () => {
       expect(response2.body).toEqual(expectedBodyOfResponse2);
 
       // Act.
-      const response3 = await request(app).get('/api/v1/issues?parentId=');
+      const response3 = await request(app)
+        .get('/api/v1/issues?parentId=')
+        .set('Authorization', 'Bearer ' + accessToken);
 
       // Assert.
       expect(response3.status).toEqual(200);
@@ -469,9 +499,9 @@ describe('GET /api/v1/issues', () => {
       });
 
       // Act.
-      const response = await request(app).get(
-        '/api/v1/issues?select=status,description'
-      );
+      const response = await request(app)
+        .get('/api/v1/issues?select=status,description')
+        .set('Authorization', 'Bearer ' + accessToken);
 
       // Assert.
       expect(response.status).toEqual(200);
@@ -525,7 +555,9 @@ describe('GET /api/v1/issues', () => {
       });
 
       // Act. (Request a sorting in descending order.)
-      const response1 = await request(app).get('/api/v1/issues?sort=-status');
+      const response1 = await request(app)
+        .get('/api/v1/issues?sort=-status')
+        .set('Authorization', 'Bearer ' + accessToken);
 
       // Assert.
       expect(response1.status).toEqual(200);
@@ -566,7 +598,9 @@ describe('GET /api/v1/issues', () => {
       });
 
       // Act. (Request a sorting in ascending order.)
-      const response2 = await request(app).get('/api/v1/issues?sort=status');
+      const response2 = await request(app)
+        .get('/api/v1/issues?sort=status')
+        .set('Authorization', 'Bearer ' + accessToken);
 
       // Assert.
       expect(response2.status).toEqual(200);
@@ -602,9 +636,9 @@ describe('GET /api/v1/issues', () => {
       }
 
       // Act.
-      const response = await request(app).get(
-        '/api/v1/issues?perPage=1&page=3'
-      );
+      const response = await request(app)
+        .get('/api/v1/issues?perPage=1&page=3')
+        .set('Authorization', 'Bearer ' + accessToken);
 
       // Assert.
       expect(response.status).toEqual(200);
@@ -635,9 +669,33 @@ describe('GET /api/v1/issues', () => {
 });
 
 describe('GET /api/v1/issues/:id', () => {
+  const PROCESS_ENV_ORIGINAL = process.env;
+
+  let accessToken;
+
+  beforeEach(async () => {
+    process.env = {
+      ...PROCESS_ENV_ORIGINAL,
+      BACKEND_SECRET_KEY:
+        'this-must-be-very-secure-and-must-not-be-shared-with-anyone-else',
+      BACKEND_USER_ID: '17',
+      BACKEND_USERNAME: 'test-username',
+      BACKEND_PASSWORD: 'test-password',
+      BACKEND_JWT_EXPIRES_IN: '17m',
+    };
+
+    const response = await request(app)
+      .post('/api/v1/tokens')
+      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+
+    accessToken = response.body.accessToken;
+  });
+
   test('if an invalid ID is provided, should return 400', async () => {
     // Act.
-    const response = await request(app).get('/api/v1/issues/17');
+    const response = await request(app)
+      .get('/api/v1/issues/17')
+      .set('Authorization', 'Bearer ' + accessToken);
 
     // Assert.
     expect(response.status).toEqual(400);
@@ -656,7 +714,9 @@ describe('GET /api/v1/issues/:id', () => {
     });
 
     // Act.
-    const response = await request(app).get(`/api/v1/issues/${issue._id}`);
+    const response = await request(app)
+      .get(`/api/v1/issues/${issue._id}`)
+      .set('Authorization', 'Bearer ' + accessToken);
 
     // Assert.
     expect(response.status).toEqual(200);
@@ -673,6 +733,28 @@ describe('GET /api/v1/issues/:id', () => {
 });
 
 describe('PUT /api/v1/issues/:id', () => {
+  const PROCESS_ENV_ORIGINAL = process.env;
+
+  let accessToken;
+
+  beforeEach(async () => {
+    process.env = {
+      ...PROCESS_ENV_ORIGINAL,
+      BACKEND_SECRET_KEY:
+        'this-must-be-very-secure-and-must-not-be-shared-with-anyone-else',
+      BACKEND_USER_ID: '17',
+      BACKEND_USERNAME: 'test-username',
+      BACKEND_PASSWORD: 'test-password',
+      BACKEND_JWT_EXPIRES_IN: '17m',
+    };
+
+    const response = await request(app)
+      .post('/api/v1/tokens')
+      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+
+    accessToken = response.body.accessToken;
+  });
+
   test('if an invalid ID is provided, should return 400', async () => {
     // Arrange.
     const issue = await Issue.create({
@@ -685,7 +767,9 @@ describe('PUT /api/v1/issues/:id', () => {
     const invalidId = issueId.slice(0, issueId.length - 1);
 
     // Act.
-    const response = await request(app).put(`/api/v1/issues/${invalidId}`);
+    const response = await request(app)
+      .put(`/api/v1/issues/${invalidId}`)
+      .set('Authorization', 'Bearer ' + accessToken);
 
     // Assert.
     expect(response.status).toEqual(400);
@@ -705,7 +789,9 @@ describe('PUT /api/v1/issues/:id', () => {
     const nonexistentId = corruptIdOfMongooseObject(issue);
 
     // Act.
-    const response = await request(app).put(`/api/v1/issues/${nonexistentId}`);
+    const response = await request(app)
+      .put(`/api/v1/issues/${nonexistentId}`)
+      .set('Authorization', 'Bearer ' + accessToken);
 
     // Assert.
     expect(response.status).toEqual(404);
@@ -725,10 +811,13 @@ describe('PUT /api/v1/issues/:id', () => {
     const issueId = issue._id.toString();
 
     // Act.
-    const response = await request(app).put(`/api/v1/issues/${issueId}`).send({
-      status: '2 = selected',
-      description: 'generate code coverage reports in HTML format',
-    });
+    const response = await request(app)
+      .put(`/api/v1/issues/${issueId}`)
+      .send({
+        status: '2 = selected',
+        description: 'generate code coverage reports in HTML format',
+      })
+      .set('Authorization', 'Bearer ' + accessToken);
 
     // Assert.
     expect(response.status).toEqual(200);
@@ -745,6 +834,28 @@ describe('PUT /api/v1/issues/:id', () => {
 });
 
 describe('DELETE /api/v1/issues/:id', () => {
+  const PROCESS_ENV_ORIGINAL = process.env;
+
+  let accessToken;
+
+  beforeEach(async () => {
+    process.env = {
+      ...PROCESS_ENV_ORIGINAL,
+      BACKEND_SECRET_KEY:
+        'this-must-be-very-secure-and-must-not-be-shared-with-anyone-else',
+      BACKEND_USER_ID: '17',
+      BACKEND_USERNAME: 'test-username',
+      BACKEND_PASSWORD: 'test-password',
+      BACKEND_JWT_EXPIRES_IN: '17m',
+    };
+
+    const response = await request(app)
+      .post('/api/v1/tokens')
+      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+
+    accessToken = response.body.accessToken;
+  });
+
   test('if an invalid ID is provided, should return 400', async () => {
     // Arrange.
     const issue = await Issue.create({
@@ -757,7 +868,9 @@ describe('DELETE /api/v1/issues/:id', () => {
     const invalidId = issueId.slice(0, issueId.length - 1);
 
     // Act.
-    response = await request(app).delete(`/api/v1/issues/${invalidId}`);
+    response = await request(app)
+      .delete(`/api/v1/issues/${invalidId}`)
+      .set('Authorization', 'Bearer ' + accessToken);
 
     // Assert.
     expect(response.status).toEqual(400);
@@ -777,9 +890,9 @@ describe('DELETE /api/v1/issues/:id', () => {
     const nonexistentId = corruptIdOfMongooseObject(issue);
 
     // Act.
-    const response = await request(app).delete(
-      `/api/v1/issues/${nonexistentId}`
-    );
+    const response = await request(app)
+      .delete(`/api/v1/issues/${nonexistentId}`)
+      .set('Authorization', 'Bearer ' + accessToken);
 
     // Assert.
     expect(response.status).toEqual(404);
@@ -812,9 +925,9 @@ describe('DELETE /api/v1/issues/:id', () => {
       });
 
       // Act.
-      const response = await request(app).delete(
-        `/api/v1/issues/${issueEpic1Id}`
-      );
+      const response = await request(app)
+        .delete(`/api/v1/issues/${issueEpic1Id}`)
+        .set('Authorization', 'Bearer ' + accessToken);
 
       // Assert.
       expect(response.status).toEqual(400);
@@ -841,7 +954,9 @@ describe('DELETE /api/v1/issues/:id', () => {
     const issueId = issue._id.toString();
 
     // Act.
-    const response = await request(app).delete(`/api/v1/issues/${issueId}`);
+    const response = await request(app)
+      .delete(`/api/v1/issues/${issueId}`)
+      .set('Authorization', 'Bearer ' + accessToken);
 
     // Assert.
     expect(response.status).toEqual(204);
