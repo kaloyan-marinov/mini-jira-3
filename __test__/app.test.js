@@ -37,7 +37,6 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  jest.resetModules();
   await mongoose.connection.db.dropDatabase();
 });
 
@@ -47,6 +46,16 @@ afterAll(async () => {
 });
 
 describe('POST /api/v1/tokens', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    jest.resetModules();
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+
   test(
     'if the client sends a correct set of Basic Auth credentials,' +
       ' should return 200',
