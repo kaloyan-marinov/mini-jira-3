@@ -82,11 +82,35 @@ describe('POST /api/v1/tokens', () => {
 });
 
 describe('POST /api/v1/issues', () => {
+  const PROCESS_ENV_ORIGINAL = process.env;
+
+  afterEach(() => {
+    process.env = PROCESS_ENV_ORIGINAL;
+  });
+
   test('if "status" is missing, should return 400', async () => {
+    // Arrange.
+    process.env = {
+      ...PROCESS_ENV_ORIGINAL,
+      BACKEND_SECRET_KEY:
+        'this-must-be-very-secure-and-must-not-be-shared-with-anyone-else',
+      BACKEND_USER_ID: '17',
+      BACKEND_USERNAME: 'test-username',
+      BACKEND_PASSWORD: 'test-password',
+      BACKEND_JWT_EXPIRES_IN: '17m',
+    };
+
+    const response0 = await request(app)
+      .post('/api/v1/tokens')
+      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+
     // Act.
-    const response = await request(app).post('/api/v1/issues').send({
-      description: 'containerize the backend',
-    });
+    const response = await request(app)
+      .post('/api/v1/issues')
+      .set('Authorization', 'Bearer ' + response0.body.accessToken)
+      .send({
+        description: 'containerize the backend',
+      });
 
     // Assert.
     expect(response.status).toEqual(400);
