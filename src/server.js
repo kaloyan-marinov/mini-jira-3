@@ -9,6 +9,11 @@ dotenv.config({
 
 const connectToDatabasePromise = connectToDatabase();
 
+console.log();
+console.log(`BACKEND_USERNAME = ${process.env.BACKEND_USERNAME}`);
+console.log(`BACKEND_PASSWORD = ${process.env.BACKEND_PASSWORD}`);
+console.log();
+
 connectToDatabasePromise
   .then(() => {
     const PORT = 5000;

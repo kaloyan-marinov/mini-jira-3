@@ -46,23 +46,22 @@ afterAll(async () => {
 });
 
 describe('POST /api/v1/tokens', () => {
-  const originalEnv = process.env;
-
-  beforeEach(() => {
-    jest.resetModules();
-  });
+  const PROCESS_ENV_ORIGINAL = process.env;
 
   afterEach(() => {
-    process.env = originalEnv;
+    process.env = PROCESS_ENV_ORIGINAL;
   });
 
   test(
-    'if the client sends a correct set of Basic Auth credentials,' +
+    'if a client sends a correct set of Basic Auth credentials,' +
       ' should return 200',
     async () => {
       // Arrange.
-      process.env.BACKEND_USERNAME = 'test-username';
-      process.env.BACKEND_PASSWORD = 'test-password';
+      process.env = {
+        ...PROCESS_ENV_ORIGINAL,
+        BACKEND_USERNAME: 'test-username',
+        BACKEND_PASSWORD: 'test-password',
+      };
 
       // Act.
       const response = await request(app)
