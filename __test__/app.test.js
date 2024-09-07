@@ -270,6 +270,10 @@ describe('GET /api/v1/issues', () => {
     accessToken = response.body.accessToken;
   });
 
+  afterEach(() => {
+    process.env = PROCESS_ENV_ORIGINAL;
+  });
+
   test(
     'if there are no Issue resources in the MongoDB server,' +
       ' should return 200 and an empty list',
@@ -691,6 +695,10 @@ describe('GET /api/v1/issues/:id', () => {
     accessToken = response.body.accessToken;
   });
 
+  afterEach(() => {
+    process.env = PROCESS_ENV_ORIGINAL;
+  });
+
   test('if an invalid ID is provided, should return 400', async () => {
     // Act.
     const response = await request(app)
@@ -753,6 +761,10 @@ describe('PUT /api/v1/issues/:id', () => {
       .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
 
     accessToken = response.body.accessToken;
+  });
+
+  afterEach(() => {
+    process.env = PROCESS_ENV_ORIGINAL;
   });
 
   test('if an invalid ID is provided, should return 400', async () => {
@@ -854,6 +866,10 @@ describe('DELETE /api/v1/issues/:id', () => {
       .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
 
     accessToken = response.body.accessToken;
+  });
+
+  afterEach(() => {
+    process.env = PROCESS_ENV_ORIGINAL;
   });
 
   test('if an invalid ID is provided, should return 400', async () => {
