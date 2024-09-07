@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const jwt = require('jsonwebtoken');
 const Issue = require('./models');
 const { determinePaginationInfoInitial } = require('./utilities');
 
@@ -47,10 +48,20 @@ app.post('/api/v1/tokens', async (req, res) => {
   }
 
   // TODO: (2024/09/07, 17:10)
-  //      (a) replace 'accessToken' with a real token
-  //      (b) arrange for creation of a 'refreshToken' that gets returned here as well
-  res.status(503).json({
-    accessToken: 'accessToken',
+  //      arrange for creation of a 'refreshToken' that gets returned here as well
+  const payload = {
+    userId: parseInt(process.env.BACKEND_USER_ID),
+  };
+  const options = {
+    expiresIn: process.env.BACKEND_JWT_EXPIRES_IN,
+  };
+  const accessToken = jwt.sign(
+    payload,
+    process.env.BACKEND_SECRET_KEY,
+    options
+  );
+  res.status(200).json({
+    accessToken,
   });
 });
 

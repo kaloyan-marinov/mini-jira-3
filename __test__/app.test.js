@@ -59,8 +59,12 @@ describe('POST /api/v1/tokens', () => {
       // Arrange.
       process.env = {
         ...PROCESS_ENV_ORIGINAL,
+        BACKEND_SECRET_KEY:
+          'this-must-be-very-secure-and-must-not-be-shared-with-anyone-else',
+        BACKEND_USER_ID: '17',
         BACKEND_USERNAME: 'test-username',
         BACKEND_PASSWORD: 'test-password',
+        BACKEND_JWT_EXPIRES_IN: '17m',
       };
 
       // Act.
@@ -69,9 +73,9 @@ describe('POST /api/v1/tokens', () => {
         .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
 
       // Assert.
-      expect(response.status).toEqual(503);
+      expect(response.status).toEqual(200);
       expect(response.body).toEqual({
-        accessToken: 'accessToken',
+        accessToken: expect.anything(),
       });
     }
   );
