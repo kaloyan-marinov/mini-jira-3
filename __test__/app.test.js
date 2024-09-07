@@ -84,12 +84,9 @@ describe('POST /api/v1/tokens', () => {
 describe('POST /api/v1/issues', () => {
   const PROCESS_ENV_ORIGINAL = process.env;
 
-  afterEach(() => {
-    process.env = PROCESS_ENV_ORIGINAL;
-  });
+  let accessToken;
 
-  test('if "status" is missing, should return 400', async () => {
-    // Arrange.
+  beforeEach(async () => {
     process.env = {
       ...PROCESS_ENV_ORIGINAL,
       BACKEND_SECRET_KEY:
@@ -100,14 +97,22 @@ describe('POST /api/v1/issues', () => {
       BACKEND_JWT_EXPIRES_IN: '17m',
     };
 
-    const response0 = await request(app)
+    const response = await request(app)
       .post('/api/v1/tokens')
       .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
 
+    accessToken = response.body.accessToken;
+  });
+
+  afterEach(() => {
+    process.env = PROCESS_ENV_ORIGINAL;
+  });
+
+  test('if "status" is missing, should return 400', async () => {
     // Act.
     const response = await request(app)
       .post('/api/v1/issues')
-      .set('Authorization', 'Bearer ' + response0.body.accessToken)
+      .set('Authorization', 'Bearer ' + accessToken)
       .send({
         description: 'containerize the backend',
       });
@@ -121,9 +126,12 @@ describe('POST /api/v1/issues', () => {
 
   test('if "description" is missing, should return 400', async () => {
     // Act.
-    const response = await request(app).post('/api/v1/issues').send({
-      status: '1 = backlog',
-    });
+    const response = await request(app)
+      .post('/api/v1/issues')
+      .set('Authorization', 'Bearer ' + accessToken)
+      .send({
+        status: '1 = backlog',
+      });
 
     // Assert.
     expect(response.status).toEqual(400);
@@ -136,6 +144,7 @@ describe('POST /api/v1/issues', () => {
     // Act.
     const response = await request(app)
       .post('/api/v1/issues')
+      .set('Authorization', 'Bearer ' + accessToken)
       .send({
         createdAt: new Date('2024-08-17T09:00:00.000Z'),
         status: '1 = backlog',
@@ -167,6 +176,7 @@ describe('POST /api/v1/issues', () => {
     // Act.
     const response = await request(app)
       .post('/api/v1/issues')
+      .set('Authorization', 'Bearer ' + accessToken)
       .send({
         status: '1 = backlog',
         deadline: new Date('2024-09-02T02:56:42.053Z'),
@@ -190,6 +200,7 @@ describe('POST /api/v1/issues', () => {
     // Act.
     const response = await request(app)
       .post(`/api/v1/issues`)
+      .set('Authorization', 'Bearer ' + accessToken)
       .send({
         status: '1 = backlog',
         deadline: new Date('2024-09-02T02:56:42.053Z'),
@@ -211,6 +222,7 @@ describe('POST /api/v1/issues', () => {
     // Act.
     const response = await request(app)
       .post('/api/v1/issues')
+      .set('Authorization', 'Bearer ' + accessToken)
       .send({
         status: '1 = backlog',
         deadline: new Date('2024-09-02T02:48:26.383Z'),
