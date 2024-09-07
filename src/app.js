@@ -14,6 +14,46 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+app.post('/api/v1/tokens', async (req, res) => {
+  const headerAuth = req.headers.authorization;
+  if (!headerAuth) {
+    res.status(400).json({
+      message: 'Missing "Authorization" header',
+    });
+
+    return;
+  }
+
+  const [type, authCredsEncoded] = headerAuth.split(' ');
+  if (type !== 'Basic') {
+    res.status(400).json({
+      message: '"Authorization" header must specify Basic Auth',
+    });
+
+    return;
+  }
+
+  const authCredsDecoded = Buffer.from(authCredsEncoded, 'base64').toString();
+  const [username, password] = authCredsDecoded.split(':');
+  if (
+    username !== process.env.BACKEND_USERNAME ||
+    password !== process.env.BACKEND_PASSWORD
+  ) {
+    res.status(401).json({
+      message: 'Incorrect credentials',
+    });
+
+    return;
+  }
+
+  // TODO: (2024/09/07, 17:10)
+  //      (a) replace 'accessToken' with a real token
+  //      (b) arrange for creation of a 'refreshToken' that gets returned here as well
+  res.status(503).json({
+    accessToken: 'accessToken',
+  });
+});
+
 app.post('/api/v1/issues', async (req, res) => {
   let newIssue;
 

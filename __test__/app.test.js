@@ -37,12 +37,36 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
+  jest.resetModules();
   await mongoose.connection.db.dropDatabase();
 });
 
 afterAll(async () => {
   await mongoose.disconnect();
   await mongoMemoryServer.stop();
+});
+
+describe('POST /api/v1/tokens', () => {
+  test(
+    'if the client sends a correct set of Basic Auth credentials,' +
+      ' should return 200',
+    async () => {
+      // Arrange.
+      process.env.BACKEND_USERNAME = 'test-username';
+      process.env.BACKEND_PASSWORD = 'test-password';
+
+      // Act.
+      const response = await request(app)
+        .post('/api/v1/tokens')
+        .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+
+      // Assert.
+      expect(response.status).toEqual(503);
+      expect(response.body).toEqual({
+        accessToken: 'accessToken',
+      });
+    }
+  );
 });
 
 describe('POST /api/v1/issues', () => {
