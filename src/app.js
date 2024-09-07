@@ -66,6 +66,43 @@ app.post('/api/v1/tokens', async (req, res) => {
 });
 
 app.post('/api/v1/issues', async (req, res) => {
+  const headerAuth = req.headers.authorization;
+  if (!headerAuth) {
+    res.status(400).json({
+      message: 'Missing "Authorization" header',
+    });
+
+    return;
+  }
+
+  const [type, accessToken] = headerAuth.split(' ');
+  if (type !== 'Bearer') {
+    res.status(400).json({
+      message: '"Authorization" header must specify Bearer Auth',
+    });
+
+    return;
+  }
+
+  let jwtPayload;
+  try {
+    jwtPayload = jwt.verify(accessToken, process.env.BACKEND_SECRET_KEY);
+  } catch (err) {
+    res.status(401).json({
+      message: 'Invalid access token',
+    });
+
+    return;
+  }
+
+  if (jwtPayload.userId !== parseInt(process.env.BACKEND_USER_ID)) {
+    res.status(401).json({
+      message: 'Your user is not allowed to invoke this endpoint',
+    });
+
+    return;
+  }
+
   let newIssue;
 
   if (req.body.parentId) {
