@@ -17,6 +17,30 @@ if (process.env.NODE_ENV === 'development') {
 app.post('/api/v1/issues', async (req, res) => {
   let newIssue;
 
+  if (req.body.parentId) {
+    let parentIssue;
+
+    try {
+      parentIssue = await Issue.findById(req.body.parentId);
+    } catch (err) {
+      console.error(err);
+
+      res.status(400).json({
+        message: 'The value provided for "parentId" is invalid',
+      });
+
+      return;
+    }
+
+    if (!parentIssue) {
+      res.status(400).json({
+        message: 'The value provided for `parentId` is non-existent',
+      });
+
+      return;
+    }
+  }
+
   try {
     newIssue = await Issue.create(req.body);
   } catch (err) {
@@ -47,13 +71,23 @@ app.get('/api/v1/issues', async (req, res) => {
 
   const excludedParam2Value = {};
   const fieldsToExcludeFromReqQuery = ['select', 'sort', 'perPage', 'page'];
-  for (f of fieldsToExcludeFromReqQuery) {
+  for (const f of fieldsToExcludeFromReqQuery) {
     if (reqQuery[f]) {
       excludedParam2Value[f] = reqQuery[f];
     }
 
     delete reqQuery[f];
   }
+
+  // Allow for the `parentId` query parameter to be set to «a void value».
+  const nullValuesForParentId = new Set(['', 'null']);
+  if (
+    reqQuery.hasOwnProperty('parentId') &&
+    nullValuesForParentId.has(reqQuery['parentId'])
+  ) {
+    reqQuery['parentId'] = null;
+  }
+
   const queryRawStr = JSON.stringify(reqQuery);
 
   // Create the following Mongoose operators: `$in`, `$lt`, `$lte`, `$gt`, `$gte` .
@@ -184,15 +218,19 @@ app.get('/api/v1/issues/:id', async (req, res) => {
   try {
     issue = await Issue.findById(issueId);
   } catch (err) {
-    return res.status(400).json({
+    res.status(400).json({
       message: 'Invalid ID provided',
     });
+
+    return;
   }
 
   if (!issue) {
-    return res.status(404).json({
+    res.status(404).json({
       message: 'Resource not found',
     });
+
+    return;
   }
 
   res.status(200).json(issue);
@@ -204,15 +242,19 @@ app.put('/api/v1/issues/:id', async (req, res) => {
   try {
     issue = await Issue.findById(issueId);
   } catch (err) {
-    return res.status(400).json({
+    res.status(400).json({
       message: 'Invalid ID provided',
     });
+
+    return;
   }
 
   if (!issue) {
-    return res.status(404).json({
+    res.status(404).json({
       message: 'Resource not found',
     });
+
+    return;
   }
 
   issue = await Issue.findByIdAndUpdate(issueId, req.body, {
@@ -228,15 +270,41 @@ app.delete('/api/v1/issues/:id', async (req, res) => {
   try {
     issue = await Issue.findById(issueId);
   } catch (err) {
-    return res.status(400).json({
+    res.status(400).json({
       message: 'Invalid ID provided',
     });
+
+    return;
+  }
+
+  let countChildren;
+  try {
+    countChildren = await Issue.find({
+      parentId: issueId,
+    }).countDocuments();
+  } catch (err) {
+    res.status(500).json({
+      message: 'Failed to process your HTTP request',
+    });
+
+    return;
+  }
+  if (countChildren > 0) {
+    res.status(400).json({
+      message:
+        'Cannot delete the targeted issue,' +
+        ` because there exist ${countChildren} other issues` +
+        ' whose `parentId` points to the targeted issue',
+    });
+    return;
   }
 
   if (!issue) {
-    return res.status(404).json({
+    res.status(404).json({
       message: 'Resource not found',
     });
+
+    return;
   }
 
   await issue.deleteOne();

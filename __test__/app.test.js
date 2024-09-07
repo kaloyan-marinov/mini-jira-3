@@ -4,7 +4,10 @@ const request = require('supertest');
 
 const app = require('../src/app');
 const Issue = require('../src/models');
-const { decodeQueryStringWithinUrl } = require('../src/utilities');
+const {
+  corruptIdOfMongooseObject,
+  decodeQueryStringWithinUrl,
+} = require('../src/utilities');
 
 console.log('process.env.HOME =', process.env.HOME);
 console.log('process.env.LD_LIBRARY_PATH =', process.env.LD_LIBRARY_PATH);
@@ -12,8 +15,20 @@ console.log('process.env.LD_LIBRARY_PATH =', process.env.LD_LIBRARY_PATH);
 let mongoMemoryServer;
 
 // // For debugging, set the timeout for each test case to the specified amount of time.
-// // const MILLISECONDS_IN_FIVE_MINUTES = 5 * 60 * 1000;
+// const MILLISECONDS_IN_FIVE_MINUTES = 5 * 60 * 1000;
 // jest.setTimeout(MILLISECONDS_IN_FIVE_MINUTES);
+
+const JSON_4_ISSUE_EPIC_1 = {
+  status: '3 = in progress',
+  deadline: new Date('2024-09-02T02:45:36.214Z'),
+  description: 'backend',
+};
+
+const JSON_4_ISSUE_EPIC_2 = {
+  status: '1 = backlog',
+  deadline: new Date('2024-09-02T03:28:39.611Z'),
+  description: 'frontend',
+};
 
 beforeAll(async () => {
   mongoMemoryServer = await mms.MongoMemoryServer.create();
@@ -80,8 +95,82 @@ describe('POST /api/v1/issues', () => {
       createdAt: '2024-08-17T09:00:00.000Z',
       status: '1 = backlog',
       deadline: '2024-08-19T09:00:00.000Z',
-      epic: 'backend',
+      parentId: null,
       description: 'containerize the backend',
+    });
+  });
+
+  test('if "parentId" is invalid, should return 400', async () => {
+    // Arrange.
+    const issueId = 'this is an invalid issue ID';
+
+    // Act.
+    const response = await request(app)
+      .post('/api/v1/issues')
+      .send({
+        status: '1 = backlog',
+        deadline: new Date('2024-09-02T02:56:42.053Z'),
+        parentId: issueId,
+        description: 'implement a rudimentary authentication sub-system',
+      });
+
+    // Assert.
+    expect(response.status).toEqual(400);
+    expect(response.body).toEqual({
+      message: 'The value provided for "parentId" is invalid',
+    });
+  });
+
+  test('if "parentId" is non-existent, should returnd 400', async () => {
+    // Arrange.
+    const issue = await Issue.create(JSON_4_ISSUE_EPIC_1);
+
+    const nonexistentId = corruptIdOfMongooseObject(issue);
+
+    // Act.
+    const response = await request(app)
+      .post(`/api/v1/issues`)
+      .send({
+        status: '1 = backlog',
+        deadline: new Date('2024-09-02T02:56:42.053Z'),
+        parentId: nonexistentId,
+        description: 'implement a rudimentary authentication sub-system',
+      });
+
+    // Assert.
+    expect(response.status).toEqual(400);
+    expect(response.body).toEqual({
+      message: 'The value provided for `parentId` is non-existent',
+    });
+  });
+
+  test('if "status" and "description" and "parentId", should return 201', async () => {
+    // Arrange.
+    const issue = await Issue.create(JSON_4_ISSUE_EPIC_1);
+
+    // Act.
+    const response = await request(app)
+      .post('/api/v1/issues')
+      .send({
+        status: '1 = backlog',
+        deadline: new Date('2024-09-02T02:48:26.383Z'),
+        parentId: issue._id.toString(),
+        description: 'implement a rudimentary authentication sub-system',
+      });
+
+    // Assert.
+    expect(response.status).toEqual(201);
+    expect(response.headers.location).toEqual(
+      `/api/v1/issues/${response.body._id}`
+    );
+    expect(response.body).toEqual({
+      __v: expect.anything(),
+      _id: expect.anything(),
+      createdAt: expect.anything(),
+      status: '1 = backlog',
+      deadline: '2024-09-02T02:48:26.383Z',
+      parentId: issue._id.toString(),
+      description: 'implement a rudimentary authentication sub-system',
     });
   });
 });
@@ -150,6 +239,7 @@ describe('GET /api/v1/issues', () => {
             createdAt: expect.anything(),
             status: '3 = in progress',
             deadline: '2024-08-20T21:07:45.759Z',
+            parentId: null,
             description: 'write tests for the other request-handling functions',
           },
           {
@@ -158,6 +248,7 @@ describe('GET /api/v1/issues', () => {
             createdAt: expect.anything(),
             status: '1 = backlog',
             deadline: '2024-08-20T21:08:31.345Z',
+            parentId: null,
             description:
               'switch from `const express = require(express)` to `import express from "express";"',
           },
@@ -168,15 +259,21 @@ describe('GET /api/v1/issues', () => {
 
   test(
     'if there are Issue resource' +
-      ' and the URL query parameters represent a request filtering for filtering,' +
+      ' and the URL query parameters represent a request for filtering,' +
       ' should return 200, a correct total, and representation of the resources',
     async () => {
       // Arrange.
+      const issueEpic1 = await Issue.create(JSON_4_ISSUE_EPIC_1);
+      const issueEpic2 = await Issue.create(JSON_4_ISSUE_EPIC_2);
+
+      const issueEpic1Id = issueEpic1._id.toString();
+      const issueEpic2Id = issueEpic2._id.toString();
+
       const issue1 = await Issue.create({
         status: '1 = backlog',
         deadline: new Date('2024-08-31T21:43:31.696Z'),
         description: 'containerize the backend',
-        epic: 'backend',
+        parentId: issueEpic1Id,
       });
 
       const issue2 = await Issue.create({
@@ -184,30 +281,32 @@ describe('GET /api/v1/issues', () => {
         deadline: new Date('2024-08-31T22:43:31.696Z'),
         description:
           'build a client (hopefully, a CLI tool combined with "jq")',
-        epic: 'frontend',
+        parentId: issueEpic2._id.toString(),
       });
 
       const issue3 = await Issue.create({
         status: '1 = backlog',
         deadline: new Date('2024-08-31T23:43:31.696Z'),
         description: 'convert the "epic" field to a "parentId" field',
-        epic: 'backend',
+        parentId: issueEpic1Id,
       });
 
       // Act.
-      const response = await request(app).get('/api/v1/issues?epic=backend');
+      const response1 = await request(app).get(
+        `/api/v1/issues?parentId=${issueEpic1Id}`
+      );
 
       // Assert.
-      expect(response.status).toEqual(200);
+      expect(response1.status).toEqual(200);
 
-      expect(response.body).toEqual({
+      expect(response1.body).toEqual({
         meta: {
           total: 2,
-          first: '/api/v1/issues?epic=backend&perPage=100&page=1',
+          first: `/api/v1/issues?parentId=${issueEpic1Id}&perPage=100&page=1`,
           prev: null,
-          curr: '/api/v1/issues?epic=backend&perPage=100&page=1',
+          curr: `/api/v1/issues?parentId=${issueEpic1Id}&perPage=100&page=1`,
           next: null,
-          last: '/api/v1/issues?epic=backend&perPage=100&page=1',
+          last: `/api/v1/issues?parentId=${issueEpic1Id}&perPage=100&page=1`,
         },
         resources: [
           {
@@ -217,7 +316,7 @@ describe('GET /api/v1/issues', () => {
             status: '1 = backlog',
             deadline: '2024-08-31T21:43:31.696Z',
             description: 'containerize the backend',
-            epic: 'backend',
+            parentId: issueEpic1Id,
           },
           {
             __v: expect.anything(),
@@ -226,10 +325,57 @@ describe('GET /api/v1/issues', () => {
             status: '1 = backlog',
             deadline: '2024-08-31T23:43:31.696Z',
             description: 'convert the "epic" field to a "parentId" field',
-            epic: 'backend',
+            parentId: issueEpic1Id,
           },
         ],
       });
+
+      // Act.
+      const response2 = await request(app).get('/api/v1/issues?parentId=null');
+
+      // Assert.
+      expect(response2.status).toEqual(200);
+
+      const expectedBodyOfResponse2 = {
+        meta: {
+          total: 2,
+          first: '/api/v1/issues?parentId=null&perPage=100&page=1',
+          prev: null,
+          curr: '/api/v1/issues?parentId=null&perPage=100&page=1',
+          next: null,
+          last: '/api/v1/issues?parentId=null&perPage=100&page=1',
+        },
+        resources: [
+          {
+            __v: expect.anything(),
+            _id: issueEpic1Id,
+            createdAt: expect.anything(),
+            status: '3 = in progress',
+            deadline: '2024-09-02T02:45:36.214Z',
+            description: 'backend',
+            parentId: null,
+          },
+          {
+            __v: expect.anything(),
+            _id: issueEpic2Id,
+            createdAt: expect.anything(),
+            status: '1 = backlog',
+            deadline: '2024-09-02T03:28:39.611Z',
+            description: 'frontend',
+            parentId: null,
+          },
+        ],
+      };
+      expect(response2.body).toEqual(expectedBodyOfResponse2);
+
+      // Act.
+      const response3 = await request(app).get('/api/v1/issues?parentId=');
+
+      // Assert.
+      expect(response3.status).toEqual(200);
+
+      const expectedBodyOfResponse3 = { ...expectedBodyOfResponse2 };
+      expect(response3.body).toEqual(expectedBodyOfResponse3);
     }
   );
 
@@ -319,6 +465,7 @@ describe('GET /api/v1/issues', () => {
           createdAt: expect.anything(),
           status: '3 = in progress',
           deadline: '2024-08-31T09:59:50.783Z',
+          parentId: null,
           description:
             'enable the handler for GET requests' +
             ' to select only certain fields, to sort, and to paginate',
@@ -329,6 +476,7 @@ describe('GET /api/v1/issues', () => {
           createdAt: expect.anything(),
           status: '2 = selected',
           deadline: '2024-08-31T09:58:50.783Z',
+          parentId: null,
           description:
             'supplement the pagination-info bundle with URLs for "first" and "last"',
         },
@@ -405,6 +553,7 @@ describe('GET /api/v1/issues', () => {
             createdAt: expect.anything(),
             status: '1 = backlog',
             deadline: '2024-09-03T16:41:47.722Z',
+            parentId: null,
             description: 'carry out step 3',
           },
         ],
@@ -431,8 +580,7 @@ describe('GET /api/v1/issues/:id', () => {
     const issue = await Issue.create({
       status: '1 = backlog',
       deadline,
-      epic: 'ease of development',
-      description: 'introduce code coverage reports in HTML format',
+      description: 'ease of development',
     });
 
     // Act.
@@ -446,9 +594,8 @@ describe('GET /api/v1/issues/:id', () => {
       createdAt: issue.createdAt.toISOString(),
       status: '1 = backlog',
       deadline: deadline.toISOString(),
-      // finishedAt: null,
-      epic: 'ease of development',
-      description: 'introduce code coverage reports in HTML format',
+      parentId: null,
+      description: 'ease of development',
     });
   });
 });
@@ -483,11 +630,7 @@ describe('PUT /api/v1/issues/:id', () => {
       description: 'code cvrg reports in HTML',
     });
 
-    const issueId = issue._id.toString();
-    const notLastDigitOfId =
-      issueId.charAt(issueId.length - 1) == '0' ? '1' : '0';
-    const nonexistentId =
-      issueId.slice(0, issueId.length - 1) + notLastDigitOfId;
+    const nonexistentId = corruptIdOfMongooseObject(issue);
 
     // Act.
     const response = await request(app).put(`/api/v1/issues/${nonexistentId}`);
@@ -523,6 +666,7 @@ describe('PUT /api/v1/issues/:id', () => {
       createdAt: expect.anything(),
       status: '2 = selected',
       deadline: '2024-08-20T20:38:18.162Z',
+      parentId: null,
       description: 'generate code coverage reports in HTML format',
     });
   });
@@ -558,11 +702,7 @@ describe('DELETE /api/v1/issues/:id', () => {
       description: 'generate code coverage reports in HTML format',
     });
 
-    const issueId = issue._id.toString();
-    const notLastDigitOfId =
-      issueId.charAt(issueId.length - 1) == '0' ? '1' : '0';
-    const nonexistentId =
-      issueId.slice(0, issueId.length - 1) + notLastDigitOfId;
+    const nonexistentId = corruptIdOfMongooseObject(issue);
 
     // Act.
     const response = await request(app).delete(
@@ -575,6 +715,48 @@ describe('DELETE /api/v1/issues/:id', () => {
       message: 'Resource not found',
     });
   });
+
+  test(
+    'if a valid ID is provided' +
+      ' but there exist issues whose `parentId` equals the provided one,' +
+      ' should return 400',
+    async () => {
+      // Arrange.
+      const issueEpic1 = await Issue.create(JSON_4_ISSUE_EPIC_1);
+
+      const issueEpic1Id = issueEpic1._id.toString();
+
+      const issue1 = await Issue.create({
+        status: '1 = backlog',
+        deadline: new Date('2024-08-31T21:43:31.696Z'),
+        description: 'containerize the backend',
+        parentId: issueEpic1Id,
+      });
+      const issue2 = await Issue.create({
+        status: '1 = backlog',
+        deadline: new Date('2024-08-31T23:43:31.696Z'),
+        description: 'convert the "epic" field to a "parentId" field',
+        parentId: issueEpic1Id,
+      });
+
+      // Act.
+      const response = await request(app).delete(
+        `/api/v1/issues/${issueEpic1Id}`
+      );
+
+      // Assert.
+      expect(response.status).toEqual(400);
+      expect(response.body).toEqual({
+        message:
+          'Cannot delete the targeted issue,' +
+          ` because there exist 2 other issues` +
+          ' whose `parentId` points to the targeted issue',
+      });
+
+      const issueEpic1StillExists = await Issue.findById(issueEpic1Id);
+      expect(issueEpic1StillExists.toJSON()).toEqual(issueEpic1.toJSON());
+    }
+  );
 
   test('if a valid ID is provided, should return 204', async () => {
     // Arrange.
