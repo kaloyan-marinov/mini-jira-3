@@ -1020,7 +1020,37 @@ curl -v \
 
 
 
+# Containerization using Docker
+
+```bash
+docker network create \
+   network-mini-jira-3
+
+docker volume create \
+   volume-mini-jira-3-mongo
+
+docker run \
+   --network=network-mini-jira-3 \
+   --name container-mini-jira-3-mongo \
+   --mount source=volume-mini-jira-3-mongo,destination=/data/db \
+   --env MONGO_INITDB_ROOT_USERNAME=$(grep -oP '^MONGO_USERNAME=\K.*' .env) \
+   --env MONGO_INITDB_ROOT_PASSWORD=$(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
+   --env MONGO_INITDB_DATABASE=$(grep -oP '^MONGO_DATABASE=\K.*' .env) \
+   --publish 27017:27017 \
+   mongo:latest
+
+
+
 docker build \
    --file Containerfile \
    --tag image-mini-jira-3:2024-09-08-16-21 \
    .
+
+docker container run \
+   --network=network-mini-jira-3 \
+   --name=container-mini-jira-3 \
+   --env-file .env \
+   --env MONGO_HOST=container-mini-jira-3-mongo \
+   --publish 5000:5000 \
+   image-mini-jira-3:2024-09-08-16-21
+```
