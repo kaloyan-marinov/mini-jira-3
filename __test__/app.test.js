@@ -127,7 +127,6 @@ describe('POST /api/v1/issues', () => {
       });
 
     // Assert.
-    console.log('response.body = ', response.body);
     expect(response.status).toEqual(400);
     expect(response.body).toEqual({
       message: 'Unable to create a new issue.',

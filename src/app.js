@@ -156,8 +156,8 @@ app.delete('/api/v1/tokens', tokenAuth, async (req, res) => {
 });
 
 app.post('/api/v1/issues', tokenAuth, async (req, res) => {
-  console.log('req.userId = ', req.userId);
-  console.log('typeof req.userId = ', typeof req.userId);
+  //console.log('req.userId = ', req.userId);
+  //console.log('typeof req.userId = ', typeof req.userId);
 
   let newIssue;
 
@@ -239,9 +239,9 @@ app.get('/api/v1/issues', tokenAuth, async (req, res) => {
     /\b(in|lt|lte|gt|gte)\b/g,
     (match) => `$${match}`
   );
-  console.log('queryStr', queryStr);
+  //console.log('queryStr', queryStr);
   const queryJSON = JSON.parse(queryStr);
-  console.log('queryJSON', queryJSON);
+  //console.log('queryJSON', queryJSON);
 
   // Apply filtering criteria.
   query = Issue.find(queryJSON);
