@@ -1017,3 +1017,10 @@ curl -v \
    "message" : "Revoked access token"
 }
 ```
+
+
+
+docker build \
+   --file Containerfile \
+   --tag mini-jira-3:2024-09-08-16-21 \
+   .
