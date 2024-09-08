@@ -229,7 +229,7 @@ curl -v \
 < HTTP/1.1 200 OK
 # ...
 {
-   "accessToken" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTcyNTc5MTc0NywiZXhwIjoxNzI1NzkzMjQ3fQ.4Ts6B6PFXp9hemAdQKkh2_MhPUOp4Z-0SvJS-teZ3S4"
+   "accessToken" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTcyNTgyMjE0MiwiZXhwIjoxNzI1ODIzNjQyfQ.WK5UvnM1kGJBU7tUb6cMXku2vVdROFiP0eUvxTPpIoY"
 }
 
 
@@ -293,12 +293,12 @@ curl -v \
 
 # ...
 < HTTP/1.1 201 Created
-< Location: /api/v1/issues/66dc11fd1c3a2a743744172f
+< Location: /api/v1/issues/66ddf4f5fd6c67eaf171c2ec
 # ...
 {
    "__v" : 0,
-   "_id" : "66dd7e58e7c673746905ff27",
-   "createdAt" : "2024-09-08T10:37:12.447Z",
+   "_id" : "66ddf4f5fd6c67eaf171c2ec",
+   "createdAt" : "2024-09-08T19:03:17.759Z",
    "deadline" : "2024-09-08T21:08:36.367Z",
    "description" : "backend",
    "parentId" : null,
@@ -397,7 +397,7 @@ export ISSUE_5_ID=<the-_id-present-in-the-preceding-HTTP-response>
 
 
 
-retrieve multiple  `Issue`s
+retrieve multiple `Issue`s
 
 ```bash
 curl -v \
@@ -420,8 +420,8 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66dd7e58e7c673746905ff27",
-         "createdAt" : "2024-09-08T10:37:12.447Z",
+         "_id" : "66ddf4f5fd6c67eaf171c2ec",
+         "createdAt" : "2024-09-08T19:03:17.759Z",
          "deadline" : "2024-09-08T21:08:36.367Z",
          "description" : "backend",
          "parentId" : null,
@@ -429,8 +429,8 @@ curl -v \
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ea5e7c673746905ff2a",
-         "createdAt" : "2024-09-08T10:38:29.616Z",
+         "_id" : "66ddf528fd6c67eaf171c2ef",
+         "createdAt" : "2024-09-08T19:04:08.903Z",
          "deadline" : "2024-09-15T21:08:36.367Z",
          "description" : "frontend",
          "parentId" : null,
@@ -438,29 +438,29 @@ curl -v \
       },
       {
          "__v" : 0,
-         "_id" : "66dd7eb5e7c673746905ff2e",
-         "createdAt" : "2024-09-08T10:38:45.259Z",
+         "_id" : "66ddf53ffd6c67eaf171c2f3",
+         "createdAt" : "2024-09-08T19:04:31.705Z",
          "deadline" : "2024-08-31T21:08:36.367Z",
          "description" : "convert the `epic` field to a `parentId` field",
-         "parentId" : "66dd7e58e7c673746905ff27",
+         "parentId" : "66ddf4f5fd6c67eaf171c2ec",
          "status" : "3 = in progress"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ebce7c673746905ff32",
-         "createdAt" : "2024-09-08T10:38:52.671Z",
+         "_id" : "66ddf54dfd6c67eaf171c2f7",
+         "createdAt" : "2024-09-08T19:04:45.368Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "parentId" : "66dd7ea5e7c673746905ff2a",
+         "parentId" : "66ddf528fd6c67eaf171c2ef",
          "status" : "1 = backlog"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ec4e7c673746905ff36",
-         "createdAt" : "2024-09-08T10:39:00.513Z",
+         "_id" : "66ddf57ffd6c67eaf171c2fb",
+         "createdAt" : "2024-09-08T19:05:35.916Z",
          "deadline" : "2024-08-31T23:08:36.367Z",
          "description" : "containerize the backend",
-         "parentId" : "66dd7e58e7c673746905ff27",
+         "parentId" : "66ddf4f5fd6c67eaf171c2ec",
          "status" : "2 = selected"
       }
    ]
@@ -478,9 +478,9 @@ curl -v \
 # ...
 {
    "meta" : {
-      "curr" : "/api/v1/issues?parentId=66dd7ea5e7c673746905ff2a&perPage=100&page=1",
-      "first" : "/api/v1/issues?parentId=66dd7ea5e7c673746905ff2a&perPage=100&page=1",
-      "last" : "/api/v1/issues?parentId=66dd7ea5e7c673746905ff2a&perPage=100&page=1",
+      "curr" : "/api/v1/issues?parentId=66ddf528fd6c67eaf171c2ef&perPage=100&page=1",
+      "first" : "/api/v1/issues?parentId=66ddf528fd6c67eaf171c2ef&perPage=100&page=1",
+      "last" : "/api/v1/issues?parentId=66ddf528fd6c67eaf171c2ef&perPage=100&page=1",
       "next" : null,
       "prev" : null,
       "total" : 1
@@ -488,11 +488,11 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66dd7ebce7c673746905ff32",
-         "createdAt" : "2024-09-08T10:38:52.671Z",
+         "_id" : "66ddf54dfd6c67eaf171c2f7",
+         "createdAt" : "2024-09-08T19:04:45.368Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "parentId" : "66dd7ea5e7c673746905ff2a",
+         "parentId" : "66ddf528fd6c67eaf171c2ef",
          "status" : "1 = backlog"
       }
    ]
@@ -520,8 +520,8 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66dd7e58e7c673746905ff27",
-         "createdAt" : "2024-09-08T10:37:12.447Z",
+         "_id" : "66ddf4f5fd6c67eaf171c2ec",
+         "createdAt" : "2024-09-08T19:03:17.759Z",
          "deadline" : "2024-09-08T21:08:36.367Z",
          "description" : "backend",
          "parentId" : null,
@@ -529,8 +529,8 @@ curl -v \
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ea5e7c673746905ff2a",
-         "createdAt" : "2024-09-08T10:38:29.616Z",
+         "_id" : "66ddf528fd6c67eaf171c2ef",
+         "createdAt" : "2024-09-08T19:04:08.903Z",
          "deadline" : "2024-09-15T21:08:36.367Z",
          "description" : "frontend",
          "parentId" : null,
@@ -573,8 +573,8 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66dd7ea5e7c673746905ff2a",
-         "createdAt" : "2024-09-08T10:38:29.616Z",
+         "_id" : "66ddf528fd6c67eaf171c2ef",
+         "createdAt" : "2024-09-08T19:04:08.903Z",
          "deadline" : "2024-09-15T21:08:36.367Z",
          "description" : "frontend",
          "parentId" : null,
@@ -582,20 +582,20 @@ curl -v \
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ebce7c673746905ff32",
-         "createdAt" : "2024-09-08T10:38:52.671Z",
+         "_id" : "66ddf54dfd6c67eaf171c2f7",
+         "createdAt" : "2024-09-08T19:04:45.368Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "parentId" : "66dd7ea5e7c673746905ff2a",
+         "parentId" : "66ddf528fd6c67eaf171c2ef",
          "status" : "1 = backlog"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ec4e7c673746905ff36",
-         "createdAt" : "2024-09-08T10:39:00.513Z",
+         "_id" : "66ddf57ffd6c67eaf171c2fb",
+         "createdAt" : "2024-09-08T19:05:35.916Z",
          "deadline" : "2024-08-31T23:08:36.367Z",
          "description" : "containerize the backend",
-         "parentId" : "66dd7e58e7c673746905ff27",
+         "parentId" : "66ddf4f5fd6c67eaf171c2ec",
          "status" : "2 = selected"
       }
    ]
@@ -622,27 +622,27 @@ curl -v \
    },
    "resources" : [
       {
-         "_id" : "66dd7e58e7c673746905ff27",
+         "_id" : "66ddf4f5fd6c67eaf171c2ec",
          "description" : "backend",
          "status" : "3 = in progress"
       },
       {
-         "_id" : "66dd7ea5e7c673746905ff2a",
+         "_id" : "66ddf528fd6c67eaf171c2ef",
          "description" : "frontend",
          "status" : "1 = backlog"
       },
       {
-         "_id" : "66dd7eb5e7c673746905ff2e",
+         "_id" : "66ddf53ffd6c67eaf171c2f3",
          "description" : "convert the `epic` field to a `parentId` field",
          "status" : "3 = in progress"
       },
       {
-         "_id" : "66dd7ebce7c673746905ff32",
+         "_id" : "66ddf54dfd6c67eaf171c2f7",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
          "status" : "1 = backlog"
       },
       {
-         "_id" : "66dd7ec4e7c673746905ff36",
+         "_id" : "66ddf57ffd6c67eaf171c2fb",
          "description" : "containerize the backend",
          "status" : "2 = selected"
       }
@@ -671,8 +671,8 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66dd7e58e7c673746905ff27",
-         "createdAt" : "2024-09-08T10:37:12.447Z",
+         "_id" : "66ddf4f5fd6c67eaf171c2ec",
+         "createdAt" : "2024-09-08T19:03:17.759Z",
          "deadline" : "2024-09-08T21:08:36.367Z",
          "description" : "backend",
          "parentId" : null,
@@ -680,26 +680,26 @@ curl -v \
       },
       {
          "__v" : 0,
-         "_id" : "66dd7eb5e7c673746905ff2e",
-         "createdAt" : "2024-09-08T10:38:45.259Z",
+         "_id" : "66ddf53ffd6c67eaf171c2f3",
+         "createdAt" : "2024-09-08T19:04:31.705Z",
          "deadline" : "2024-08-31T21:08:36.367Z",
          "description" : "convert the `epic` field to a `parentId` field",
-         "parentId" : "66dd7e58e7c673746905ff27",
+         "parentId" : "66ddf4f5fd6c67eaf171c2ec",
          "status" : "3 = in progress"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ec4e7c673746905ff36",
-         "createdAt" : "2024-09-08T10:39:00.513Z",
+         "_id" : "66ddf57ffd6c67eaf171c2fb",
+         "createdAt" : "2024-09-08T19:05:35.916Z",
          "deadline" : "2024-08-31T23:08:36.367Z",
          "description" : "containerize the backend",
-         "parentId" : "66dd7e58e7c673746905ff27",
+         "parentId" : "66ddf4f5fd6c67eaf171c2ec",
          "status" : "2 = selected"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ea5e7c673746905ff2a",
-         "createdAt" : "2024-09-08T10:38:29.616Z",
+         "_id" : "66ddf528fd6c67eaf171c2ef",
+         "createdAt" : "2024-09-08T19:04:08.903Z",
          "deadline" : "2024-09-15T21:08:36.367Z",
          "description" : "frontend",
          "parentId" : null,
@@ -707,11 +707,11 @@ curl -v \
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ebce7c673746905ff32",
-         "createdAt" : "2024-09-08T10:38:52.671Z",
+         "_id" : "66ddf54dfd6c67eaf171c2f7",
+         "createdAt" : "2024-09-08T19:04:45.368Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "parentId" : "66dd7ea5e7c673746905ff2a",
+         "parentId" : "66ddf528fd6c67eaf171c2ef",
          "status" : "1 = backlog"
       }
    ]
@@ -739,8 +739,8 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66dd7ea5e7c673746905ff2a",
-         "createdAt" : "2024-09-08T10:38:29.616Z",
+         "_id" : "66ddf528fd6c67eaf171c2ef",
+         "createdAt" : "2024-09-08T19:04:08.903Z",
          "deadline" : "2024-09-15T21:08:36.367Z",
          "description" : "frontend",
          "parentId" : null,
@@ -748,26 +748,26 @@ curl -v \
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ebce7c673746905ff32",
-         "createdAt" : "2024-09-08T10:38:52.671Z",
+         "_id" : "66ddf54dfd6c67eaf171c2f7",
+         "createdAt" : "2024-09-08T19:04:45.368Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "parentId" : "66dd7ea5e7c673746905ff2a",
+         "parentId" : "66ddf528fd6c67eaf171c2ef",
          "status" : "1 = backlog"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ec4e7c673746905ff36",
-         "createdAt" : "2024-09-08T10:39:00.513Z",
+         "_id" : "66ddf57ffd6c67eaf171c2fb",
+         "createdAt" : "2024-09-08T19:05:35.916Z",
          "deadline" : "2024-08-31T23:08:36.367Z",
          "description" : "containerize the backend",
-         "parentId" : "66dd7e58e7c673746905ff27",
+         "parentId" : "66ddf4f5fd6c67eaf171c2ec",
          "status" : "2 = selected"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7e58e7c673746905ff27",
-         "createdAt" : "2024-09-08T10:37:12.447Z",
+         "_id" : "66ddf4f5fd6c67eaf171c2ec",
+         "createdAt" : "2024-09-08T19:03:17.759Z",
          "deadline" : "2024-09-08T21:08:36.367Z",
          "description" : "backend",
          "parentId" : null,
@@ -775,11 +775,11 @@ curl -v \
       },
       {
          "__v" : 0,
-         "_id" : "66dd7eb5e7c673746905ff2e",
-         "createdAt" : "2024-09-08T10:38:45.259Z",
+         "_id" : "66ddf53ffd6c67eaf171c2f3",
+         "createdAt" : "2024-09-08T19:04:31.705Z",
          "deadline" : "2024-08-31T21:08:36.367Z",
          "description" : "convert the `epic` field to a `parentId` field",
-         "parentId" : "66dd7e58e7c673746905ff27",
+         "parentId" : "66ddf4f5fd6c67eaf171c2ec",
          "status" : "3 = in progress"
       }
    ]
@@ -807,20 +807,20 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66dd7eb5e7c673746905ff2e",
-         "createdAt" : "2024-09-08T10:38:45.259Z",
+         "_id" : "66ddf53ffd6c67eaf171c2f3",
+         "createdAt" : "2024-09-08T19:04:31.705Z",
          "deadline" : "2024-08-31T21:08:36.367Z",
          "description" : "convert the `epic` field to a `parentId` field",
-         "parentId" : "66dd7e58e7c673746905ff27",
+         "parentId" : "66ddf4f5fd6c67eaf171c2ec",
          "status" : "3 = in progress"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ebce7c673746905ff32",
-         "createdAt" : "2024-09-08T10:38:52.671Z",
+         "_id" : "66ddf54dfd6c67eaf171c2f7",
+         "createdAt" : "2024-09-08T19:04:45.368Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "parentId" : "66dd7ea5e7c673746905ff2a",
+         "parentId" : "66ddf528fd6c67eaf171c2ef",
          "status" : "1 = backlog"
       }
    ]
@@ -870,18 +870,18 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66dd7ec4e7c673746905ff36",
-   "createdAt" : "2024-09-08T10:39:00.513Z",
+   "_id" : "66ddf57ffd6c67eaf171c2fb",
+   "createdAt" : "2024-09-08T19:05:35.916Z",
    "deadline" : "2024-08-31T23:08:36.367Z",
    "description" : "containerize the backend",
-   "parentId" : "66dd7e58e7c673746905ff27",
+   "parentId" : "66ddf4f5fd6c67eaf171c2ec",
    "status" : "2 = selected"
 }
 ```
 
 
 
-update one
+update one `Issue`
 
 ```bash
 curl -v \
@@ -929,11 +929,11 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66dd7ec4e7c673746905ff36",
-   "createdAt" : "2024-09-08T10:39:00.513Z",
+   "_id" : "66ddf57ffd6c67eaf171c2fb",
+   "createdAt" : "2024-09-08T19:05:35.916Z",
    "deadline" : "2024-08-31T23:08:36.367Z",
    "description" : "containerize the backend",
-   "parentId" : "66dd7e58e7c673746905ff27",
+   "parentId" : "66ddf4f5fd6c67eaf171c2ec",
    "status" : "3 = in progress"
 }
 ```
@@ -1067,5 +1067,7 @@ docker container run \
    --env-file .env \
    --env MONGO_HOST=container-mini-jira-3-mongo \
    --publish 5000:5000 \
-   image-mini-jira-3:2024-09-08-16-21
+   --entrypoint npm \
+   image-mini-jira-3:2024-09-08-16-21 \
+   run dev
 ```
