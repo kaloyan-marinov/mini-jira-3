@@ -984,9 +984,36 @@ curl -v \
 # The body of the HTTP response is empty.
 ```
 
+
+
+revoke the access token
+and
+verify that the backend will not accept the revoked token
+
 ```bash
 curl -v \
    -X DELETE \
    -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    localhost:5000/api/v1/tokens
+
+# ...
+< HTTP/1.1 204 No Content
+# ...
+# The body of the HTTP response is empty.
+
+
+
+# Repeat any one of the above-listed HTTP requests with status codes 2xx -
+# for example:
+curl -v \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   localhost:5000/api/v1/issues \
+   | json_pp
+
+# ...
+< HTTP/1.1 401 Unauthorized
+# ...
+{
+   "message" : "Revoked access token"
+}
 ```
