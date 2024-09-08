@@ -43,4 +43,32 @@ const IssueSchema = new mongoose.Schema({
 
 const Issue = new mongoose.model(NAME_OF_ISSUE_MODEL, IssueSchema);
 
-module.exports = Issue;
+// TODO: (2024/09/08, 09:43)
+//      move the rejected-token-related symbols
+//      to the top of this file
+
+// TODO: (2024/09/08, 00:05)
+//      create a `RevokedToken` model
+//      + utilize it in the `tokenAuth` middleware function
+
+const RevokedTokenSchema = new mongoose.Schema({
+  // TODO: (2024/09/08, 09:42)
+  //      when a `User` model is implemented,
+  //      the following should be changed to a reference to `User._id`
+  userId: {
+    type: Number,
+    required: [true, 'Please specify a value for "userId"'],
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  accessToken: {
+    type: String,
+    required: [true, 'Please specify a value for "accessToken"'],
+  },
+});
+
+const RevokedToken = new mongoose.model('RevokedToken', RevokedTokenSchema);
+
+module.exports = { RevokedToken, Issue };

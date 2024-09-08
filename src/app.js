@@ -1,7 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const jwt = require('jsonwebtoken');
-const Issue = require('./models');
+const { RevokedToken, Issue } = require('./models');
 const { determinePaginationInfoInitial } = require('./utilities');
 
 const app = express();
@@ -104,9 +104,31 @@ const tokenAuth = async (req, res, next) => {
   }
 
   req.userId = jwtPayload.userId;
+  req.accessToken = accessToken;
 
   next();
 };
+
+app.delete('/api/v1/tokens', tokenAuth, async (req, res) => {
+  let revokedToken;
+
+  try {
+    revokedToken = RevokedToken.create({
+      userId: parseInt(process.env.BACKEND_USER_ID),
+      accessToken: req.accessToken,
+    });
+  } catch (err) {
+    console.error(err);
+
+    res.status(400).json({
+      message: 'Unable to revoke the access token',
+    });
+    return;
+  }
+
+  res.status('Content-Length', '0');
+  res.status(204).end();
+});
 
 app.post('/api/v1/issues', tokenAuth, async (req, res) => {
   console.log('req.userId = ', req.userId);

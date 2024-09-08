@@ -201,11 +201,68 @@ in it, issue the following requests to the HTTP server:
 
 
 
-create one
+(leveraging the environment variables in your `.env` file,)
+obtain an access token
 
 ```bash
 curl -v \
    -X POST \
+   localhost:5000/api/v1/tokens \
+   | json_pp
+
+# ...
+< HTTP/1.1 400 Bad Request
+# ...
+{
+   "message" : "Missing \"Authorization\" header"
+}
+
+
+
+curl -v \
+   -X POST \
+   -u "${BACKEND_USERNAME}:${BACKEND_PASSWORD}" \
+   localhost:5000/api/v1/tokens \
+   | json_pp
+
+# ...
+< HTTP/1.1 200 OK
+# ...
+{
+   "accessToken" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTcyNTc4Mjc1MCwiZXhwIjoxNzI1NzgzNjUwfQ.gJCTyZqYbmLEIIZOf8r-nXc2WY2c1zYQnfMSvFNb5zg"
+}
+
+
+
+export ACCESS_TOKEN=<the-value-present-in-the-preceding-HTTP-response>>
+```
+
+
+
+create one `Issue`
+
+```bash
+curl -v \
+   -X POST \
+   -H "Content-Type: application/json" \
+   -d "{
+      \"status\": \"1 = backlog\"
+   }" \
+   localhost:5000/api/v1/issues \
+   | json_pp
+
+# ...
+< HTTP/1.1 400 Bad Request
+# ...
+{
+   "message" : "Missing \"Authorization\" header"
+}
+```
+
+```bash
+curl -v \
+   -X POST \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    -H "Content-Type: application/json" \
    -d "{
       \"status\": \"1 = backlog\"
@@ -224,6 +281,7 @@ curl -v \
 ```bash
 curl -v \
    -X POST \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    -H "Content-Type: application/json" \
    -d "{
       \"status\": \"3 = in progress\",
@@ -257,6 +315,7 @@ export VALID_BUT_NONEXISTENT_ISSUE_ID=<same-as-ISSUE_BACKEND_ID-but-with-the-las
 
 curl -v \
    -X POST \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    -H "Content-Type: application/json" \
    -d "{
       \"status\": \"1 = backlog\",
@@ -278,6 +337,7 @@ export ISSUE_FRONTEND_ID=<the-_id-present-in-the-preceding-HTTP-response>
 
 curl -v \
    -X POST \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    -H "Content-Type: application/json" \
    -d "{
       \"status\": \"3 = in progress\",
@@ -296,6 +356,7 @@ curl -v \
 ```bash
 curl -v \
    -X POST \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    -H "Content-Type: application/json" \
    -d "{
       \"status\": \"1 = backlog\",
@@ -314,6 +375,7 @@ curl -v \
 ```bash
 curl -v \
    -X POST \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    -H "Content-Type: application/json" \
    -d "{
       \"status\": \"2 = selected\",
@@ -335,10 +397,11 @@ export ISSUE_5_ID=<the-_id-present-in-the-preceding-HTTP-response>
 
 
 
-retrieve multiple
+retrieve multiple  `Issue`s
 
 ```bash
 curl -v \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues \
    | json_pp
 
@@ -406,6 +469,7 @@ curl -v \
 
 ```bash
 curl -v \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues?parentId=${ISSUE_FRONTEND_ID} \
    | json_pp
 
@@ -437,6 +501,7 @@ curl -v \
 
 
 curl -v \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues?parentId=null \
    | json_pp
 
@@ -477,6 +542,7 @@ curl -v \
 
 
 curl -v \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues?parentId= \
    | json_pp
 
@@ -488,6 +554,7 @@ curl -v \
 
 ```bash
 curl -v \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    'localhost:5000/api/v1/issues?status\[lt\]=3' \
    | json_pp
 
@@ -537,6 +604,7 @@ curl -v \
 
 ```bash
 curl -v \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    'localhost:5000/api/v1/issues?select=description,status' \
    | json_pp
 
@@ -584,6 +652,7 @@ curl -v \
 
 ```bash
 curl -v \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    'localhost:5000/api/v1/issues?sort=-status' \
    | json_pp
 
@@ -651,6 +720,7 @@ curl -v \
 
 
 curl -v \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    'localhost:5000/api/v1/issues?sort=status' \
    | json_pp
 
@@ -718,6 +788,7 @@ curl -v \
 
 ```bash
 curl -v \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    'localhost:5000/api/v1/issues?perPage=2&page=2' \
    | json_pp
 
@@ -758,10 +829,11 @@ curl -v \
 
 
 
-retrieve one
+retrieve one `Issue`
 
 ```bash
 curl -v \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues/17 \
    | json_pp
 
@@ -775,6 +847,7 @@ curl -v \
 
 ```bash
 curl -v \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
    | json_pp
 
@@ -788,6 +861,7 @@ curl -v \
 
 ```bash
 curl -v \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues/${ISSUE_5_ID} \
    | json_pp
 
@@ -812,6 +886,7 @@ update one
 ```bash
 curl -v \
    -X PUT \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues/17 \
    | json_pp
 
@@ -826,6 +901,7 @@ curl -v \
 ```bash
 curl -v \
    -X PUT \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
    | json_pp
 
@@ -840,6 +916,7 @@ curl -v \
 ```bash
 curl -v \
    -X PUT \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    -H "Content-Type: application/json" \
    -d "{
       \"status\": \"3 = in progress\"
@@ -863,11 +940,12 @@ curl -v \
 
 
 
-delete one
+delete one `Issue`
 
 ```bash
 curl -v \
    -X DELETE \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues/17 \
    | json_pp
 
@@ -882,6 +960,7 @@ curl -v \
 ```bash
 curl -v \
    -X DELETE \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
    | json_pp
 
@@ -896,10 +975,18 @@ curl -v \
 ```bash
 curl -v \
    -X DELETE \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues/${ISSUE_5_ID}
 
 # ...
 < HTTP/1.1 204 No Content
 # ...
 # The body of the HTTP response is empty.
+```
+
+```bash
+curl -v \
+   -X DELETE \
+   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   localhost:5000/api/v1/tokens
 ```

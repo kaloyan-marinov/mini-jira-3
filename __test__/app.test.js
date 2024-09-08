@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const request = require('supertest');
 
 const app = require('../src/app');
-const Issue = require('../src/models');
+const { Issue } = require('../src/models');
 const {
   corruptIdOfMongooseObject,
   decodeQueryStringWithinUrl,
