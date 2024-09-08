@@ -1,23 +1,19 @@
 FROM node:20.17-alpine3.20
 
-RUN mkdir -p /home/node/mini-jira-3/node_modules \
- && chown -R node:node /home/node/mini-jira-3
+RUN mkdir -p /home/node/mini-jira-3
+WORKDIR /home/node/mini-jira-3
 
 COPY \
-  --chown=node:node \
-  package.json \
-  package-lock.json \
-  /home/node/mini-jira-3/
-
-USER node
-
-WORKDIR /home/node/mini-jira-3
+  package.json package-lock.json \
+  ./
 RUN npm install
 
 COPY \
-  --chown=node:node \
-  src \
-  /home/node/mini-jira-3/src/
+  ./src \
+  ./src
+
+RUN chown -R node:node .
+USER node
 
 EXPOSE 5000
 

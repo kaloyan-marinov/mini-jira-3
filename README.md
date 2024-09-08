@@ -1022,5 +1022,5 @@ curl -v \
 
 docker build \
    --file Containerfile \
-   --tag mini-jira-3:2024-09-08-16-21 \
+   --tag image-mini-jira-3:2024-09-08-16-21 \
    .
