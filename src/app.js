@@ -136,7 +136,7 @@ const tokenAuth = async (req, res, next) => {
 
 app.delete('/api/v1/tokens', tokenAuth, async (req, res) => {
   try {
-    let revokedToken = RevokedToken.create({
+    let revokedToken = await RevokedToken.create({
       userId: parseInt(process.env.BACKEND_USER_ID),
       accessToken: req.accessToken,
     });
