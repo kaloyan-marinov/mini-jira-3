@@ -1,5 +1,4 @@
 .git
-.gitignore
 
 __test__
 .github
@@ -8,10 +7,12 @@ coverage
 node_modules
 
 .containerignore
-Containerfile
-
+.env
+.env.template
+.gitignore
 .prettierignore
 clean-docker-artifacts.sh
+Containerfile
 jest.config.js
 LICENSE
 README.md
