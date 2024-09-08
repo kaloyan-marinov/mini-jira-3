@@ -1041,6 +1041,21 @@ docker run \
 
 
 
+docker run \
+   --network=network-mini-jira-3 \
+   --name=container-mini-jira-3-mongosh \
+   -it \
+   --rm \
+   mongo:latest \
+      mongosh \
+      --host container-mini-jira-3-mongo \
+      --username $(grep -oP '^MONGO_USERNAME=\K.*' .env) \
+      --password $(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
+      --authenticationDatabase admin \
+      $(grep -oP '^MONGO_DATABASE=\K.*' .env)
+
+
+
 docker build \
    --file Containerfile \
    --tag image-mini-jira-3:2024-09-08-16-21 \
