@@ -47,10 +47,6 @@ const Issue = new mongoose.model(NAME_OF_ISSUE_MODEL, IssueSchema);
 //      move the rejected-token-related symbols
 //      to the top of this file
 
-// TODO: (2024/09/08, 00:05)
-//      create a `RevokedToken` model
-//      + utilize it in the `tokenAuth` middleware function
-
 const RevokedTokenSchema = new mongoose.Schema({
   // TODO: (2024/09/08, 09:42)
   //      when a `User` model is implemented,

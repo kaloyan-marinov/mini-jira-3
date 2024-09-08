@@ -84,6 +84,25 @@ const tokenAuth = async (req, res, next) => {
     return;
   }
 
+  let isRevoked;
+  try {
+    const revokedToken = await RevokedToken.findOne({ accessToken });
+    isRevoked = revokedToken === null ? false : true;
+  } catch (err) {
+    res.status(500).json({
+      message: 'Failed to process your HTTP request',
+    });
+
+    return;
+  }
+  if (isRevoked) {
+    res.status(401).json({
+      message: 'Revoked access token',
+    });
+
+    return;
+  }
+
   let jwtPayload;
   try {
     jwtPayload = jwt.verify(accessToken, process.env.BACKEND_SECRET_KEY);
