@@ -135,10 +135,8 @@ const tokenAuth = async (req, res, next) => {
 };
 
 app.delete('/api/v1/tokens', tokenAuth, async (req, res) => {
-  let revokedToken;
-
   try {
-    revokedToken = RevokedToken.create({
+    let revokedToken = RevokedToken.create({
       userId: parseInt(process.env.BACKEND_USER_ID),
       accessToken: req.accessToken,
     });
@@ -151,7 +149,7 @@ app.delete('/api/v1/tokens', tokenAuth, async (req, res) => {
     return;
   }
 
-  res.status('Content-Length', '0');
+  res.set('Content-Length', '0');
   res.status(204).end();
 });
 

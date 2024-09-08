@@ -80,6 +80,25 @@ describe('POST /api/v1/tokens', () => {
   );
 });
 
+describe('DELETE /api/v1/tokens', () => {
+  test('if a client sends a valid access token, should return 204', async () => {
+    // Arrange.
+    const response1 = await request(app)
+      .post('/api/v1/tokens')
+      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+
+    // Act.
+    const response2 = await request(app)
+      .delete('/api/v1/tokens')
+      .set('Authorization', 'Bearer ' + response1.body.accessToken);
+
+    // Assert.
+    expect(response2.status).toEqual(204);
+    expect(response2.headers['content-length']).toEqual('0');
+    expect(response2.body).toEqual({});
+  });
+});
+
 describe('POST /api/v1/issues', () => {
   let accessToken;
 
@@ -101,6 +120,7 @@ describe('POST /api/v1/issues', () => {
       });
 
     // Assert.
+    console.log('response.body = ', response.body);
     expect(response.status).toEqual(400);
     expect(response.body).toEqual({
       message: 'Unable to create a new issue.',
