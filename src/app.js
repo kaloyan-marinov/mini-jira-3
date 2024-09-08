@@ -66,6 +66,7 @@ app.post('/api/v1/tokens', async (req, res) => {
 });
 
 const tokenAuth = async (req, res, next) => {
+  // Inspect the "Authorization" header for an access token.
   const headerAuth = req.headers.authorization;
   if (!headerAuth) {
     res.status(400).json({
@@ -84,10 +85,12 @@ const tokenAuth = async (req, res, next) => {
     return;
   }
 
-  let isRevoked;
+  // Check whether the access token was revoked
+  // prior to the current request-response cycle.
+  let wasRevoked;
   try {
     const revokedToken = await RevokedToken.findOne({ accessToken });
-    isRevoked = revokedToken === null ? false : true;
+    wasRevoked = revokedToken === null ? false : true;
   } catch (err) {
     res.status(500).json({
       message: 'Failed to process your HTTP request',
@@ -95,7 +98,7 @@ const tokenAuth = async (req, res, next) => {
 
     return;
   }
-  if (isRevoked) {
+  if (wasRevoked) {
     res.status(401).json({
       message: 'Revoked access token',
     });
@@ -103,6 +106,7 @@ const tokenAuth = async (req, res, next) => {
     return;
   }
 
+  // Verify the access token.
   let jwtPayload;
   try {
     jwtPayload = jwt.verify(accessToken, process.env.BACKEND_SECRET_KEY);
@@ -122,6 +126,8 @@ const tokenAuth = async (req, res, next) => {
     return;
   }
 
+  // Make the following information available to all downstream middleware functions,
+  // which will be executed as part of the current request-response cycle.
   req.userId = jwtPayload.userId;
   req.accessToken = accessToken;
 
