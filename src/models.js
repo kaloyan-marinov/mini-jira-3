@@ -2,8 +2,10 @@ const mongoose = require('mongoose');
 
 const RevokedTokenSchema = new mongoose.Schema({
   // TODO: (2024/09/08, 09:42)
-  //      when a `User` model is implemented,
-  //      the following should be changed to a reference to `User._id`
+  //      when a `User` model is implemented:
+  //      (a) the following should be changed to a reference to `User._id`
+  //      (b) more meaningful/comprehensive tests for requests to `/api/v1/tokens`
+  //          should be implemented
   userId: {
     type: Number,
     required: [true, 'Please specify a value for "userId"'],
@@ -12,6 +14,9 @@ const RevokedTokenSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  // TODO: (2024/09/08, 15:39)
+  //        create a secondary index on this field
+  //        https://mongoosejs.com/docs/guide.html#indexes
   accessToken: {
     type: String,
     required: [true, 'Please specify a value for "accessToken"'],
