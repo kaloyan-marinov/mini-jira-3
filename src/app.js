@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
-const Issue = require('./models');
+const jwt = require('jsonwebtoken');
+const { RevokedToken, Issue } = require('./models');
 const { determinePaginationInfoInitial } = require('./utilities');
 
 const app = express();
@@ -14,7 +15,150 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-app.post('/api/v1/issues', async (req, res) => {
+app.post('/api/v1/tokens', async (req, res) => {
+  const headerAuth = req.headers.authorization;
+  if (!headerAuth) {
+    res.status(400).json({
+      message: 'Missing "Authorization" header',
+    });
+
+    return;
+  }
+
+  const [type, authCredsEncoded] = headerAuth.split(' ');
+  if (type !== 'Basic') {
+    res.status(400).json({
+      message: '"Authorization" header must specify Basic Auth',
+    });
+
+    return;
+  }
+
+  const authCredsDecoded = Buffer.from(authCredsEncoded, 'base64').toString();
+  const [username, password] = authCredsDecoded.split(':');
+  if (
+    username !== process.env.BACKEND_USERNAME ||
+    password !== process.env.BACKEND_PASSWORD
+  ) {
+    res.status(401).json({
+      message: 'Incorrect credentials',
+    });
+
+    return;
+  }
+
+  // TODO: (2024/09/07, 17:10)
+  //      arrange for creation of a 'refreshToken' that gets returned here as well
+  const payload = {
+    userId: parseInt(process.env.BACKEND_USER_ID),
+  };
+  const options = {
+    expiresIn: process.env.BACKEND_JWT_EXPIRES_IN,
+  };
+  const accessToken = jwt.sign(
+    payload,
+    process.env.BACKEND_SECRET_KEY,
+    options
+  );
+  res.status(200).json({
+    accessToken,
+  });
+});
+
+const tokenAuth = async (req, res, next) => {
+  // Inspect the "Authorization" header for an access token.
+  const headerAuth = req.headers.authorization;
+  if (!headerAuth) {
+    res.status(400).json({
+      message: 'Missing "Authorization" header',
+    });
+
+    return;
+  }
+
+  const [type, accessToken] = headerAuth.split(' ');
+  if (type !== 'Bearer') {
+    res.status(400).json({
+      message: '"Authorization" header must specify Bearer Auth',
+    });
+
+    return;
+  }
+
+  // Check whether the access token was revoked
+  // prior to the current request-response cycle.
+  let wasRevoked;
+  try {
+    const revokedToken = await RevokedToken.findOne({
+      accessToken,
+    });
+    wasRevoked = revokedToken === null ? false : true;
+  } catch (err) {
+    res.status(500).json({
+      message: 'Failed to process your HTTP request',
+    });
+
+    return;
+  }
+  if (wasRevoked) {
+    res.status(401).json({
+      message: 'Revoked access token',
+    });
+
+    return;
+  }
+
+  // Verify the access token.
+  let jwtPayload;
+  try {
+    jwtPayload = jwt.verify(accessToken, process.env.BACKEND_SECRET_KEY);
+  } catch (err) {
+    res.status(401).json({
+      message: 'Invalid access token',
+    });
+
+    return;
+  }
+
+  if (jwtPayload.userId !== parseInt(process.env.BACKEND_USER_ID)) {
+    res.status(401).json({
+      message: 'Your user is not allowed to invoke this endpoint',
+    });
+
+    return;
+  }
+
+  // Make the following information available to all downstream middleware functions,
+  // which will be executed as part of the current request-response cycle.
+  req.userId = jwtPayload.userId;
+  req.accessToken = accessToken;
+
+  next();
+};
+
+app.delete('/api/v1/tokens', tokenAuth, async (req, res) => {
+  try {
+    let revokedToken = await RevokedToken.create({
+      userId: parseInt(process.env.BACKEND_USER_ID),
+      accessToken: req.accessToken,
+    });
+  } catch (err) {
+    console.error(err);
+
+    res.status(400).json({
+      message: 'Unable to revoke the access token',
+    });
+    return;
+  }
+
+  res.set('Content-Length', '0');
+  res.status(204).end();
+});
+
+app.post('/api/v1/issues', tokenAuth, async (req, res) => {
+  //console.log('req.userId = ', req.userId);
+  //console.log('typeof req.userId = ', typeof req.userId);
+
   let newIssue;
 
   if (req.body.parentId) {
@@ -59,7 +203,7 @@ app.post('/api/v1/issues', async (req, res) => {
     .json(newIssue);
 });
 
-app.get('/api/v1/issues', async (req, res) => {
+app.get('/api/v1/issues', tokenAuth, async (req, res) => {
   let query;
 
   // Exclude all query parameters,
@@ -95,9 +239,9 @@ app.get('/api/v1/issues', async (req, res) => {
     /\b(in|lt|lte|gt|gte)\b/g,
     (match) => `$${match}`
   );
-  console.log('queryStr', queryStr);
+  //console.log('queryStr', queryStr);
   const queryJSON = JSON.parse(queryStr);
-  console.log('queryJSON', queryJSON);
+  //console.log('queryJSON', queryJSON);
 
   // Apply filtering criteria.
   query = Issue.find(queryJSON);
@@ -212,7 +356,7 @@ app.get('/api/v1/issues', async (req, res) => {
   }
 });
 
-app.get('/api/v1/issues/:id', async (req, res) => {
+app.get('/api/v1/issues/:id', tokenAuth, async (req, res) => {
   let issue;
   const issueId = req.params.id;
   try {
@@ -236,7 +380,7 @@ app.get('/api/v1/issues/:id', async (req, res) => {
   res.status(200).json(issue);
 });
 
-app.put('/api/v1/issues/:id', async (req, res) => {
+app.put('/api/v1/issues/:id', tokenAuth, async (req, res) => {
   let issue;
   const issueId = req.params.id;
   try {
@@ -264,7 +408,7 @@ app.put('/api/v1/issues/:id', async (req, res) => {
   res.status(200).json(issue);
 });
 
-app.delete('/api/v1/issues/:id', async (req, res) => {
+app.delete('/api/v1/issues/:id', tokenAuth, async (req, res) => {
   let issue;
   const issueId = req.params.id;
   try {
