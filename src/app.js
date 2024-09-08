@@ -89,7 +89,9 @@ const tokenAuth = async (req, res, next) => {
   // prior to the current request-response cycle.
   let wasRevoked;
   try {
-    const revokedToken = await RevokedToken.findOne({ accessToken });
+    const revokedToken = await RevokedToken.findOne({
+      accessToken,
+    });
     wasRevoked = revokedToken === null ? false : true;
   } catch (err) {
     res.status(500).json({

@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const request = require('supertest');
 
 const app = require('../src/app');
-const { Issue } = require('../src/models');
+const { RevokedToken, Issue } = require('../src/models');
 const {
   corruptIdOfMongooseObject,
   decodeQueryStringWithinUrl,
@@ -87,15 +87,22 @@ describe('DELETE /api/v1/tokens', () => {
       .post('/api/v1/tokens')
       .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
 
+    const accessToken = response1.body.accessToken;
+
     // Act.
     const response2 = await request(app)
       .delete('/api/v1/tokens')
-      .set('Authorization', 'Bearer ' + response1.body.accessToken);
+      .set('Authorization', 'Bearer ' + accessToken);
 
     // Assert.
     expect(response2.status).toEqual(204);
     expect(response2.headers['content-length']).toEqual('0');
     expect(response2.body).toEqual({});
+
+    const revokedToken = await RevokedToken.find({
+      accessToken,
+    });
+    expect(revokedToken.length).toEqual(1);
   });
 });
 
