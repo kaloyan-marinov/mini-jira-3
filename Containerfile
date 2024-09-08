@@ -4,6 +4,7 @@ RUN mkdir -p /home/node/mini-jira-3/node_modules \
  && chown -R node:node /home/node/mini-jira-3
 
 COPY \
+  --chown=node:node \
   package.json \
   package-lock.json \
   /home/node/mini-jira-3/
