@@ -5,9 +5,9 @@ services:
     # restart: unless-stopped
     env_file: ../.env
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
-      - MONGO_INITDB_DATABASE=${MONGO_DATABASE}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME} # !!!
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD} # !!!
+      - MONGO_INITDB_DATABASE=${MONGO_DATABASE} # !!!
     volumes:
       - volume-mini-jira-3-mongo:/data/db
     networks:
