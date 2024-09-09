@@ -8,6 +8,11 @@ COPY \
   ./
 RUN npm install
 
+RUN mkdir -p /home/node/mini-jira-3/containerization
+COPY \
+  ./containerization/wait-for.sh \
+  /home/node/mini-jira-3/containerization/
+
 COPY \
   ./src \
   ./src

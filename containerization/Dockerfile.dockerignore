@@ -3,16 +3,17 @@
 __test__
 .github
 .vscode
+containerization/clean-docker-artifacts.sh
+containerization/docker-compose.yml
+containerization/Dockerfile
+containerization/Dockerfile.dockerignore
 coverage
 node_modules
 
-.containerignore
 .env
 .env.template
 .gitignore
 .prettierignore
-clean-docker-artifacts.sh
-Containerfile
 jest.config.js
 LICENSE
 README.md

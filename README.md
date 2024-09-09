@@ -137,6 +137,8 @@ create an empty database:
 
 - run a containerized MongoDB server
 
+   <u>TODO: (2024/09/09, 08:08) replace `mongo:latest` with an (image, specific tag)-pair - across the whole repository</u>
+
    ```bash
    docker run \
       --name container-m-j-3-mongo \
@@ -1071,3 +1073,127 @@ docker run \
    image-mini-jira-3:2024-09-08-16-21 \
    run dev
 ```
+
+
+
+# Containerization using Docker Compose
+
+```bash
+chmod a+x containerization/wait-for.sh
+```
+
+---
+
+issuing 
+
+```bash
+docker compose \
+   --file containerization/docker-compose.yml \
+   up
+```
+produces the following output
+```
+WARN[0000] The "MONGO_USERNAME" variable is not set. Defaulting to a blank string.
+WARN[0000] The "MONGO_PASSWORD" variable is not set. Defaulting to a blank string.
+WARN[0000] The "MONGO_DATABASE" variable is not set. Defaulting to a blank string.
+[+] Running 4/4
+ ✔ Network network-mini-jira-3            Created                                            0.3s
+ ✔ Volume "volume-mini-jira-3-mongo"      Created                                            0.0s
+ ✔ Container container-mini-jira-3-mongo  Created                                            0.4s
+ ✔ Container container-mini-jira-3        Created                                            0.4s
+Attaching to container-mini-jira-3, container-mini-jira-3-mongo
+c
+
+# ...
+
+container-mini-jira-3        |
+container-mini-jira-3        | > mini-jira-3@0.1.0 dev
+container-mini-jira-3        | > NODE_ENV=development nodemon src/server.js
+container-mini-jira-3        |
+container-mini-jira-3        | [nodemon] 3.1.4
+container-mini-jira-3        | [nodemon] to restart at any time, enter `rs`
+container-mini-jira-3        | [nodemon] watching path(s): *.*
+container-mini-jira-3        | [nodemon] watching extensions: js,mjs,cjs,json
+container-mini-jira-3        | [nodemon] starting `node src/server.js`
+container-mini-jira-3        | Connecting to a MongoDB host at container-mini-jira-3-mongo:27017 (target database: "db-4-m-j-3") ...
+
+# ...
+
+container-mini-jira-3-mongo  | {"t":{"$date":"2024-09-09T19:14:38.693+00:00"},"s":"I",  "c":"ACCESS",   "id":5286307, "ctx":"conn3","msg":"Failed to authenticate","attr":{"client":"172.18.0.3:33880","isSpeculative":true,"isClusterMember":false,"mechanism":"SCRAM-SHA-256","user":"<value-of-the-MONGO_USERNAME-environment-variable>","db":"admin","error":"UserNotFound: Could not find user \"<value-of-the-MONGO_USERNAME-environment-variable>\" for db \"admin\"","result":11,"metrics":{"conversation_duration":{"micros":220,"summary":{"0":{"step":1,"step_total":2,"duration_micros":198}}}},"extraInfo":{}}}
+
+# ...
+
+container-mini-jira-3        | MongoServerError: Authentication failed.
+container-mini-jira-3        |     at Connection.sendCommand (/home/node/mini-jira-3/node_modules/mongodb/lib/cmap/connection.js:297:27)
+container-mini-jira-3        |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+container-mini-jira-3        |     at async Connection.command (/home/node/mini-jira-3/node_modules/mongodb/lib/cmap/connection.js:325:26)
+container-mini-jira-3        |     at async executeScram (/home/node/mini-jira-3/node_modules/mongodb/lib/cmap/auth/scram.js:79:22)
+container-mini-jira-3        |     at async ScramSHA1.auth (/home/node/mini-jira-3/node_modules/mongodb/lib/cmap/auth/scram.js:39:16)
+container-mini-jira-3        |     at async performInitialHandshake (/home/node/mini-jira-3/node_modules/mongodb/lib/cmap/connect.js:101:13)
+container-mini-jira-3        |     at async connect (/home/node/mini-jira-3/node_modules/mongodb/lib/cmap/connect.js:19:9) {
+container-mini-jira-3        |   errorResponse: {
+container-mini-jira-3        |     ok: 0,
+container-mini-jira-3        |     errmsg: 'Authentication failed.',
+container-mini-jira-3        |     code: 18,
+container-mini-jira-3        |     codeName: 'AuthenticationFailed'
+container-mini-jira-3        |   },
+container-mini-jira-3        |   ok: 0,
+container-mini-jira-3        |   code: 18,
+container-mini-jira-3        |   codeName: 'AuthenticationFailed',
+container-mini-jira-3        |   connectionGeneration: 0,
+container-mini-jira-3        |   [Symbol(errorLabels)]: Set(2) { 'HandshakeError', 'ResetPool' }
+container-mini-jira-3        | }
+container-mini-jira-3        | [nodemon] clean exit - waiting for changes before restart
+```
+
+---
+
+trying to connect to the MongoDB host via a MongoDB shell
+by issuig
+```
+$ docker run \
+   --network=network-mini-jira-3 \
+   --name=container-mini-jira-3-mongosh \
+   -it \
+   --rm \
+   mongo:latest \
+      mongosh \
+         --host container-mini-jira-3-mongo \
+         --username $(grep -oP '^MONGO_USERNAME=\K.*' .env) \
+         --password $(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
+         --authenticationDatabase admin \
+         $(grep -oP '^MONGO_DATABASE=\K.*' .env)
+```
+also fails, with the reported failure reason being
+```
+Current Mongosh Log ID: 66df4b0305707e3bb2149f47
+Connecting to:          mongodb://<credentials>@container-mini-jira-3-mongo:27017/db-4-m-j-3?directConnection=true&authSource=admin&appName=mongosh+2.2.10
+MongoServerError: Authentication failed.
+```
+
+---
+
+inspecting the environment variables inside the MongoDB container reveals that
+each of the environment variables used for configuring that very container
+is equal to a blank strings:
+
+```
+$ docker container exec -it container-mini-jira-3-mongo /bin/sh
+# env
+...
+MONGO_INITDB_DATABASE=
+...
+MONGO_INITDB_ROOT_PASSWORD=
+...
+MONGO_INITDB_ROOT_USERNAME=
+...
+```
+
+(
+in fact, the first command alerted us about those blank strings
+via a `WARN[0000]` message for each affected environment variable
+)
+
+in summary,
+the `container/docker-compose.yml` fails to set necessary environment variables
+within the MongoDB container

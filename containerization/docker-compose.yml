@@ -1,0 +1,44 @@
+services:
+  service-mongo:
+    image: mongo:latest
+    container_name: container-mini-jira-3-mongo
+    # restart: unless-stopped
+    env_file: ../.env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DATABASE}
+    volumes:
+      - volume-mini-jira-3-mongo:/data/db
+    networks:
+      - network-mini-jira-3
+
+  service-backend:
+    build:
+      context: ..
+      dockerfile: containerization/Dockerfile
+    image: image-mini-jira-3:2024-09-08-16-21
+    container_name: container-mini-jira-3
+    # restart: unless-stopped
+    env_file: ../.env
+    environment:
+      - MONGO_HOST=container-mini-jira-3-mongo
+    ports:
+      - '5000:5000'
+    networks:
+      - network-mini-jira-3
+    volumes:
+      - type: bind
+        source: ../containerization/wait-for.sh
+        target: /home/node/mini-jira-3/containerization/wait-for.sh
+    # command:
+    entrypoint: /home/node/mini-jira-3/containerization/wait-for.sh container-mini-jira-3-mongo:27017 -- npm run dev
+
+networks:
+  network-mini-jira-3:
+    name: network-mini-jira-3
+    driver: bridge
+
+volumes:
+  volume-mini-jira-3-mongo:
+    name: volume-mini-jira-3-mongo

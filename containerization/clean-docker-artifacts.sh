@@ -12,3 +12,6 @@ docker container rm -f container-mini-jira-3-mongo
 docker volume rm -f volume-mini-jira-3-mongo
 
 docker network rm network-mini-jira-3
+
+docker volume ls
+docker volume prune
