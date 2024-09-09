@@ -33,7 +33,7 @@ services:
         source: ../containerization/wait-for.sh
         target: /home/node/mini-jira-3/containerization/wait-for.sh
     # command:
-    entrypoint: /home/node/mini-jira-3/containerization/wait-for.sh container-mini-jira-3-mongo:27017 -- npm run dev
+    entrypoint: /home/node/mini-jira-3/containerization/wait-for.sh container-mini-jira-3-mongo:27017 -- npm run dev # TODO: (2024/09/09, 22:08) change this to `npm run start`
 
 networks:
   network-mini-jira-3:

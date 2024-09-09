@@ -1074,6 +1074,15 @@ docker run \
    run dev
 ```
 
+recall that there is one section in this file,
+which contains a sequence of HTTP requests and their expected responses -
+now you can issue that same sequence of HTTP requests
+
+remove all Docker components that were created in this section:
+```bash
+./containerization/clean-docker-artifacts.sh
+```
+
 
 
 # Containerization using Docker Compose
@@ -1102,4 +1111,13 @@ docker run \
          --password $(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
          --authenticationDatabase admin \
          $(grep -oP '^MONGO_DATABASE=\K.*' .env)
+```
+
+recall that there is one section in this file,
+which contains a sequence of HTTP requests and their expected responses -
+now you can issue that same sequence of HTTP requests
+
+remove all Docker components that were created in this section:
+```bash
+./containerization/clean-docker-artifacts.sh
 ```
