@@ -21,7 +21,7 @@ services:
     image: image-mini-jira-3:2024-09-08-16-21
     container_name: container-mini-jira-3
     # restart: unless-stopped
-    env_file: ../.env
+    env_file: ../.env # TODO: (2024/09/10, 06:39) consider moving these things into the next statement
     environment:
       - MONGO_HOST=container-mini-jira-3-mongo
     ports:
@@ -33,7 +33,7 @@ services:
         source: ../containerization/wait-for.sh
         target: /home/node/mini-jira-3/containerization/wait-for.sh
     # command:
-    entrypoint: /home/node/mini-jira-3/containerization/wait-for.sh container-mini-jira-3-mongo:27017 -- npm run dev # TODO: (2024/09/09, 22:08) change this to `npm run start`
+    entrypoint: /home/node/mini-jira-3/containerization/wait-for.sh container-mini-jira-3-mongo:27017 -- npm run start
 
 networks:
   network-mini-jira-3:
