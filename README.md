@@ -137,7 +137,7 @@ create an empty database:
 
 - run a containerized MongoDB server
 
-   <u>TODO: (2024/09/09, 08:08) replace `mongo:latest` with an (image, specific tag)-pair - across the whole repository</u>
+   <u>TODO: (2024/09/10, 23:16) replace `mongo:latest` with an (image, specific tag)-pair (not from https://hub.docker.com/_/mongo but) from https://hub.docker.com/r/mongodb/mongodb-community-server >> https://www.mongodb.com/resources/products/compatibilities/docker ; it may also be worth it to take a look at https://www.mongodb.com/docs/upcoming/tutorial/install-mongodb-community-with-docker/ </u>
 
    ```bash
    docker run \
