@@ -166,6 +166,7 @@ create an empty database:
 
    ```bash
    docker run \
+      --name container-m-j-3-mongosh \
       -it \
       --rm \
       mongo:latest \
@@ -1032,7 +1033,7 @@ docker volume create \
    volume-mini-jira-3-mongo
 
 docker run \
-   --network=network-mini-jira-3 \
+   --network network-mini-jira-3 \
    --name container-mini-jira-3-mongo \
    --mount source=volume-mini-jira-3-mongo,destination=/data/db \
    --env MONGO_INITDB_ROOT_USERNAME=$(grep -oP '^MONGO_USERNAME=\K.*' .env) \
@@ -1044,8 +1045,8 @@ docker run \
 
 
 docker run \
-   --network=network-mini-jira-3 \
-   --name=container-mini-jira-3-mongosh \
+   --network network-mini-jira-3 \
+   --name container-mini-jira-3-mongosh \
    -it \
    --rm \
    mongo:latest \
@@ -1063,8 +1064,8 @@ docker build \
    .
 
 docker run \
-   --network=network-mini-jira-3 \
-   --name=container-mini-jira-3 \
+   --network network-mini-jira-3 \
+   --name container-mini-jira-3 \
    --env-file .env \
    --env MONGO_HOST=container-mini-jira-3-mongo \
    --publish 5000:5000 \
@@ -1099,8 +1100,8 @@ docker compose \
 
 ```bash
 docker run \
-   --network=network-mini-jira-3 \
-   --name=container-mini-jira-3-mongosh \
+   --network network-mini-jira-3 \
+   --name container-mini-jira-3-mongosh \
    -it \
    --rm \
    mongo:latest \
