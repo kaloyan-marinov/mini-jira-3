@@ -137,6 +137,8 @@ create an empty database:
 
 - run a containerized MongoDB server
 
+   <u>TODO: (2024/09/10, 23:16) replace `mongo:latest` with an (image, specific tag)-pair (not from https://hub.docker.com/_/mongo but) from https://hub.docker.com/r/mongodb/mongodb-community-server >> https://www.mongodb.com/resources/products/compatibilities/docker ; it may also be worth it to take a look at https://www.mongodb.com/docs/upcoming/tutorial/install-mongodb-community-with-docker/ </u>
+
    ```bash
    docker run \
       --name container-m-j-3-mongo \
@@ -164,6 +166,7 @@ create an empty database:
 
    ```bash
    docker run \
+      --name container-m-j-3-mongosh \
       -it \
       --rm \
       mongo:latest \
@@ -397,7 +400,7 @@ export ISSUE_5_ID=<the-_id-present-in-the-preceding-HTTP-response>
 
 
 
-retrieve multiple  `Issue`s
+retrieve multiple `Issue`s
 
 ```bash
 curl -v \
@@ -881,7 +884,7 @@ curl -v \
 
 
 
-update one
+update one `Issue`
 
 ```bash
 curl -v \
@@ -1016,4 +1019,132 @@ curl -v \
 {
    "message" : "Revoked access token"
 }
+```
+
+
+
+---
+
+remove all Docker artifacts:
+```
+./containerization/clean-docker-artifacts.sh
+```
+
+
+
+# Containerization using Docker
+
+```bash
+docker network create \
+   network-mini-jira-3
+
+docker volume create \
+   volume-mini-jira-3-mongo
+
+docker run \
+   --network network-mini-jira-3 \
+   --name container-mini-jira-3-mongo \
+   --mount source=volume-mini-jira-3-mongo,destination=/data/db \
+   --env MONGO_INITDB_ROOT_USERNAME=$(grep -oP '^MONGO_USERNAME=\K.*' .env) \
+   --env MONGO_INITDB_ROOT_PASSWORD=$(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
+   --env MONGO_INITDB_DATABASE=$(grep -oP '^MONGO_DATABASE=\K.*' .env) \
+   --publish 27017:27017 \
+   mongo:latest
+
+
+
+docker run \
+   --network network-mini-jira-3 \
+   --name container-mini-jira-3-mongosh \
+   -it \
+   --rm \
+   mongo:latest \
+      mongosh \
+      --host container-mini-jira-3-mongo \
+      --username $(grep -oP '^MONGO_USERNAME=\K.*' .env) \
+      --password $(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
+      --authenticationDatabase admin \
+      $(grep -oP '^MONGO_DATABASE=\K.*' .env)
+
+
+docker build \
+   --file containerization/Dockerfile \
+   --tag image-mini-jira-3:2024-09-08-16-21 \
+   .
+
+docker run \
+   --network network-mini-jira-3 \
+   --name container-mini-jira-3 \
+   --env-file .env \
+   --env MONGO_HOST=container-mini-jira-3-mongo \
+   --publish 5000:5000 \
+   --entrypoint npm \
+   image-mini-jira-3:2024-09-08-16-21 \
+   run dev
+```
+
+recall that there is one section in this file,
+which contains a sequence of HTTP requests and their expected responses -
+now you can issue that same sequence of HTTP requests
+
+remove all Docker components that were created in this section:
+```bash
+./containerization/clean-docker-artifacts.sh
+```
+
+
+
+---
+
+remove all Docker artifacts:
+```
+./containerization/clean-docker-artifacts.sh
+```
+
+
+
+# Containerization using Docker Compose
+
+```bash
+chmod a+x containerization/wait-for.sh
+```
+
+```bash
+docker compose \
+   --env-file .env \
+   --file containerization/docker-compose.yml \
+   up
+```
+
+```bash
+docker run \
+   --network network-mini-jira-3 \
+   --name container-mini-jira-3-mongosh \
+   -it \
+   --rm \
+   mongo:latest \
+      mongosh \
+         --host container-mini-jira-3-mongo \
+         --username $(grep -oP '^MONGO_USERNAME=\K.*' .env) \
+         --password $(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
+         --authenticationDatabase admin \
+         $(grep -oP '^MONGO_DATABASE=\K.*' .env)
+```
+
+recall that there is one section in this file,
+which contains a sequence of HTTP requests and their expected responses -
+now you can issue that same sequence of HTTP requests
+
+remove all Docker components that were created in this section:
+```bash
+./containerization/clean-docker-artifacts.sh
+```
+
+
+
+---
+
+remove all Docker artifacts:
+```
+./containerization/clean-docker-artifacts.sh
 ```

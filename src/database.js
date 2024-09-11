@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
 
 const connectToDatabase = async () => {
-  console.log('Establishing connection to MongoDB host...');
+  console.log(
+    `Connecting to a MongoDB host at` +
+      ` ${process.env.MONGO_HOST}:27017` +
+      ` (target database: "${process.env.MONGO_DATABASE}") ...`
+  );
 
   const connection = await mongoose.connect(
     'mongodb://' +
@@ -15,7 +19,9 @@ const connectToDatabase = async () => {
   );
 
   console.log(
-    `Established connection to MongoDB host at ${connection.connection.host}:${connection.connection.port} ${connection.connection.db.databaseName}`
+    `Connected successfully ( to the MongoDB host at` +
+      ` ${connection.connection.host}:${connection.connection.port}` +
+      ` ${connection.connection.db.databaseName} )`
   );
 };
 
