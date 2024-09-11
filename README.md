@@ -1057,7 +1057,6 @@ docker run \
       $(grep -oP '^MONGO_DATABASE=\K.*' .env)
 
 
-# TODO: (2024/09/09, 07:16) double-check whether the `containerization/Dockerfile.dockerignore` achieves what I expect; a concrete way for double-checking that is detailed at https://github.com/moby/moby/issues/12886#issuecomment-480575928
 docker build \
    --file containerization/Dockerfile \
    --tag image-mini-jira-3:2024-09-08-16-21 \
