@@ -1023,6 +1023,15 @@ curl -v \
 
 
 
+---
+
+remove all Docker artifacts:
+```
+./containerization/clean-docker-artifacts.sh
+```
+
+
+
 # Containerization using Docker
 
 ```bash
@@ -1085,6 +1094,15 @@ remove all Docker components that were created in this section:
 
 
 
+---
+
+remove all Docker artifacts:
+```
+./containerization/clean-docker-artifacts.sh
+```
+
+
+
 # Containerization using Docker Compose
 
 ```bash
@@ -1119,5 +1137,14 @@ now you can issue that same sequence of HTTP requests
 
 remove all Docker components that were created in this section:
 ```bash
+./containerization/clean-docker-artifacts.sh
+```
+
+
+
+---
+
+remove all Docker artifacts:
+```
 ./containerization/clean-docker-artifacts.sh
 ```
