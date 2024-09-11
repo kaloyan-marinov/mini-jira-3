@@ -43,7 +43,13 @@ services:
         source: ../containerization/wait-for.sh
         target: /home/node/mini-jira-3/containerization/wait-for.sh
     # command:
-    entrypoint: /home/node/mini-jira-3/containerization/wait-for.sh container-mini-jira-3-mongo:27017 -- npm run start
+    entrypoint:
+      - /home/node/mini-jira-3/containerization/wait-for.sh
+      - container-mini-jira-3-mongo:27017
+      - --
+      - npm
+      - run
+      - start
 
 networks:
   network-mini-jira-3:
