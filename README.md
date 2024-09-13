@@ -204,6 +204,37 @@ in it, issue the following requests to the HTTP server:
 
 
 
+```bash
+export USER_1_USERNAME=jd
+export USER_1_PASSWORD=123
+export USER_1_EMAIL=john.doe@protonmail.com
+
+curl -v \
+   -X POST \
+   -H "Content-Type: application/json" \
+   -d "{
+      \"username\": \"${USER_1_USERNAME}\",
+      \"password\": \"${USER_1_PASSWORD}\",
+      \"email\": \"${USER_1_EMAIL}\"
+   }" \
+   localhost:5000/api/v1/users \
+   | json_pp
+
+# ...
+< Location: /api/v1/users/66e4b001edcc7628ae534fae
+# ...
+{
+   "__v" : 0,
+   "_id" : "66e4b001edcc7628ae534fae",
+   "createdAt" : "2024-09-13T21:34:57.514Z",
+   "email" : "john.doe@protonmail.com",
+   "password" : "123",
+   "username" : "jd"
+}
+```
+
+
+
 (leveraging the environment variables in your `.env` file,)
 obtain an access token
 

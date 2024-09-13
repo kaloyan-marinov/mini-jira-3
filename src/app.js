@@ -1,7 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const jwt = require('jsonwebtoken');
-const { RevokedToken, Issue } = require('./models');
+const { User, RevokedToken, Issue } = require('./models');
 const { determinePaginationInfoInitial } = require('./utilities');
 
 const app = express();
@@ -14,6 +14,26 @@ app.use(express.json());
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+app.post('/api/v1/users', async (req, res) => {
+  let newUser;
+  try {
+    newUser = await User.create(req.body);
+  } catch (err) {
+    console.error(err);
+
+    res.status(400).json({
+      message: 'Unable to create a new user.',
+    });
+
+    return;
+  }
+
+  res
+    .status(201)
+    .set('Location', `/api/v1/users/${newUser._id.toString()}`)
+    .json(newUser);
+});
 
 app.post('/api/v1/tokens', async (req, res) => {
   const headerAuth = req.headers.authorization;
