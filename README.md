@@ -224,12 +224,11 @@ curl -v \
 
 # ...
 < HTTP/1.1 201 Created
-< Location: /api/v1/users/66e4b001edcc7628ae534fae
-# ...
+< Location: /api/v1/users/66e59b412f563d826f3f0938
 {
    "__v" : 0,
-   "_id" : "66e55c42a0ac9171439d2d9d",
-   "createdAt" : "2024-09-14T09:49:54.788Z",
+   "_id" : "66e59b412f563d826f3f0938",
+   "createdAt" : "2024-09-14T14:18:41.068Z",
    "email" : "j.d@protonmail.com",
    "password" : "123",
    "username" : "jd"
@@ -254,8 +253,8 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66e55c42a0ac9171439d2d9d",
-   "createdAt" : "2024-09-14T09:49:54.788Z",
+   "_id" : "66e59b412f563d826f3f0938",
+   "createdAt" : "2024-09-14T14:18:41.068Z",
    "email" : "j.d@protonmail.com",
    "username" : "jd"
 }
@@ -282,8 +281,8 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66e55c42a0ac9171439d2d9d",
-   "createdAt" : "2024-09-14T09:49:54.788Z",
+   "_id" : "66e59b412f563d826f3f0938",
+   "createdAt" : "2024-09-14T14:18:41.068Z",
    "email" : "john.doe@protonmail.com",
    "username" : "jd"
 }
@@ -291,7 +290,6 @@ curl -v \
 
 
 
-(leveraging the environment variables in your `.env` file,)
 obtain an access token
 
 ```bash
@@ -311,7 +309,7 @@ curl -v \
 
 curl -v \
    -X POST \
-   -u "${BACKEND_USERNAME}:${BACKEND_PASSWORD}" \
+   -u "${USER_1_USERNAME}:${USER_1_PASSWORD}" \
    localhost:5000/api/v1/tokens \
    | json_pp
 
@@ -319,7 +317,7 @@ curl -v \
 < HTTP/1.1 200 OK
 # ...
 {
-   "accessToken" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTcyNTc5MTc0NywiZXhwIjoxNzI1NzkzMjQ3fQ.4Ts6B6PFXp9hemAdQKkh2_MhPUOp4Z-0SvJS-teZ3S4"
+   "accessToken" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmU1OWI0MTJmNTYzZDgyNmYzZjA5MzgiLCJpYXQiOjE3MjYzMjM5ODgsImV4cCI6MTcyNjMyNTQ4OH0.NTPPmWJ9jimX_X_n7MBHsUFwRLREKjeJ6-aef_9AIvk"
 }
 
 

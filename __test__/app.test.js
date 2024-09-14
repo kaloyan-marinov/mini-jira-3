@@ -179,11 +179,18 @@ describe('POST /api/v1/tokens', () => {
 });
 
 describe('DELETE /api/v1/tokens', () => {
-  xtest('if a client sends a valid access token, should return 204', async () => {
+  test('if a client sends a valid access token, should return 204', async () => {
     // Arrange.
+    const request0 = await request(app)
+      .post('/api/v1/users')
+      .send(JSON_4_USER_1);
+
+    const userUsername = request0.body.username;
+    const userPassword = request0.body.password;
+
     const response1 = await request(app)
       .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('xtest-username:xtest-password'));
+      .set('Authorization', 'Basic ' + btoa(`${userUsername}:${userPassword}`));
 
     const accessToken = response1.body.accessToken;
 

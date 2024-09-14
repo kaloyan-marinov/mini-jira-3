@@ -55,6 +55,8 @@ app.get('/api/v1/users/:id', async (req, res) => {
   res.status(200).json(user);
 });
 
+// TODO: (2024/09/14, 16:24)
+//      convert the following endpoint into a private one
 app.put('/api/v1/users/:id', async (req, res) => {
   let user;
   const userId = req.params.id;
@@ -201,13 +203,13 @@ const tokenAuth = async (req, res, next) => {
     return;
   }
 
-  if (jwtPayload.userId !== parseInt(process.env.BACKEND_USER_ID)) {
-    res.status(401).json({
-      message: 'Your user is not allowed to invoke this endpoint',
-    });
+  // if (jwtPayload.userId !== parseInt(process.env.BACKEND_USER_ID)) {
+  //   res.status(401).json({
+  //     message: 'Your user is not allowed to invoke this endpoint',
+  //   });
 
-    return;
-  }
+  //   return;
+  // }
 
   // Make the following information available to all downstream middleware functions,
   // which will be executed as part of the current request-response cycle.
@@ -220,7 +222,7 @@ const tokenAuth = async (req, res, next) => {
 app.delete('/api/v1/tokens', tokenAuth, async (req, res) => {
   try {
     let revokedToken = await RevokedToken.create({
-      userId: parseInt(process.env.BACKEND_USER_ID),
+      userId: req.userId,
       accessToken: req.accessToken,
     });
   } catch (err) {

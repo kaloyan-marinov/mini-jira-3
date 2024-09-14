@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const NAME_OF_USER_MODEL = 'User';
+
 const UserSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -30,17 +32,12 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-const User = new mongoose.model('User', UserSchema);
+const User = new mongoose.model(NAME_OF_USER_MODEL, UserSchema);
 
 const RevokedTokenSchema = new mongoose.Schema({
-  // TODO: (2024/09/08, 09:42)
-  //      when a `User` model is implemented:
-  //      (a) the following should be changed to a reference to `User._id`
-  //      (b) more meaningful/comprehensive tests for requests to `/api/v1/tokens`
-  //          should be implemented
   userId: {
-    type: Number,
-    required: [true, 'Please specify a value for "userId"'],
+    type: mongoose.Schema.Types.ObjectId,
+    ref: NAME_OF_USER_MODEL,
   },
   createdAt: {
     type: Date,
