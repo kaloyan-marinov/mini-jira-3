@@ -138,14 +138,28 @@ describe('PUT /api/v1/users/:id', () => {
 });
 
 describe('POST /api/v1/tokens', () => {
-  xtest(
+  test(
     'if a client sends a correct set of Basic Auth credentials,' +
       ' should return 200',
     async () => {
+      // Arrange.
+      const response0 = await request(app)
+        .post('/api/v1/users')
+        .send(JSON_4_USER_1);
+
+      // const temp1 = await User.find();
+      // console.log('temp1 = ', temp1);
+
+      // const temp2 = await User.findOne({ username: 'test-jd' });
+      // console.log('temp2 = ', temp2);
+
       // Act.
       const response = await request(app)
         .post('/api/v1/tokens')
-        .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+        .set(
+          'Authorization',
+          'Basic ' + btoa(`${JSON_4_USER_1.username}:${JSON_4_USER_1.password}`)
+        );
 
       // Assert.
       expect(response.status).toEqual(200);
