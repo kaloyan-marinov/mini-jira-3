@@ -104,10 +104,21 @@ app.post('/api/v1/tokens', async (req, res) => {
 
   const authCredsDecoded = Buffer.from(authCredsEncoded, 'base64').toString();
   const [username, password] = authCredsDecoded.split(':');
-  if (
-    username !== process.env.BACKEND_USERNAME ||
-    password !== process.env.BACKEND_PASSWORD
-  ) {
+  let user;
+  try {
+    user = await User.findOne({
+      username,
+    }).select('+password');
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      message: 'Failed to process your HTTP request',
+    });
+
+    return;
+  }
+  if (password !== user.password) {
     res.status(401).json({
       message: 'Incorrect credentials',
     });
@@ -117,8 +128,10 @@ app.post('/api/v1/tokens', async (req, res) => {
 
   // TODO: (2024/09/07, 17:10)
   //      arrange for creation of a 'refreshToken' that gets returned here as well
+  console.log('user = ', user);
+  console.log('user.id = ', user.id);
   const payload = {
-    userId: parseInt(process.env.BACKEND_USER_ID),
+    userId: parseInt(user.id),
   };
   const options = {
     expiresIn: process.env.BACKEND_JWT_EXPIRES_IN,
