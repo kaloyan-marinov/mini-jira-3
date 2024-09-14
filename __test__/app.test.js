@@ -1,6 +1,7 @@
 const mms = require('mongodb-memory-server');
 const mongoose = require('mongoose');
 const request = require('supertest');
+const jwt = require('jsonwebtoken');
 
 const app = require('../src/app');
 const { User, RevokedToken, Issue } = require('../src/models');
@@ -143,9 +144,13 @@ describe('POST /api/v1/tokens', () => {
       ' should return 200',
     async () => {
       // Arrange.
-      const response0 = await request(app)
+      const request0 = await request(app)
         .post('/api/v1/users')
         .send(JSON_4_USER_1);
+
+      const userId = request0.body._id;
+      const userUsername = request0.body.username;
+      const userPassword = request0.body.password;
 
       // const temp1 = await User.find();
       // console.log('temp1 = ', temp1);
@@ -158,7 +163,7 @@ describe('POST /api/v1/tokens', () => {
         .post('/api/v1/tokens')
         .set(
           'Authorization',
-          'Basic ' + btoa(`${JSON_4_USER_1.username}:${JSON_4_USER_1.password}`)
+          'Basic ' + btoa(`${userUsername}:${userPassword}`)
         );
 
       // Assert.
@@ -166,6 +171,9 @@ describe('POST /api/v1/tokens', () => {
       expect(response.body).toEqual({
         accessToken: expect.anything(),
       });
+
+      const accessTokenDecoded = jwt.decode(response.body.accessToken);
+      expect(accessTokenDecoded.userId).toEqual(userId);
     }
   );
 });

@@ -131,7 +131,7 @@ app.post('/api/v1/tokens', async (req, res) => {
   console.log('user = ', user);
   console.log('user.id = ', user.id);
   const payload = {
-    userId: parseInt(user.id),
+    userId: user.id,
   };
   const options = {
     expiresIn: process.env.BACKEND_JWT_EXPIRES_IN,
