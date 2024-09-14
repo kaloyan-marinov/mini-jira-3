@@ -949,14 +949,21 @@ describe('DELETE /api/v1/issues/:id', () => {
   let accessToken;
 
   beforeEach(async () => {
-    const response = await request(app)
-      .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('xtest-username:xtest-password'));
+    const response1 = await request(app)
+      .post('/api/v1/users')
+      .send(JSON_4_USER_1);
 
-    accessToken = response.body.accessToken;
+    const userUsername = response1.body.username;
+    const userPassword = response1.body.password;
+
+    const response2 = await request(app)
+      .post('/api/v1/tokens')
+      .set('Authorization', 'Basic ' + btoa(`${userUsername}:${userPassword}`));
+
+    accessToken = response2.body.accessToken;
   });
 
-  xtest('if an invalid ID is provided, should return 400', async () => {
+  test('if an invalid ID is provided, should return 400', async () => {
     // Arrange.
     const issue = await Issue.create({
       status: '1 = backlog',
@@ -979,7 +986,7 @@ describe('DELETE /api/v1/issues/:id', () => {
     });
   });
 
-  xtest('if a non-existent ID is provided, should return 404', async () => {
+  test('if a non-existent ID is provided, should return 404', async () => {
     // Arrange.
     const issue = await Issue.create({
       status: '1 = backlog',
@@ -1001,7 +1008,7 @@ describe('DELETE /api/v1/issues/:id', () => {
     });
   });
 
-  xtest(
+  test(
     'if a valid ID is provided' +
       ' but there exist issues whose `parentId` equals the provided one,' +
       ' should return 400',
@@ -1043,7 +1050,7 @@ describe('DELETE /api/v1/issues/:id', () => {
     }
   );
 
-  xtest('if a valid ID is provided, should return 204', async () => {
+  test('if a valid ID is provided, should return 204', async () => {
     // Arrange.
     const issue = await Issue.create({
       status: '1 = backlog',
