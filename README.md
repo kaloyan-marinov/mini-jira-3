@@ -95,6 +95,7 @@ run automated tests
 
    ```bash
    npm run test -- \
+      --verbose \
       --coverage \
       --collectCoverageFrom="./src/**"
 
@@ -122,6 +123,7 @@ run automated tests
 
    ```bash
    npm run test -- \
+      --verbose \
       --coverage \
       --collectCoverageFrom="./src/**" \
       --watchAll
