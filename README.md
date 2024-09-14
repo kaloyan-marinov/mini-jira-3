@@ -207,7 +207,7 @@ in it, issue the following requests to the HTTP server:
 ```bash
 export USER_1_USERNAME=jd
 export USER_1_PASSWORD=123
-export USER_1_EMAIL=john.doe@protonmail.com
+export USER_1_EMAIL=j.d@protonmail.com
 
 curl -v \
    -X POST \
@@ -221,14 +221,68 @@ curl -v \
    | json_pp
 
 # ...
+< HTTP/1.1 201 Created
 < Location: /api/v1/users/66e4b001edcc7628ae534fae
 # ...
 {
    "__v" : 0,
-   "_id" : "66e4b001edcc7628ae534fae",
-   "createdAt" : "2024-09-13T21:34:57.514Z",
-   "email" : "john.doe@protonmail.com",
+   "_id" : "66e55c42a0ac9171439d2d9d",
+   "createdAt" : "2024-09-14T09:49:54.788Z",
+   "email" : "j.d@protonmail.com",
    "password" : "123",
+   "username" : "jd"
+}
+```
+
+
+
+```
+export USER_1_ID=<the-_id-present-in-the-preceding-HTTP-response>
+```
+
+
+
+```bash
+curl -v \
+   localhost:5000/api/v1/users/${USER_1_ID} \
+   | json_pp
+
+# ...
+< HTTP/1.1 200 OK
+# ...
+{
+   "__v" : 0,
+   "_id" : "66e55c42a0ac9171439d2d9d",
+   "createdAt" : "2024-09-14T09:49:54.788Z",
+   "email" : "j.d@protonmail.com",
+   "username" : "jd"
+}
+```
+
+
+
+```bash
+export USER_1_EMAIL_UPDATED=john.doe@protonmail.com
+
+
+
+curl -v \
+   -X PUT \
+   -H "Content-Type: application/json" \
+   -d "{
+      \"email\": \"${USER_1_EMAIL_UPDATED}\"
+   }" \
+   localhost:5000/api/v1/users/${USER_1_ID} \
+   | json_pp
+
+# ...
+< HTTP/1.1 200 OK
+# ...
+{
+   "__v" : 0,
+   "_id" : "66e55c42a0ac9171439d2d9d",
+   "createdAt" : "2024-09-14T09:49:54.788Z",
+   "email" : "john.doe@protonmail.com",
    "username" : "jd"
 }
 ```

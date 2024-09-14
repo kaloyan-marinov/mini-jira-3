@@ -35,6 +35,54 @@ app.post('/api/v1/users', async (req, res) => {
     .json(newUser);
 });
 
+app.get('/api/v1/users/:id', async (req, res) => {
+  let user;
+
+  try {
+    user = await User.findOne({
+      _id: req.params.id,
+    });
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      message: 'Failed to process your HTTP request',
+    });
+
+    return;
+  }
+
+  res.status(200).json(user);
+});
+
+app.put('/api/v1/users/:id', async (req, res) => {
+  let user;
+  const userId = req.params.id;
+  try {
+    user = await User.findById(userId);
+  } catch (err) {
+    res.status(400).json({
+      message: 'Invalid ID provided',
+    });
+
+    return;
+  }
+
+  if (!user) {
+    res.status(404).json({
+      message: 'Resource not found',
+    });
+
+    return;
+  }
+
+  user = await User.findByIdAndUpdate(userId, req.body, {
+    new: true, // Causes the response to contain the updated JSON document.
+    runValidators: true,
+  });
+  res.status(200).json(user);
+});
+
 app.post('/api/v1/tokens', async (req, res) => {
   const headerAuth = req.headers.authorization;
   if (!headerAuth) {
