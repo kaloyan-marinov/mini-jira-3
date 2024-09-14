@@ -108,12 +108,18 @@ describe('PUT /api/v1/users/:id', () => {
     // Arrange.
     const user = await User.create(JSON_4_USER_1);
 
+    const userUsername = user.username;
+    const userPassword = user.password;
+
     const userId = user._id.toString();
 
     // Act.
-    const response = await request(app).put(`/api/v1/users/${userId}`).send({
-      username: 'test-jd-updated',
-    });
+    const response = await request(app)
+      .put(`/api/v1/users/${userId}`)
+      .set('Authorization', 'Basic ' + btoa(`${userUsername}:${userPassword}`))
+      .send({
+        username: 'test-jd-updated',
+      });
 
     // Assert.
     expect(response.status).toEqual(200);

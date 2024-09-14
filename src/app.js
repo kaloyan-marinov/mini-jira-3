@@ -57,10 +57,49 @@ app.get('/api/v1/users/:id', async (req, res) => {
   res.status(200).json(user);
 });
 
-// TODO: (2024/09/14, 16:24)
-//      convert the following endpoint into a private one
 app.put('/api/v1/users/:id', async (req, res) => {
+  const headerAuth = req.headers.authorization;
+  if (!headerAuth) {
+    res.status(400).json({
+      message: 'Missing "Authorization" header',
+    });
+
+    return;
+  }
+
+  const [type, authCredsEncoded] = headerAuth.split(' ');
+  if (type !== 'Basic') {
+    res.status(400).json({
+      message: '"Authorization" header must specify Basic Auth',
+    });
+
+    return;
+  }
+
+  const authCredsDecoded = Buffer.from(authCredsEncoded, 'base64').toString();
+  const [username, password] = authCredsDecoded.split(':');
   let user;
+  try {
+    user = await User.findOne({
+      username,
+    }).select('+password');
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      message: 'Failed to process your HTTP request',
+    });
+
+    return;
+  }
+  if (password !== user.password) {
+    res.status(401).json({
+      message: 'Incorrect credentials',
+    });
+
+    return;
+  }
+
   const userId = req.params.id;
   try {
     user = await User.findById(userId);
