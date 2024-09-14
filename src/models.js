@@ -93,6 +93,9 @@ const IssueSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please specify a value for "description".'],
   },
+  // TODO: (2024/09/14, 20:07)
+  //      add a reference to `User._id`
+  //      and implement "authorization controls" based on the `User` owning this document
 });
 
 const Issue = new mongoose.model(NAME_OF_ISSUE_MODEL, IssueSchema);

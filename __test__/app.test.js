@@ -48,15 +48,10 @@ const PROCESS_ENV_ORIGINAL = process.env;
 beforeEach(async () => {
   await mongoose.connection.db.dropDatabase();
 
-  // TODO: (2024/09/14, 16:32)
-  //      delete the following statement
   process.env = {
     ...PROCESS_ENV_ORIGINAL,
     BACKEND_SECRET_KEY:
       'this-must-be-very-secure-and-must-not-be-shared-with-anyone-else',
-    BACKEND_USER_ID: '17',
-    BACKEND_USERNAME: 'test-username',
-    BACKEND_PASSWORD: 'test-password',
     BACKEND_JWT_EXPIRES_IN: '17m',
   };
 });
