@@ -794,14 +794,21 @@ describe('GET /api/v1/issues/:id', () => {
   let accessToken;
 
   beforeEach(async () => {
-    const response = await request(app)
-      .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('xtest-username:xtest-password'));
+    const response1 = await request(app)
+      .post('/api/v1/users')
+      .send(JSON_4_USER_1);
 
-    accessToken = response.body.accessToken;
+    const userUsername = response1.body.username;
+    const userPassword = response1.body.password;
+
+    const response2 = await request(app)
+      .post('/api/v1/tokens')
+      .set('Authorization', 'Basic ' + btoa(`${userUsername}:${userPassword}`));
+
+    accessToken = response2.body.accessToken;
   });
 
-  xtest('if an invalid ID is provided, should return 400', async () => {
+  test('if an invalid ID is provided, should return 400', async () => {
     // Act.
     const response = await request(app)
       .get('/api/v1/issues/17')
@@ -814,7 +821,7 @@ describe('GET /api/v1/issues/:id', () => {
     });
   });
 
-  xtest('if ID exists, should return 200 and corresponding issue', async () => {
+  test('if ID exists, should return 200 and corresponding issue', async () => {
     // Arrange.
     const deadline = new Date('2024-08-19T06:17:17.170Z');
     const issue = await Issue.create({
