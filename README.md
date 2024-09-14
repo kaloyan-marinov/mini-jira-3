@@ -224,13 +224,12 @@ curl -v \
 
 # ...
 < HTTP/1.1 201 Created
-< Location: /api/v1/users/66e59b412f563d826f3f0938
+< Location: /api/v1/users/66e5f830527fe7f31cd9cc2e
 {
    "__v" : 0,
-   "_id" : "66e59b412f563d826f3f0938",
-   "createdAt" : "2024-09-14T14:18:41.068Z",
+   "_id" : "66e5f830527fe7f31cd9cc2e",
+   "createdAt" : "2024-09-14T20:55:12.969Z",
    "email" : "j.d@protonmail.com",
-   "password" : "123",
    "username" : "jd"
 }
 ```
@@ -253,9 +252,8 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66e59b412f563d826f3f0938",
-   "createdAt" : "2024-09-14T14:18:41.068Z",
-   "email" : "j.d@protonmail.com",
+   "_id" : "66e5f830527fe7f31cd9cc2e",
+   "createdAt" : "2024-09-14T20:55:12.969Z",
    "username" : "jd"
 }
 ```
@@ -281,8 +279,8 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66e59b412f563d826f3f0938",
-   "createdAt" : "2024-09-14T14:18:41.068Z",
+   "_id" : "66e5f830527fe7f31cd9cc2e",
+   "createdAt" : "2024-09-14T20:55:12.969Z",
    "email" : "john.doe@protonmail.com",
    "username" : "jd"
 }
@@ -317,7 +315,7 @@ curl -v \
 < HTTP/1.1 200 OK
 # ...
 {
-   "accessToken" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmU1OWI0MTJmNTYzZDgyNmYzZjA5MzgiLCJpYXQiOjE3MjYzMjM5ODgsImV4cCI6MTcyNjMyNTQ4OH0.NTPPmWJ9jimX_X_n7MBHsUFwRLREKjeJ6-aef_9AIvk"
+   "accessToken" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmU1ZjgzMDUyN2ZlN2YzMWNkOWNjMmUiLCJpYXQiOjE3MjYzNDc1MTMsImV4cCI6MTcyNjM0OTAxM30.oO-hy9CTb87RPUvVIq6LoL6Hbg8r0Ewjw-I5CX2AIJc"
 }
 
 

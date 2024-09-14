@@ -29,10 +29,12 @@ app.post('/api/v1/users', async (req, res) => {
     return;
   }
 
+  const newUserJSON = newUser.toJSON();
+  delete newUserJSON['password'];
   res
     .status(201)
     .set('Location', `/api/v1/users/${newUser._id.toString()}`)
-    .json(newUser);
+    .json(newUserJSON);
 });
 
 app.get('/api/v1/users/:id', async (req, res) => {
@@ -41,7 +43,7 @@ app.get('/api/v1/users/:id', async (req, res) => {
   try {
     user = await User.findOne({
       _id: req.params.id,
-    });
+    }).select('-email');
   } catch (err) {
     console.error(err);
 

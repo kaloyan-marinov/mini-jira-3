@@ -79,10 +79,6 @@ describe('POST /api/v1/users', () => {
       _id: expect.anything(),
       createdAt: expect.anything(),
       username: 'test-jd',
-      // TODO: (2024/09/14, 12:04)
-      //      remove the following line
-      //      + modify the request-handler so as to restore the test to a PASSing state
-      password: 'test-123',
       email: 'test-john.doe@protonmail.com',
     });
   });
@@ -103,10 +99,6 @@ describe('GET /api/v1/users/:id', () => {
       _id: expect.anything(),
       createdAt: expect.anything(),
       username: 'test-jd',
-      // TODO: (2024/09/14, 12:10)
-      //      remove the following line
-      //      + modify the request-handler so as to restore the test to a PASSing state
-      email: 'test-john.doe@protonmail.com',
     });
   });
 });
@@ -147,7 +139,7 @@ describe('POST /api/v1/tokens', () => {
 
       const userId = request0.body._id;
       const userUsername = request0.body.username;
-      const userPassword = request0.body.password;
+      const userPassword = JSON_4_USER_1.password;
 
       // const temp1 = await User.find();
       // console.log('temp1 = ', temp1);
@@ -183,7 +175,7 @@ describe('DELETE /api/v1/tokens', () => {
       .send(JSON_4_USER_1);
 
     const userUsername = request0.body.username;
-    const userPassword = request0.body.password;
+    const userPassword = JSON_4_USER_1.password;
 
     const response1 = await request(app)
       .post('/api/v1/tokens')
@@ -217,7 +209,7 @@ describe('POST /api/v1/issues', () => {
       .send(JSON_4_USER_1);
 
     const userUsername = response1.body.username;
-    const userPassword = response1.body.password;
+    const userPassword = JSON_4_USER_1.password;
 
     const response2 = await request(app)
       .post('/api/v1/tokens')
@@ -378,7 +370,7 @@ describe('GET /api/v1/issues', () => {
       .send(JSON_4_USER_1);
 
     const userUsername = response1.body.username;
-    const userPassword = response1.body.password;
+    const userPassword = JSON_4_USER_1.password;
 
     const response2 = await request(app)
       .post('/api/v1/tokens')
@@ -794,7 +786,7 @@ describe('GET /api/v1/issues/:id', () => {
       .send(JSON_4_USER_1);
 
     const userUsername = response1.body.username;
-    const userPassword = response1.body.password;
+    const userPassword = JSON_4_USER_1.password;
 
     const response2 = await request(app)
       .post('/api/v1/tokens')
@@ -853,7 +845,7 @@ describe('PUT /api/v1/issues/:id', () => {
       .send(JSON_4_USER_1);
 
     const userUsername = response1.body.username;
-    const userPassword = response1.body.password;
+    const userPassword = JSON_4_USER_1.password;
 
     const response2 = await request(app)
       .post('/api/v1/tokens')
@@ -949,7 +941,7 @@ describe('DELETE /api/v1/issues/:id', () => {
       .send(JSON_4_USER_1);
 
     const userUsername = response1.body.username;
-    const userPassword = response1.body.password;
+    const userPassword = JSON_4_USER_1.password;
 
     const response2 = await request(app)
       .post('/api/v1/tokens')
