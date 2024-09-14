@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const request = require('supertest');
 
 const app = require('../src/app');
-const { RevokedToken, Issue } = require('../src/models');
+const { User, RevokedToken, Issue } = require('../src/models');
 const {
   corruptIdOfMongooseObject,
   decodeQueryStringWithinUrl,
@@ -17,6 +17,12 @@ let mongoMemoryServer;
 // // For debugging, set the timeout for each test case to the specified amount of time.
 // const MILLISECONDS_IN_FIVE_MINUTES = 5 * 60 * 1000;
 // jest.setTimeout(MILLISECONDS_IN_FIVE_MINUTES);
+
+const JSON_4_USER_1 = {
+  username: 'test-jd',
+  password: 'test-123',
+  email: 'test-john.doe@protonmail.com',
+};
 
 const JSON_4_ISSUE_EPIC_1 = {
   status: '3 = in progress',
@@ -59,6 +65,76 @@ afterEach(() => {
 afterAll(async () => {
   await mongoose.disconnect();
   await mongoMemoryServer.stop();
+});
+
+describe('POST /api/v1/users', () => {
+  test('if "username", "password", "email" are provided, should return 201', async () => {
+    // Act.
+    const response = await request(app)
+      .post('/api/v1/users')
+      .send(JSON_4_USER_1);
+
+    // Assert.
+    expect(response.status).toEqual(201);
+    expect(response.body).toEqual({
+      __v: expect.anything(),
+      _id: expect.anything(),
+      createdAt: expect.anything(),
+      username: 'test-jd',
+      // TODO: (2024/09/14, 12:04)
+      //      remove the following line
+      //      + modify the request-handler so as to restore the test to a PASSing state
+      password: 'test-123',
+      email: 'test-john.doe@protonmail.com',
+    });
+  });
+});
+
+describe('GET /api/v1/users/:id', () => {
+  test('if ID exists, should return 200 and corresponding user', async () => {
+    // Arrange.
+    const user = await User.create(JSON_4_USER_1);
+
+    // Act.
+    const response = await request(app).get(`/api/v1/users/${user._id}`);
+
+    // Assert.
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual({
+      __v: expect.anything(),
+      _id: expect.anything(),
+      createdAt: expect.anything(),
+      username: 'test-jd',
+      // TODO: (2024/09/14, 12:10)
+      //      remove the following line
+      //      + modify the request-handler so as to restore the test to a PASSing state
+      email: 'test-john.doe@protonmail.com',
+    });
+  });
+});
+
+describe('PUT /api/v1/users/:id', () => {
+  test('if a valid ID is provided, should return 200', async () => {
+    // Arrange.
+    const user = await User.create(JSON_4_USER_1);
+
+    const userId = user._id.toString();
+
+    // Act.
+    const response = await request(app).put(`/api/v1/users/${userId}`).send({
+      username: 'test-jd-updated',
+    });
+
+    // Assert.
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual({
+      __v: expect.anything(),
+      _id: userId,
+      createdAt: expect.anything(),
+      username: 'test-jd-updated',
+      email: 'test-john.doe@protonmail.com',
+    });
+  });
 });
 
 describe('POST /api/v1/tokens', () => {
@@ -224,36 +300,40 @@ describe('POST /api/v1/issues', () => {
     });
   });
 
-  test('if "status" and "description" and "parentId", should return 201', async () => {
-    // Arrange.
-    const issue = await Issue.create(JSON_4_ISSUE_EPIC_1);
+  test(
+    'if "status" and "description" and "parentId" are provided,' +
+      ' should return 201',
+    async () => {
+      // Arrange.
+      const issue = await Issue.create(JSON_4_ISSUE_EPIC_1);
 
-    // Act.
-    const response = await request(app)
-      .post('/api/v1/issues')
-      .set('Authorization', 'Bearer ' + accessToken)
-      .send({
+      // Act.
+      const response = await request(app)
+        .post('/api/v1/issues')
+        .set('Authorization', 'Bearer ' + accessToken)
+        .send({
+          status: '1 = backlog',
+          deadline: new Date('2024-09-02T02:48:26.383Z'),
+          parentId: issue._id.toString(),
+          description: 'implement a rudimentary authentication sub-system',
+        });
+
+      // Assert.
+      expect(response.status).toEqual(201);
+      expect(response.headers.location).toEqual(
+        `/api/v1/issues/${response.body._id}`
+      );
+      expect(response.body).toEqual({
+        __v: expect.anything(),
+        _id: expect.anything(),
+        createdAt: expect.anything(),
         status: '1 = backlog',
-        deadline: new Date('2024-09-02T02:48:26.383Z'),
+        deadline: '2024-09-02T02:48:26.383Z',
         parentId: issue._id.toString(),
         description: 'implement a rudimentary authentication sub-system',
       });
-
-    // Assert.
-    expect(response.status).toEqual(201);
-    expect(response.headers.location).toEqual(
-      `/api/v1/issues/${response.body._id}`
-    );
-    expect(response.body).toEqual({
-      __v: expect.anything(),
-      _id: expect.anything(),
-      createdAt: expect.anything(),
-      status: '1 = backlog',
-      deadline: '2024-09-02T02:48:26.383Z',
-      parentId: issue._id.toString(),
-      description: 'implement a rudimentary authentication sub-system',
-    });
-  });
+    }
+  );
 });
 
 describe('GET /api/v1/issues', () => {
