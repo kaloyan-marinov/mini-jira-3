@@ -378,14 +378,21 @@ describe('GET /api/v1/issues', () => {
   let accessToken;
 
   beforeEach(async () => {
-    const response = await request(app)
-      .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('xtest-username:xtest-password'));
+    const response1 = await request(app)
+      .post('/api/v1/users')
+      .send(JSON_4_USER_1);
 
-    accessToken = response.body.accessToken;
+    const userUsername = response1.body.username;
+    const userPassword = response1.body.password;
+
+    const response2 = await request(app)
+      .post('/api/v1/tokens')
+      .set('Authorization', 'Basic ' + btoa(`${userUsername}:${userPassword}`));
+
+    accessToken = response2.body.accessToken;
   });
 
-  xtest(
+  test(
     'if there are no Issue resources in the MongoDB server,' +
       ' should return 200 and an empty list',
     async () => {
@@ -410,7 +417,7 @@ describe('GET /api/v1/issues', () => {
     }
   );
 
-  xtest(
+  test(
     'if there are Issue resources,' +
       ' should return 200 and representations of the resources',
     async () => {
@@ -418,7 +425,7 @@ describe('GET /api/v1/issues', () => {
       const issue1 = await Issue.create({
         status: '3 = in progress',
         deadline: new Date('2024-08-20T21:07:45.759Z'),
-        description: 'write xtests for the other request-handling functions',
+        description: 'write tests for the other request-handling functions',
       });
 
       const issue2 = await Issue.create({
@@ -453,8 +460,7 @@ describe('GET /api/v1/issues', () => {
             status: '3 = in progress',
             deadline: '2024-08-20T21:07:45.759Z',
             parentId: null,
-            description:
-              'write xtests for the other request-handling functions',
+            description: 'write tests for the other request-handling functions',
           },
           {
             __v: expect.anything(),
@@ -471,8 +477,8 @@ describe('GET /api/v1/issues', () => {
     }
   );
 
-  xtest(
-    'if there are Issue resource' +
+  test(
+    'if there are Issue resources' +
       ' and the URL query parameters represent a request for filtering,' +
       ' should return 200, a correct total, and representation of the resources',
     async () => {
@@ -597,7 +603,7 @@ describe('GET /api/v1/issues', () => {
     }
   );
 
-  xtest(
+  test(
     'if there are Issue resources and "select" is present as a URL query parameter,' +
       ' should return 200 and representations of the resources',
     async () => {
@@ -650,7 +656,7 @@ describe('GET /api/v1/issues', () => {
     }
   );
 
-  xtest(
+  test(
     'if there are Issue resources and "sort" is present as a URL query parameter,' +
       ' should return 200 and representations of the resources',
     async () => {
@@ -736,7 +742,7 @@ describe('GET /api/v1/issues', () => {
     }
   );
 
-  xtest(
+  test(
     'if there are multiple pages of Issue resources,' +
       ' should return 200 and a correct pagination-info bundle',
     async () => {
