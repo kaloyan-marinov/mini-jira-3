@@ -57,7 +57,7 @@ app.get('/api/v1/users/:id', async (req, res) => {
   res.status(200).json(user);
 });
 
-app.put('/api/v1/users/:id', async (req, res) => {
+const basicAuth = async (req, res, next) => {
   const headerAuth = req.headers.authorization;
   if (!headerAuth) {
     res.status(400).json({
@@ -100,7 +100,24 @@ app.put('/api/v1/users/:id', async (req, res) => {
     return;
   }
 
+  req.userId = user.id;
+
+  next();
+};
+
+app.put('/api/v1/users/:id', basicAuth, async (req, res) => {
   const userId = req.params.id;
+
+  if (req.userId !== userId) {
+    res.status(401).json({
+      message:
+        'You are authenticated as one User but are targeting another one',
+    });
+
+    return;
+  }
+
+  let user;
   try {
     user = await User.findById(userId);
   } catch (err) {
@@ -126,55 +143,12 @@ app.put('/api/v1/users/:id', async (req, res) => {
   res.status(200).json(user);
 });
 
-app.post('/api/v1/tokens', async (req, res) => {
-  const headerAuth = req.headers.authorization;
-  if (!headerAuth) {
-    res.status(400).json({
-      message: 'Missing "Authorization" header',
-    });
-
-    return;
-  }
-
-  const [type, authCredsEncoded] = headerAuth.split(' ');
-  if (type !== 'Basic') {
-    res.status(400).json({
-      message: '"Authorization" header must specify Basic Auth',
-    });
-
-    return;
-  }
-
-  const authCredsDecoded = Buffer.from(authCredsEncoded, 'base64').toString();
-  const [username, password] = authCredsDecoded.split(':');
-  let user;
-  try {
-    user = await User.findOne({
-      username,
-    }).select('+password');
-  } catch (err) {
-    console.error(err);
-
-    res.status(500).json({
-      message: 'Failed to process your HTTP request',
-    });
-
-    return;
-  }
-  if (password !== user.password) {
-    res.status(401).json({
-      message: 'Incorrect credentials',
-    });
-
-    return;
-  }
-
+app.post('/api/v1/tokens', basicAuth, async (req, res) => {
   // TODO: (2024/09/07, 17:10)
   //      arrange for creation of a 'refreshToken' that gets returned here as well
-  console.log('user = ', user);
-  console.log('user.id = ', user.id);
+  console.log('req.userId = ', req.userId);
   const payload = {
-    userId: user.id,
+    userId: req.userId,
   };
   const options = {
     expiresIn: process.env.BACKEND_JWT_EXPIRES_IN,
