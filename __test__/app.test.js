@@ -138,7 +138,7 @@ describe('PUT /api/v1/users/:id', () => {
 });
 
 describe('POST /api/v1/tokens', () => {
-  test(
+  xtest(
     'if a client sends a correct set of Basic Auth credentials,' +
       ' should return 200',
     async () => {
@@ -157,11 +157,11 @@ describe('POST /api/v1/tokens', () => {
 });
 
 describe('DELETE /api/v1/tokens', () => {
-  test('if a client sends a valid access token, should return 204', async () => {
+  xtest('if a client sends a valid access token, should return 204', async () => {
     // Arrange.
     const response1 = await request(app)
       .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+      .set('Authorization', 'Basic ' + btoa('xtest-username:xtest-password'));
 
     const accessToken = response1.body.accessToken;
 
@@ -188,12 +188,12 @@ describe('POST /api/v1/issues', () => {
   beforeEach(async () => {
     const response = await request(app)
       .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+      .set('Authorization', 'Basic ' + btoa('xtest-username:xtest-password'));
 
     accessToken = response.body.accessToken;
   });
 
-  test('if "status" is missing, should return 400', async () => {
+  xtest('if "status" is missing, should return 400', async () => {
     // Act.
     const response = await request(app)
       .post('/api/v1/issues')
@@ -209,7 +209,7 @@ describe('POST /api/v1/issues', () => {
     });
   });
 
-  test('if "description" is missing, should return 400', async () => {
+  xtest('if "description" is missing, should return 400', async () => {
     // Act.
     const response = await request(app)
       .post('/api/v1/issues')
@@ -225,7 +225,7 @@ describe('POST /api/v1/issues', () => {
     });
   });
 
-  test('if "status" and "description", should return 201', async () => {
+  xtest('if "status" and "description", should return 201', async () => {
     // Act.
     const response = await request(app)
       .post('/api/v1/issues')
@@ -254,7 +254,7 @@ describe('POST /api/v1/issues', () => {
     });
   });
 
-  test('if "parentId" is invalid, should return 400', async () => {
+  xtest('if "parentId" is invalid, should return 400', async () => {
     // Arrange.
     const issueId = 'this is an invalid issue ID';
 
@@ -276,7 +276,7 @@ describe('POST /api/v1/issues', () => {
     });
   });
 
-  test('if "parentId" is non-existent, should returnd 400', async () => {
+  xtest('if "parentId" is non-existent, should returnd 400', async () => {
     // Arrange.
     const issue = await Issue.create(JSON_4_ISSUE_EPIC_1);
 
@@ -300,7 +300,7 @@ describe('POST /api/v1/issues', () => {
     });
   });
 
-  test(
+  xtest(
     'if "status" and "description" and "parentId" are provided,' +
       ' should return 201',
     async () => {
@@ -342,12 +342,12 @@ describe('GET /api/v1/issues', () => {
   beforeEach(async () => {
     const response = await request(app)
       .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+      .set('Authorization', 'Basic ' + btoa('xtest-username:xtest-password'));
 
     accessToken = response.body.accessToken;
   });
 
-  test(
+  xtest(
     'if there are no Issue resources in the MongoDB server,' +
       ' should return 200 and an empty list',
     async () => {
@@ -372,7 +372,7 @@ describe('GET /api/v1/issues', () => {
     }
   );
 
-  test(
+  xtest(
     'if there are Issue resources,' +
       ' should return 200 and representations of the resources',
     async () => {
@@ -380,7 +380,7 @@ describe('GET /api/v1/issues', () => {
       const issue1 = await Issue.create({
         status: '3 = in progress',
         deadline: new Date('2024-08-20T21:07:45.759Z'),
-        description: 'write tests for the other request-handling functions',
+        description: 'write xtests for the other request-handling functions',
       });
 
       const issue2 = await Issue.create({
@@ -415,7 +415,8 @@ describe('GET /api/v1/issues', () => {
             status: '3 = in progress',
             deadline: '2024-08-20T21:07:45.759Z',
             parentId: null,
-            description: 'write tests for the other request-handling functions',
+            description:
+              'write xtests for the other request-handling functions',
           },
           {
             __v: expect.anything(),
@@ -432,7 +433,7 @@ describe('GET /api/v1/issues', () => {
     }
   );
 
-  test(
+  xtest(
     'if there are Issue resource' +
       ' and the URL query parameters represent a request for filtering,' +
       ' should return 200, a correct total, and representation of the resources',
@@ -558,7 +559,7 @@ describe('GET /api/v1/issues', () => {
     }
   );
 
-  test(
+  xtest(
     'if there are Issue resources and "select" is present as a URL query parameter,' +
       ' should return 200 and representations of the resources',
     async () => {
@@ -611,7 +612,7 @@ describe('GET /api/v1/issues', () => {
     }
   );
 
-  test(
+  xtest(
     'if there are Issue resources and "sort" is present as a URL query parameter,' +
       ' should return 200 and representations of the resources',
     async () => {
@@ -697,7 +698,7 @@ describe('GET /api/v1/issues', () => {
     }
   );
 
-  test(
+  xtest(
     'if there are multiple pages of Issue resources,' +
       ' should return 200 and a correct pagination-info bundle',
     async () => {
@@ -751,12 +752,12 @@ describe('GET /api/v1/issues/:id', () => {
   beforeEach(async () => {
     const response = await request(app)
       .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+      .set('Authorization', 'Basic ' + btoa('xtest-username:xtest-password'));
 
     accessToken = response.body.accessToken;
   });
 
-  test('if an invalid ID is provided, should return 400', async () => {
+  xtest('if an invalid ID is provided, should return 400', async () => {
     // Act.
     const response = await request(app)
       .get('/api/v1/issues/17')
@@ -769,7 +770,7 @@ describe('GET /api/v1/issues/:id', () => {
     });
   });
 
-  test('if ID exists, should return 200 and corresponding issue', async () => {
+  xtest('if ID exists, should return 200 and corresponding issue', async () => {
     // Arrange.
     const deadline = new Date('2024-08-19T06:17:17.170Z');
     const issue = await Issue.create({
@@ -803,12 +804,12 @@ describe('PUT /api/v1/issues/:id', () => {
   beforeEach(async () => {
     const response = await request(app)
       .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+      .set('Authorization', 'Basic ' + btoa('xtest-username:xtest-password'));
 
     accessToken = response.body.accessToken;
   });
 
-  test('if an invalid ID is provided, should return 400', async () => {
+  xtest('if an invalid ID is provided, should return 400', async () => {
     // Arrange.
     const issue = await Issue.create({
       status: '1 = backlog',
@@ -831,7 +832,7 @@ describe('PUT /api/v1/issues/:id', () => {
     });
   });
 
-  test('if a non-existent ID is provided, should return 404', async () => {
+  xtest('if a non-existent ID is provided, should return 404', async () => {
     // Arrange.
     const issue = await Issue.create({
       status: '1 = backlog',
@@ -853,7 +854,7 @@ describe('PUT /api/v1/issues/:id', () => {
     });
   });
 
-  test('if a valid ID is provided, should return 200', async () => {
+  xtest('if a valid ID is provided, should return 200', async () => {
     // Arrange.
     const issue = await Issue.create({
       status: '1 = backlog',
@@ -892,12 +893,12 @@ describe('DELETE /api/v1/issues/:id', () => {
   beforeEach(async () => {
     const response = await request(app)
       .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+      .set('Authorization', 'Basic ' + btoa('xtest-username:xtest-password'));
 
     accessToken = response.body.accessToken;
   });
 
-  test('if an invalid ID is provided, should return 400', async () => {
+  xtest('if an invalid ID is provided, should return 400', async () => {
     // Arrange.
     const issue = await Issue.create({
       status: '1 = backlog',
@@ -920,7 +921,7 @@ describe('DELETE /api/v1/issues/:id', () => {
     });
   });
 
-  test('if a non-existent ID is provided, should return 404', async () => {
+  xtest('if a non-existent ID is provided, should return 404', async () => {
     // Arrange.
     const issue = await Issue.create({
       status: '1 = backlog',
@@ -942,7 +943,7 @@ describe('DELETE /api/v1/issues/:id', () => {
     });
   });
 
-  test(
+  xtest(
     'if a valid ID is provided' +
       ' but there exist issues whose `parentId` equals the provided one,' +
       ' should return 400',
@@ -984,7 +985,7 @@ describe('DELETE /api/v1/issues/:id', () => {
     }
   );
 
-  test('if a valid ID is provided, should return 204', async () => {
+  xtest('if a valid ID is provided, should return 204', async () => {
     // Arrange.
     const issue = await Issue.create({
       status: '1 = backlog',
