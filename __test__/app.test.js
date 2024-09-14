@@ -853,14 +853,21 @@ describe('PUT /api/v1/issues/:id', () => {
   let accessToken;
 
   beforeEach(async () => {
-    const response = await request(app)
-      .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('xtest-username:xtest-password'));
+    const response1 = await request(app)
+      .post('/api/v1/users')
+      .send(JSON_4_USER_1);
 
-    accessToken = response.body.accessToken;
+    const userUsername = response1.body.username;
+    const userPassword = response1.body.password;
+
+    const response2 = await request(app)
+      .post('/api/v1/tokens')
+      .set('Authorization', 'Basic ' + btoa(`${userUsername}:${userPassword}`));
+
+    accessToken = response2.body.accessToken;
   });
 
-  xtest('if an invalid ID is provided, should return 400', async () => {
+  test('if an invalid ID is provided, should return 400', async () => {
     // Arrange.
     const issue = await Issue.create({
       status: '1 = backlog',
@@ -883,7 +890,7 @@ describe('PUT /api/v1/issues/:id', () => {
     });
   });
 
-  xtest('if a non-existent ID is provided, should return 404', async () => {
+  test('if a non-existent ID is provided, should return 404', async () => {
     // Arrange.
     const issue = await Issue.create({
       status: '1 = backlog',
@@ -905,7 +912,7 @@ describe('PUT /api/v1/issues/:id', () => {
     });
   });
 
-  xtest('if a valid ID is provided, should return 200', async () => {
+  test('if a valid ID is provided, should return 200', async () => {
     // Arrange.
     const issue = await Issue.create({
       status: '1 = backlog',
