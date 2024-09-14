@@ -48,6 +48,8 @@ const PROCESS_ENV_ORIGINAL = process.env;
 beforeEach(async () => {
   await mongoose.connection.db.dropDatabase();
 
+  // TODO: (2024/09/14, 16:32)
+  //      delete the following statement
   process.env = {
     ...PROCESS_ENV_ORIGINAL,
     BACKEND_SECRET_KEY:
@@ -215,14 +217,21 @@ describe('POST /api/v1/issues', () => {
   let accessToken;
 
   beforeEach(async () => {
-    const response = await request(app)
-      .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('xtest-username:xtest-password'));
+    const response1 = await request(app)
+      .post('/api/v1/users')
+      .send(JSON_4_USER_1);
 
-    accessToken = response.body.accessToken;
+    const userUsername = response1.body.username;
+    const userPassword = response1.body.password;
+
+    const response2 = await request(app)
+      .post('/api/v1/tokens')
+      .set('Authorization', 'Basic ' + btoa(`${userUsername}:${userPassword}`));
+
+    accessToken = response2.body.accessToken;
   });
 
-  xtest('if "status" is missing, should return 400', async () => {
+  test('if "status" is missing, should return 400', async () => {
     // Act.
     const response = await request(app)
       .post('/api/v1/issues')
@@ -238,7 +247,7 @@ describe('POST /api/v1/issues', () => {
     });
   });
 
-  xtest('if "description" is missing, should return 400', async () => {
+  test('if "description" is missing, should return 400', async () => {
     // Act.
     const response = await request(app)
       .post('/api/v1/issues')
@@ -254,7 +263,7 @@ describe('POST /api/v1/issues', () => {
     });
   });
 
-  xtest('if "status" and "description", should return 201', async () => {
+  test('if "status" and "description", should return 201', async () => {
     // Act.
     const response = await request(app)
       .post('/api/v1/issues')
@@ -283,7 +292,7 @@ describe('POST /api/v1/issues', () => {
     });
   });
 
-  xtest('if "parentId" is invalid, should return 400', async () => {
+  test('if "parentId" is invalid, should return 400', async () => {
     // Arrange.
     const issueId = 'this is an invalid issue ID';
 
@@ -305,7 +314,7 @@ describe('POST /api/v1/issues', () => {
     });
   });
 
-  xtest('if "parentId" is non-existent, should returnd 400', async () => {
+  test('if "parentId" is non-existent, should returnd 400', async () => {
     // Arrange.
     const issue = await Issue.create(JSON_4_ISSUE_EPIC_1);
 
@@ -329,7 +338,7 @@ describe('POST /api/v1/issues', () => {
     });
   });
 
-  xtest(
+  test(
     'if "status" and "description" and "parentId" are provided,' +
       ' should return 201',
     async () => {
