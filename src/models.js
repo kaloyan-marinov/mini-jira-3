@@ -38,10 +38,7 @@ const RevokedTokenSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: NAME_OF_USER_MODEL,
-    // TODO: (2024/09/14, 23:40) add the following option:
-    // ```
-    // required: true
-    // ```
+    required: true,
   },
   createdAt: {
     type: Date,
