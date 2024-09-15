@@ -301,11 +301,12 @@ curl -v \
    | json_pp
 
 # ...
-< HTTP/1.1 401 Unauthorized
+< HTTP/1.1 403 Forbidden
 # ...
 {
    "message" : "You are authenticated as one User but are targeting another one"
 }
+
 
 
 
@@ -1360,15 +1361,13 @@ docker compose \
    up
 ```
 
-<u>TODO: (2024/09/10, 23:16) replace `mongo:latest` with an (image, specific tag)-pair (not from https://hub.docker.com/_/mongo but) from https://hub.docker.com/r/mongodb/mongodb-community-server >> https://www.mongodb.com/resources/products/compatibilities/docker ; it may also be worth it to take a look at https://www.mongodb.com/docs/upcoming/tutorial/install-mongodb-community-with-docker/ </u>
-
 ```bash
 docker run \
    --network network-mini-jira-3 \
    --name container-mini-jira-3-mongosh \
    -it \
    --rm \
-   mongo:latest \
+   mongodb/mongodb-community-server:6.0.12-ubuntu2204 \
       mongosh \
          --host container-mini-jira-3-mongo \
          --username $(grep -oP '^MONGO_USERNAME=\K.*' .env) \

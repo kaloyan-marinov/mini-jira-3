@@ -109,8 +109,7 @@ app.put('/api/v1/users/:id', basicAuth, async (req, res) => {
   const userId = req.params.id;
 
   if (req.userId !== userId) {
-    // TODO: (2024/09/15, 13:54) change the status code to 403
-    res.status(401).json({
+    res.status(403).json({
       message:
         'You are authenticated as one User but are targeting another one',
     });

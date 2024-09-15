@@ -1,6 +1,6 @@
 services:
   service-mongo:
-    image: mongo:latest
+    image: mongodb/mongodb-community-server:6.0.12-ubuntu2204
     container_name: container-mini-jira-3-mongo
     # restart: unless-stopped
     # env_file:
