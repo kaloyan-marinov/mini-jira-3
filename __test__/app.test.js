@@ -25,6 +25,12 @@ const JSON_4_USER_1 = {
   email: 'test-john.doe@protonmail.com',
 };
 
+const JSON_4_USER_2 = {
+  username: 'test-ms',
+  password: 'test-456',
+  email: 'test-mary.smith@protonmail.com',
+};
+
 const JSON_4_ISSUE_EPIC_1 = {
   status: '3 = in progress',
   deadline: new Date('2024-09-02T02:45:36.214Z'),
@@ -818,6 +824,94 @@ describe('GET /api/v1/issues', () => {
       });
     }
   );
+
+  test('each User should only see his/her own Issue resources', async () => {
+    // Arrange.
+    const response1 = await request(app)
+      .post('/api/v1/users')
+      .send(JSON_4_USER_2);
+    const user2Id = response1.body._id;
+    const user2Username = JSON_4_USER_2.username;
+    const user2Password = JSON_4_USER_2.password;
+
+    const response2 = await request(app)
+      .post('/api/v1/tokens')
+      .set(
+        'Authorization',
+        'Basic ' + btoa(`${user2Username}:${user2Password}`)
+      );
+    const user2AccesToken = response2.body.accessToken;
+
+    const response3 = await request(app)
+      .post('/api/v1/issues')
+      .set('Authorization', 'Bearer ' + accessToken)
+      .send(JSON_4_ISSUE_EPIC_1);
+
+    const response4 = await request(app)
+      .post('/api/v1/issues')
+      .set('Authorization', 'Bearer ' + user2AccesToken)
+      .send(JSON_4_ISSUE_EPIC_2);
+
+    // Act.
+    const response = await request(app)
+      .get('/api/v1/issues?')
+      .set('Authorization', 'Bearer ' + accessToken);
+
+    // Assert.
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual({
+      meta: {
+        total: 1,
+        first: '/api/v1/issues?perPage=100&page=1',
+        prev: null,
+        curr: '/api/v1/issues?perPage=100&page=1',
+        next: null,
+        last: '/api/v1/issues?perPage=100&page=1',
+      },
+      resources: [
+        {
+          __v: expect.anything(),
+          _id: expect.anything(),
+          userId,
+          createdAt: expect.anything(),
+          status: '3 = in progress',
+          deadline: '2024-09-02T02:45:36.214Z',
+          parentId: null,
+          description: 'backend',
+        },
+      ],
+    });
+
+    // Act.
+    const user2Response = await request(app)
+      .get('/api/v1/issues?')
+      .set('Authorization', 'Bearer ' + user2AccesToken);
+
+    // Assert.
+    expect(user2Response.status).toEqual(200);
+    expect(user2Response.body).toEqual({
+      meta: {
+        total: 1,
+        first: '/api/v1/issues?perPage=100&page=1',
+        prev: null,
+        curr: '/api/v1/issues?perPage=100&page=1',
+        next: null,
+        last: '/api/v1/issues?perPage=100&page=1',
+      },
+      resources: [
+        {
+          __v: expect.anything(),
+          _id: expect.anything(),
+          userId: user2Id,
+          createdAt: expect.anything(),
+          status: '1 = backlog',
+          deadline: '2024-09-02T03:28:39.611Z',
+          parentId: null,
+          description: 'frontend',
+        },
+      ],
+    });
+  });
 });
 
 describe('GET /api/v1/issues/:id', () => {
@@ -881,6 +975,46 @@ describe('GET /api/v1/issues/:id', () => {
       description: 'ease of development',
     });
   });
+
+  test(
+    'each User should be prevented from' +
+      ' retrieving an Issue owned by another User',
+    async () => {
+      // Arrange.
+      const response1 = await request(app)
+        .post('/api/v1/users')
+        .send(JSON_4_USER_2);
+      // const user2Id = response1.body._id;
+      const user2Username = JSON_4_USER_2.username;
+      const user2Password = JSON_4_USER_2.password;
+
+      const response2 = await request(app)
+        .post('/api/v1/tokens')
+        .set(
+          'Authorization',
+          'Basic ' + btoa(`${user2Username}:${user2Password}`)
+        );
+      const user2AccesToken = response2.body.accessToken;
+
+      const response3 = await request(app)
+        .post('/api/v1/issues')
+        .set('Authorization', 'Bearer ' + accessToken)
+        .send(JSON_4_ISSUE_EPIC_1);
+      const issueEpic1Id = response3.body._id;
+
+      // Act.
+      const response = await request(app)
+        .get(`/api/v1/issues/${issueEpic1Id}`)
+        .set('Authorization', 'Bearer ' + user2AccesToken);
+
+      // Assert.
+      expect(response.status).toEqual(403);
+      expect(response.body).toEqual({
+        message:
+          'The targeted resource does not belong to the authenticated User',
+      });
+    }
+  );
 });
 
 describe('PUT /api/v1/issues/:id', () => {
@@ -983,6 +1117,49 @@ describe('PUT /api/v1/issues/:id', () => {
       description: 'generate code coverage reports in HTML format',
     });
   });
+
+  test(
+    'each User should be prevented from' +
+      ' updating an Issue owned by another User',
+    async () => {
+      // Arrange.
+      const response1 = await request(app)
+        .post('/api/v1/users')
+        .send(JSON_4_USER_2);
+      // const user2Id = response1.body._id;
+      const user2Username = JSON_4_USER_2.username;
+      const user2Password = JSON_4_USER_2.password;
+
+      const response2 = await request(app)
+        .post('/api/v1/tokens')
+        .set(
+          'Authorization',
+          'Basic ' + btoa(`${user2Username}:${user2Password}`)
+        );
+      const user2AccesToken = response2.body.accessToken;
+
+      const response3 = await request(app)
+        .post('/api/v1/issues')
+        .set('Authorization', 'Bearer ' + accessToken)
+        .send(JSON_4_ISSUE_EPIC_1);
+      const issueEpic1Id = response3.body._id;
+
+      // Act.
+      const response = await request(app)
+        .put(`/api/v1/issues/${issueEpic1Id}`)
+        .set('Authorization', 'Bearer ' + user2AccesToken)
+        .send({
+          status: '4 = done',
+        });
+
+      // Assert.
+      expect(response.status).toEqual(403);
+      expect(response.body).toEqual({
+        message:
+          'The targeted resource does not belong to the authenticated User',
+      });
+    }
+  );
 });
 
 describe('DELETE /api/v1/issues/:id', () => {
@@ -1120,4 +1297,44 @@ describe('DELETE /api/v1/issues/:id', () => {
     expect(response.headers['content-length']).toEqual('0');
     expect(response.body).toEqual({});
   });
+
+  test(
+    'each User should be prevented from' +
+      ' deleting an Issue owned by another User',
+    async () => {
+      // Arrange.
+      const response1 = await request(app)
+        .post('/api/v1/users')
+        .send(JSON_4_USER_2);
+      // const user2Id = response1.body._id;
+      const user2Username = JSON_4_USER_2.username;
+      const user2Password = JSON_4_USER_2.password;
+
+      const response2 = await request(app)
+        .post('/api/v1/tokens')
+        .set(
+          'Authorization',
+          'Basic ' + btoa(`${user2Username}:${user2Password}`)
+        );
+      const user2AccesToken = response2.body.accessToken;
+
+      const response3 = await request(app)
+        .post('/api/v1/issues')
+        .set('Authorization', 'Bearer ' + accessToken)
+        .send(JSON_4_ISSUE_EPIC_1);
+      const issueEpic1Id = response3.body._id;
+
+      // Act.
+      const response = await request(app)
+        .delete(`/api/v1/issues/${issueEpic1Id}`)
+        .set('Authorization', 'Bearer ' + user2AccesToken);
+
+      // Assert.
+      expect(response.status).toEqual(403);
+      expect(response.body).toEqual({
+        message:
+          'The targeted resource does not belong to the authenticated User',
+      });
+    }
+  );
 });

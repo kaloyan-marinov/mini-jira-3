@@ -345,7 +345,10 @@ app.get('/api/v1/issues', tokenAuth, async (req, res) => {
   //console.log('queryJSON', queryJSON);
 
   // Apply filtering criteria.
-  query = Issue.find(queryJSON);
+  query = Issue.find({
+    userId: req.userId,
+    ...queryJSON,
+  });
 
   // Create an empty pagination-info bundle
   // which, in a step-by-step fashion, will be supplemented with information
@@ -478,6 +481,15 @@ app.get('/api/v1/issues/:id', tokenAuth, async (req, res) => {
     return;
   }
 
+  if (issue.userId.toString() !== req.userId) {
+    res.status(403).json({
+      message:
+        'The targeted resource does not belong to the authenticated User',
+    });
+
+    return;
+  }
+
   res.status(200).json(issue);
 });
 
@@ -497,6 +509,15 @@ app.put('/api/v1/issues/:id', tokenAuth, async (req, res) => {
   if (!issue) {
     res.status(404).json({
       message: 'Resource not found',
+    });
+
+    return;
+  }
+
+  if (issue.userId.toString() !== req.userId) {
+    res.status(403).json({
+      message:
+        'The targeted resource does not belong to the authenticated User',
     });
 
     return;
@@ -547,6 +568,15 @@ app.delete('/api/v1/issues/:id', tokenAuth, async (req, res) => {
   if (!issue) {
     res.status(404).json({
       message: 'Resource not found',
+    });
+
+    return;
+  }
+
+  if (issue.userId.toString() !== req.userId) {
+    res.status(403).json({
+      message:
+        'The targeted resource does not belong to the authenticated User',
     });
 
     return;
