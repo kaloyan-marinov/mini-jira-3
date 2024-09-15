@@ -1,7 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const jwt = require('jsonwebtoken');
-const { RevokedToken, Issue } = require('./models');
+const { User, RevokedToken, Issue } = require('./models');
 const { determinePaginationInfoInitial } = require('./utilities');
 
 const app = express();
@@ -15,7 +15,49 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-app.post('/api/v1/tokens', async (req, res) => {
+app.post('/api/v1/users', async (req, res) => {
+  let newUser;
+  try {
+    newUser = await User.create(req.body);
+  } catch (err) {
+    console.error(err);
+
+    res.status(400).json({
+      message: 'Unable to create a new user.',
+    });
+
+    return;
+  }
+
+  const newUserJSON = newUser.toJSON();
+  delete newUserJSON['password'];
+  res
+    .status(201)
+    .set('Location', `/api/v1/users/${newUser._id.toString()}`)
+    .json(newUserJSON);
+});
+
+app.get('/api/v1/users/:id', async (req, res) => {
+  let user;
+
+  try {
+    user = await User.findOne({
+      _id: req.params.id,
+    }).select('-email');
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      message: 'Failed to process your HTTP request',
+    });
+
+    return;
+  }
+
+  res.status(200).json(user);
+});
+
+const basicAuth = async (req, res, next) => {
   const headerAuth = req.headers.authorization;
   if (!headerAuth) {
     res.status(400).json({
@@ -36,10 +78,21 @@ app.post('/api/v1/tokens', async (req, res) => {
 
   const authCredsDecoded = Buffer.from(authCredsEncoded, 'base64').toString();
   const [username, password] = authCredsDecoded.split(':');
-  if (
-    username !== process.env.BACKEND_USERNAME ||
-    password !== process.env.BACKEND_PASSWORD
-  ) {
+  let user;
+  try {
+    user = await User.findOne({
+      username,
+    }).select('+password');
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      message: 'Failed to process your HTTP request',
+    });
+
+    return;
+  }
+  if (password !== user.password) {
     res.status(401).json({
       message: 'Incorrect credentials',
     });
@@ -47,10 +100,55 @@ app.post('/api/v1/tokens', async (req, res) => {
     return;
   }
 
+  req.userId = user.id;
+
+  next();
+};
+
+app.put('/api/v1/users/:id', basicAuth, async (req, res) => {
+  const userId = req.params.id;
+
+  if (req.userId !== userId) {
+    res.status(403).json({
+      message:
+        'You are authenticated as one User but are targeting another one',
+    });
+
+    return;
+  }
+
+  let user;
+  try {
+    user = await User.findById(userId);
+  } catch (err) {
+    res.status(400).json({
+      message: 'Invalid ID provided',
+    });
+
+    return;
+  }
+
+  if (!user) {
+    res.status(404).json({
+      message: 'Resource not found',
+    });
+
+    return;
+  }
+
+  user = await User.findByIdAndUpdate(userId, req.body, {
+    new: true, // Causes the response to contain the updated JSON document.
+    runValidators: true,
+  });
+  res.status(200).json(user);
+});
+
+app.post('/api/v1/tokens', basicAuth, async (req, res) => {
   // TODO: (2024/09/07, 17:10)
   //      arrange for creation of a 'refreshToken' that gets returned here as well
+  console.log('req.userId = ', req.userId);
   const payload = {
-    userId: parseInt(process.env.BACKEND_USER_ID),
+    userId: req.userId,
   };
   const options = {
     expiresIn: process.env.BACKEND_JWT_EXPIRES_IN,
@@ -120,14 +218,6 @@ const tokenAuth = async (req, res, next) => {
     return;
   }
 
-  if (jwtPayload.userId !== parseInt(process.env.BACKEND_USER_ID)) {
-    res.status(401).json({
-      message: 'Your user is not allowed to invoke this endpoint',
-    });
-
-    return;
-  }
-
   // Make the following information available to all downstream middleware functions,
   // which will be executed as part of the current request-response cycle.
   req.userId = jwtPayload.userId;
@@ -139,7 +229,7 @@ const tokenAuth = async (req, res, next) => {
 app.delete('/api/v1/tokens', tokenAuth, async (req, res) => {
   try {
     let revokedToken = await RevokedToken.create({
-      userId: parseInt(process.env.BACKEND_USER_ID),
+      userId: req.userId,
       accessToken: req.accessToken,
     });
   } catch (err) {
@@ -186,7 +276,10 @@ app.post('/api/v1/issues', tokenAuth, async (req, res) => {
   }
 
   try {
-    newIssue = await Issue.create(req.body);
+    newIssue = await Issue.create({
+      userId: req.userId,
+      ...req.body,
+    });
   } catch (err) {
     console.error(err);
 
@@ -244,7 +337,10 @@ app.get('/api/v1/issues', tokenAuth, async (req, res) => {
   //console.log('queryJSON', queryJSON);
 
   // Apply filtering criteria.
-  query = Issue.find(queryJSON);
+  query = Issue.find({
+    userId: req.userId,
+    ...queryJSON,
+  });
 
   // Create an empty pagination-info bundle
   // which, in a step-by-step fashion, will be supplemented with information
@@ -377,6 +473,15 @@ app.get('/api/v1/issues/:id', tokenAuth, async (req, res) => {
     return;
   }
 
+  if (issue.userId.toString() !== req.userId) {
+    res.status(403).json({
+      message:
+        'The targeted resource does not belong to the authenticated User',
+    });
+
+    return;
+  }
+
   res.status(200).json(issue);
 });
 
@@ -396,6 +501,15 @@ app.put('/api/v1/issues/:id', tokenAuth, async (req, res) => {
   if (!issue) {
     res.status(404).json({
       message: 'Resource not found',
+    });
+
+    return;
+  }
+
+  if (issue.userId.toString() !== req.userId) {
+    res.status(403).json({
+      message:
+        'The targeted resource does not belong to the authenticated User',
     });
 
     return;
@@ -446,6 +560,15 @@ app.delete('/api/v1/issues/:id', tokenAuth, async (req, res) => {
   if (!issue) {
     res.status(404).json({
       message: 'Resource not found',
+    });
+
+    return;
+  }
+
+  if (issue.userId.toString() !== req.userId) {
+    res.status(403).json({
+      message:
+        'The targeted resource does not belong to the authenticated User',
     });
 
     return;

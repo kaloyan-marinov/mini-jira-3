@@ -1,9 +1,10 @@
 const mms = require('mongodb-memory-server');
 const mongoose = require('mongoose');
 const request = require('supertest');
+const jwt = require('jsonwebtoken');
 
 const app = require('../src/app');
-const { RevokedToken, Issue } = require('../src/models');
+const { User, RevokedToken, Issue } = require('../src/models');
 const {
   corruptIdOfMongooseObject,
   decodeQueryStringWithinUrl,
@@ -17,6 +18,18 @@ let mongoMemoryServer;
 // // For debugging, set the timeout for each test case to the specified amount of time.
 // const MILLISECONDS_IN_FIVE_MINUTES = 5 * 60 * 1000;
 // jest.setTimeout(MILLISECONDS_IN_FIVE_MINUTES);
+
+const JSON_4_USER_1 = {
+  username: 'test-jd',
+  password: 'test-123',
+  email: 'test-john.doe@protonmail.com',
+};
+
+const JSON_4_USER_2 = {
+  username: 'test-ms',
+  password: 'test-456',
+  email: 'test-mary.smith@protonmail.com',
+};
 
 const JSON_4_ISSUE_EPIC_1 = {
   status: '3 = in progress',
@@ -45,9 +58,6 @@ beforeEach(async () => {
     ...PROCESS_ENV_ORIGINAL,
     BACKEND_SECRET_KEY:
       'this-must-be-very-secure-and-must-not-be-shared-with-anyone-else',
-    BACKEND_USER_ID: '17',
-    BACKEND_USERNAME: 'test-username',
-    BACKEND_PASSWORD: 'test-password',
     BACKEND_JWT_EXPIRES_IN: '17m',
   };
 });
@@ -61,21 +71,104 @@ afterAll(async () => {
   await mongoMemoryServer.stop();
 });
 
+describe('POST /api/v1/users', () => {
+  test('if "username", "password", "email" are provided, should return 201', async () => {
+    // Act.
+    const response = await request(app)
+      .post('/api/v1/users')
+      .send(JSON_4_USER_1);
+
+    // Assert.
+    expect(response.status).toEqual(201);
+    expect(response.body).toEqual({
+      __v: expect.anything(),
+      _id: expect.anything(),
+      createdAt: expect.anything(),
+      username: 'test-jd',
+      email: 'test-john.doe@protonmail.com',
+    });
+  });
+});
+
+describe('GET /api/v1/users/:id', () => {
+  test('if ID exists, should return 200 and corresponding user', async () => {
+    // Arrange.
+    const user = await User.create(JSON_4_USER_1);
+
+    // Act.
+    const response = await request(app).get(`/api/v1/users/${user._id}`);
+
+    // Assert.
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual({
+      __v: expect.anything(),
+      _id: expect.anything(),
+      createdAt: expect.anything(),
+      username: 'test-jd',
+    });
+  });
+});
+
+describe('PUT /api/v1/users/:id', () => {
+  test('if a valid ID is provided, should return 200', async () => {
+    // Arrange.
+    const user = await User.create(JSON_4_USER_1);
+
+    const userUsername = user.username;
+    const userPassword = user.password;
+
+    const userId = user._id.toString();
+
+    // Act.
+    const response = await request(app)
+      .put(`/api/v1/users/${userId}`)
+      .set('Authorization', 'Basic ' + btoa(`${userUsername}:${userPassword}`))
+      .send({
+        username: 'test-jd-updated',
+      });
+
+    // Assert.
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual({
+      __v: expect.anything(),
+      _id: userId,
+      createdAt: expect.anything(),
+      username: 'test-jd-updated',
+      email: 'test-john.doe@protonmail.com',
+    });
+  });
+});
+
 describe('POST /api/v1/tokens', () => {
   test(
     'if a client sends a correct set of Basic Auth credentials,' +
       ' should return 200',
     async () => {
+      // Arrange.
+      const request0 = await request(app)
+        .post('/api/v1/users')
+        .send(JSON_4_USER_1);
+
+      const userId = request0.body._id;
+      const userUsername = request0.body.username;
+      const userPassword = JSON_4_USER_1.password;
+
       // Act.
       const response = await request(app)
         .post('/api/v1/tokens')
-        .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+        .set(
+          'Authorization',
+          'Basic ' + btoa(`${userUsername}:${userPassword}`)
+        );
 
       // Assert.
       expect(response.status).toEqual(200);
       expect(response.body).toEqual({
         accessToken: expect.anything(),
       });
+
+      const accessTokenDecoded = jwt.decode(response.body.accessToken);
+      expect(accessTokenDecoded.userId).toEqual(userId);
     }
   );
 });
@@ -83,9 +176,16 @@ describe('POST /api/v1/tokens', () => {
 describe('DELETE /api/v1/tokens', () => {
   test('if a client sends a valid access token, should return 204', async () => {
     // Arrange.
+    const request0 = await request(app)
+      .post('/api/v1/users')
+      .send(JSON_4_USER_1);
+
+    const userUsername = request0.body.username;
+    const userPassword = JSON_4_USER_1.password;
+
     const response1 = await request(app)
       .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+      .set('Authorization', 'Basic ' + btoa(`${userUsername}:${userPassword}`));
 
     const accessToken = response1.body.accessToken;
 
@@ -107,14 +207,23 @@ describe('DELETE /api/v1/tokens', () => {
 });
 
 describe('POST /api/v1/issues', () => {
+  let userId;
   let accessToken;
 
   beforeEach(async () => {
-    const response = await request(app)
-      .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+    const response1 = await request(app)
+      .post('/api/v1/users')
+      .send(JSON_4_USER_1);
 
-    accessToken = response.body.accessToken;
+    userId = response1.body._id;
+    const userUsername = response1.body.username;
+    const userPassword = JSON_4_USER_1.password;
+
+    const response2 = await request(app)
+      .post('/api/v1/tokens')
+      .set('Authorization', 'Basic ' + btoa(`${userUsername}:${userPassword}`));
+
+    accessToken = response2.body.accessToken;
   });
 
   test('if "status" is missing, should return 400', async () => {
@@ -170,6 +279,7 @@ describe('POST /api/v1/issues', () => {
     expect(response.body).toEqual({
       __v: expect.anything(),
       _id: expect.anything(),
+      userId,
       createdAt: '2024-08-17T09:00:00.000Z',
       status: '1 = backlog',
       deadline: '2024-08-19T09:00:00.000Z',
@@ -202,7 +312,10 @@ describe('POST /api/v1/issues', () => {
 
   test('if "parentId" is non-existent, should returnd 400', async () => {
     // Arrange.
-    const issue = await Issue.create(JSON_4_ISSUE_EPIC_1);
+    const issue = await Issue.create({
+      userId,
+      ...JSON_4_ISSUE_EPIC_1,
+    });
 
     const nonexistentId = corruptIdOfMongooseObject(issue);
 
@@ -224,47 +337,64 @@ describe('POST /api/v1/issues', () => {
     });
   });
 
-  test('if "status" and "description" and "parentId", should return 201', async () => {
-    // Arrange.
-    const issue = await Issue.create(JSON_4_ISSUE_EPIC_1);
+  test(
+    'if "status" and "description" and "parentId" are provided,' +
+      ' should return 201',
+    async () => {
+      // Arrange.
+      const issue = await Issue.create({
+        userId,
+        ...JSON_4_ISSUE_EPIC_1,
+      });
 
-    // Act.
-    const response = await request(app)
-      .post('/api/v1/issues')
-      .set('Authorization', 'Bearer ' + accessToken)
-      .send({
+      // Act.
+      const response = await request(app)
+        .post('/api/v1/issues')
+        .set('Authorization', 'Bearer ' + accessToken)
+        .send({
+          status: '1 = backlog',
+          deadline: new Date('2024-09-02T02:48:26.383Z'),
+          parentId: issue._id.toString(),
+          description: 'implement a rudimentary authentication sub-system',
+        });
+
+      // Assert.
+      expect(response.status).toEqual(201);
+      expect(response.headers.location).toEqual(
+        `/api/v1/issues/${response.body._id}`
+      );
+      expect(response.body).toEqual({
+        __v: expect.anything(),
+        _id: expect.anything(),
+        userId,
+        createdAt: expect.anything(),
         status: '1 = backlog',
-        deadline: new Date('2024-09-02T02:48:26.383Z'),
+        deadline: '2024-09-02T02:48:26.383Z',
         parentId: issue._id.toString(),
         description: 'implement a rudimentary authentication sub-system',
       });
-
-    // Assert.
-    expect(response.status).toEqual(201);
-    expect(response.headers.location).toEqual(
-      `/api/v1/issues/${response.body._id}`
-    );
-    expect(response.body).toEqual({
-      __v: expect.anything(),
-      _id: expect.anything(),
-      createdAt: expect.anything(),
-      status: '1 = backlog',
-      deadline: '2024-09-02T02:48:26.383Z',
-      parentId: issue._id.toString(),
-      description: 'implement a rudimentary authentication sub-system',
-    });
-  });
+    }
+  );
 });
 
 describe('GET /api/v1/issues', () => {
+  let userId;
   let accessToken;
 
   beforeEach(async () => {
-    const response = await request(app)
-      .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+    const response1 = await request(app)
+      .post('/api/v1/users')
+      .send(JSON_4_USER_1);
 
-    accessToken = response.body.accessToken;
+    userId = response1.body._id;
+    const userUsername = response1.body.username;
+    const userPassword = JSON_4_USER_1.password;
+
+    const response2 = await request(app)
+      .post('/api/v1/tokens')
+      .set('Authorization', 'Basic ' + btoa(`${userUsername}:${userPassword}`));
+
+    accessToken = response2.body.accessToken;
   });
 
   test(
@@ -298,12 +428,14 @@ describe('GET /api/v1/issues', () => {
     async () => {
       // Arrange.
       const issue1 = await Issue.create({
+        userId,
         status: '3 = in progress',
         deadline: new Date('2024-08-20T21:07:45.759Z'),
         description: 'write tests for the other request-handling functions',
       });
 
       const issue2 = await Issue.create({
+        userId,
         status: '1 = backlog',
         deadline: new Date('2024-08-20T21:08:31.345Z'),
         description:
@@ -331,6 +463,7 @@ describe('GET /api/v1/issues', () => {
           {
             __v: expect.anything(),
             _id: issue1._id.toString(),
+            userId,
             createdAt: expect.anything(),
             status: '3 = in progress',
             deadline: '2024-08-20T21:07:45.759Z',
@@ -340,6 +473,7 @@ describe('GET /api/v1/issues', () => {
           {
             __v: expect.anything(),
             _id: issue2._id.toString(),
+            userId,
             createdAt: expect.anything(),
             status: '1 = backlog',
             deadline: '2024-08-20T21:08:31.345Z',
@@ -353,18 +487,25 @@ describe('GET /api/v1/issues', () => {
   );
 
   test(
-    'if there are Issue resource' +
+    'if there are Issue resources' +
       ' and the URL query parameters represent a request for filtering,' +
       ' should return 200, a correct total, and representation of the resources',
     async () => {
       // Arrange.
-      const issueEpic1 = await Issue.create(JSON_4_ISSUE_EPIC_1);
-      const issueEpic2 = await Issue.create(JSON_4_ISSUE_EPIC_2);
+      const issueEpic1 = await Issue.create({
+        userId,
+        ...JSON_4_ISSUE_EPIC_1,
+      });
+      const issueEpic2 = await Issue.create({
+        userId,
+        ...JSON_4_ISSUE_EPIC_2,
+      });
 
       const issueEpic1Id = issueEpic1._id.toString();
       const issueEpic2Id = issueEpic2._id.toString();
 
       const issue1 = await Issue.create({
+        userId,
         status: '1 = backlog',
         deadline: new Date('2024-08-31T21:43:31.696Z'),
         description: 'containerize the backend',
@@ -372,6 +513,7 @@ describe('GET /api/v1/issues', () => {
       });
 
       const issue2 = await Issue.create({
+        userId,
         status: '1 = backlog',
         deadline: new Date('2024-08-31T22:43:31.696Z'),
         description:
@@ -380,6 +522,7 @@ describe('GET /api/v1/issues', () => {
       });
 
       const issue3 = await Issue.create({
+        userId,
         status: '1 = backlog',
         deadline: new Date('2024-08-31T23:43:31.696Z'),
         description: 'convert the "epic" field to a "parentId" field',
@@ -407,6 +550,7 @@ describe('GET /api/v1/issues', () => {
           {
             __v: expect.anything(),
             _id: issue1._id.toString(),
+            userId,
             createdAt: expect.anything(),
             status: '1 = backlog',
             deadline: '2024-08-31T21:43:31.696Z',
@@ -416,6 +560,7 @@ describe('GET /api/v1/issues', () => {
           {
             __v: expect.anything(),
             _id: issue3._id.toString(),
+            userId,
             createdAt: expect.anything(),
             status: '1 = backlog',
             deadline: '2024-08-31T23:43:31.696Z',
@@ -446,6 +591,7 @@ describe('GET /api/v1/issues', () => {
           {
             __v: expect.anything(),
             _id: issueEpic1Id,
+            userId,
             createdAt: expect.anything(),
             status: '3 = in progress',
             deadline: '2024-09-02T02:45:36.214Z',
@@ -455,6 +601,7 @@ describe('GET /api/v1/issues', () => {
           {
             __v: expect.anything(),
             _id: issueEpic2Id,
+            userId,
             createdAt: expect.anything(),
             status: '1 = backlog',
             deadline: '2024-09-02T03:28:39.611Z',
@@ -484,12 +631,14 @@ describe('GET /api/v1/issues', () => {
     async () => {
       // Arrange.
       const issue1 = await Issue.create({
+        userId,
         status: '2 = selected',
         deadline: new Date('2024-08-31T08:25:06.701Z'),
         description: 'fill out the tax return',
       });
 
       const issue2 = await Issue.create({
+        userId,
         status: '1 = backlog',
         deadline: new Date('2024-08-31T08:26:06.701Z'),
         description: 'submit the tax return',
@@ -537,6 +686,7 @@ describe('GET /api/v1/issues', () => {
     async () => {
       // Arrange.
       const issue1 = await Issue.create({
+        userId,
         status: '2 = selected',
         deadline: new Date('2024-08-31T09:58:50.783Z'),
         description:
@@ -544,6 +694,7 @@ describe('GET /api/v1/issues', () => {
       });
 
       const issue2 = await Issue.create({
+        userId,
         status: '3 = in progress',
         deadline: new Date('2024-08-31T09:59:50.783Z'),
         description:
@@ -563,6 +714,7 @@ describe('GET /api/v1/issues', () => {
         {
           __v: expect.anything(),
           _id: issue2._id.toString(),
+          userId,
           createdAt: expect.anything(),
           status: '3 = in progress',
           deadline: '2024-08-31T09:59:50.783Z',
@@ -574,6 +726,7 @@ describe('GET /api/v1/issues', () => {
         {
           __v: expect.anything(),
           _id: issue1._id.toString(),
+          userId,
           createdAt: expect.anything(),
           status: '2 = selected',
           deadline: '2024-08-31T09:58:50.783Z',
@@ -626,6 +779,7 @@ describe('GET /api/v1/issues', () => {
 
       for (const idx of indices) {
         await Issue.create({
+          userId,
           status: '1 = backlog',
           deadline: new Date(`2024-09-0${idx + 1}T16:41:47.722Z`),
           description: `carry out step ${idx + 1}`,
@@ -653,6 +807,7 @@ describe('GET /api/v1/issues', () => {
           {
             __v: expect.anything(),
             _id: expect.anything(),
+            userId,
             createdAt: expect.anything(),
             status: '1 = backlog',
             deadline: '2024-09-03T16:41:47.722Z',
@@ -663,17 +818,114 @@ describe('GET /api/v1/issues', () => {
       });
     }
   );
+
+  test('each User should only see his/her own Issue resources', async () => {
+    // Arrange.
+    const response1 = await request(app)
+      .post('/api/v1/users')
+      .send(JSON_4_USER_2);
+    const user2Id = response1.body._id;
+    const user2Username = JSON_4_USER_2.username;
+    const user2Password = JSON_4_USER_2.password;
+
+    const response2 = await request(app)
+      .post('/api/v1/tokens')
+      .set(
+        'Authorization',
+        'Basic ' + btoa(`${user2Username}:${user2Password}`)
+      );
+    const user2AccesToken = response2.body.accessToken;
+
+    const response3 = await request(app)
+      .post('/api/v1/issues')
+      .set('Authorization', 'Bearer ' + accessToken)
+      .send(JSON_4_ISSUE_EPIC_1);
+
+    const response4 = await request(app)
+      .post('/api/v1/issues')
+      .set('Authorization', 'Bearer ' + user2AccesToken)
+      .send(JSON_4_ISSUE_EPIC_2);
+
+    // Act.
+    const response = await request(app)
+      .get('/api/v1/issues?')
+      .set('Authorization', 'Bearer ' + accessToken);
+
+    // Assert.
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual({
+      meta: {
+        total: 1,
+        first: '/api/v1/issues?perPage=100&page=1',
+        prev: null,
+        curr: '/api/v1/issues?perPage=100&page=1',
+        next: null,
+        last: '/api/v1/issues?perPage=100&page=1',
+      },
+      resources: [
+        {
+          __v: expect.anything(),
+          _id: expect.anything(),
+          userId,
+          createdAt: expect.anything(),
+          status: '3 = in progress',
+          deadline: '2024-09-02T02:45:36.214Z',
+          parentId: null,
+          description: 'backend',
+        },
+      ],
+    });
+
+    // Act.
+    const user2Response = await request(app)
+      .get('/api/v1/issues?')
+      .set('Authorization', 'Bearer ' + user2AccesToken);
+
+    // Assert.
+    expect(user2Response.status).toEqual(200);
+    expect(user2Response.body).toEqual({
+      meta: {
+        total: 1,
+        first: '/api/v1/issues?perPage=100&page=1',
+        prev: null,
+        curr: '/api/v1/issues?perPage=100&page=1',
+        next: null,
+        last: '/api/v1/issues?perPage=100&page=1',
+      },
+      resources: [
+        {
+          __v: expect.anything(),
+          _id: expect.anything(),
+          userId: user2Id,
+          createdAt: expect.anything(),
+          status: '1 = backlog',
+          deadline: '2024-09-02T03:28:39.611Z',
+          parentId: null,
+          description: 'frontend',
+        },
+      ],
+    });
+  });
 });
 
 describe('GET /api/v1/issues/:id', () => {
+  let userId;
   let accessToken;
 
   beforeEach(async () => {
-    const response = await request(app)
-      .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+    const response1 = await request(app)
+      .post('/api/v1/users')
+      .send(JSON_4_USER_1);
 
-    accessToken = response.body.accessToken;
+    userId = response1.body._id;
+    const userUsername = response1.body.username;
+    const userPassword = JSON_4_USER_1.password;
+
+    const response2 = await request(app)
+      .post('/api/v1/tokens')
+      .set('Authorization', 'Basic ' + btoa(`${userUsername}:${userPassword}`));
+
+    accessToken = response2.body.accessToken;
   });
 
   test('if an invalid ID is provided, should return 400', async () => {
@@ -693,6 +945,7 @@ describe('GET /api/v1/issues/:id', () => {
     // Arrange.
     const deadline = new Date('2024-08-19T06:17:17.170Z');
     const issue = await Issue.create({
+      userId,
       status: '1 = backlog',
       deadline,
       description: 'ease of development',
@@ -708,6 +961,7 @@ describe('GET /api/v1/issues/:id', () => {
     expect(response.body).toEqual({
       __v: expect.anything(),
       _id: issue.id,
+      userId,
       createdAt: issue.createdAt.toISOString(),
       status: '1 = backlog',
       deadline: deadline.toISOString(),
@@ -715,22 +969,71 @@ describe('GET /api/v1/issues/:id', () => {
       description: 'ease of development',
     });
   });
+
+  test(
+    'each User should be prevented from' +
+      ' retrieving an Issue owned by another User',
+    async () => {
+      // Arrange.
+      const response1 = await request(app)
+        .post('/api/v1/users')
+        .send(JSON_4_USER_2);
+      const user2Username = JSON_4_USER_2.username;
+      const user2Password = JSON_4_USER_2.password;
+
+      const response2 = await request(app)
+        .post('/api/v1/tokens')
+        .set(
+          'Authorization',
+          'Basic ' + btoa(`${user2Username}:${user2Password}`)
+        );
+      const user2AccesToken = response2.body.accessToken;
+
+      const response3 = await request(app)
+        .post('/api/v1/issues')
+        .set('Authorization', 'Bearer ' + accessToken)
+        .send(JSON_4_ISSUE_EPIC_1);
+      const issueEpic1Id = response3.body._id;
+
+      // Act.
+      const response = await request(app)
+        .get(`/api/v1/issues/${issueEpic1Id}`)
+        .set('Authorization', 'Bearer ' + user2AccesToken);
+
+      // Assert.
+      expect(response.status).toEqual(403);
+      expect(response.body).toEqual({
+        message:
+          'The targeted resource does not belong to the authenticated User',
+      });
+    }
+  );
 });
 
 describe('PUT /api/v1/issues/:id', () => {
+  let userId;
   let accessToken;
 
   beforeEach(async () => {
-    const response = await request(app)
-      .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+    const response1 = await request(app)
+      .post('/api/v1/users')
+      .send(JSON_4_USER_1);
 
-    accessToken = response.body.accessToken;
+    userId = response1.body._id;
+    const userUsername = response1.body.username;
+    const userPassword = JSON_4_USER_1.password;
+
+    const response2 = await request(app)
+      .post('/api/v1/tokens')
+      .set('Authorization', 'Basic ' + btoa(`${userUsername}:${userPassword}`));
+
+    accessToken = response2.body.accessToken;
   });
 
   test('if an invalid ID is provided, should return 400', async () => {
     // Arrange.
     const issue = await Issue.create({
+      userId,
       status: '1 = backlog',
       deadline: new Date('2024-08-20T20:34:07.386Z'),
       description: 'code cvrg reports in HTML',
@@ -754,6 +1057,7 @@ describe('PUT /api/v1/issues/:id', () => {
   test('if a non-existent ID is provided, should return 404', async () => {
     // Arrange.
     const issue = await Issue.create({
+      userId,
       status: '1 = backlog',
       deadline: new Date('2024-08-20T20:18:09.763Z'),
       description: 'code cvrg reports in HTML',
@@ -776,6 +1080,7 @@ describe('PUT /api/v1/issues/:id', () => {
   test('if a valid ID is provided, should return 200', async () => {
     // Arrange.
     const issue = await Issue.create({
+      userId,
       status: '1 = backlog',
       deadline: new Date('2024-08-20T20:38:18.162Z'),
       description: 'code cvrg reports in HTML',
@@ -797,6 +1102,7 @@ describe('PUT /api/v1/issues/:id', () => {
     expect(response.body).toEqual({
       __v: expect.anything(),
       _id: issueId,
+      userId,
       createdAt: expect.anything(),
       status: '2 = selected',
       deadline: '2024-08-20T20:38:18.162Z',
@@ -804,22 +1110,74 @@ describe('PUT /api/v1/issues/:id', () => {
       description: 'generate code coverage reports in HTML format',
     });
   });
+
+  test(
+    'each User should be prevented from' +
+      ' updating an Issue owned by another User',
+    async () => {
+      // Arrange.
+      const response1 = await request(app)
+        .post('/api/v1/users')
+        .send(JSON_4_USER_2);
+      const user2Username = JSON_4_USER_2.username;
+      const user2Password = JSON_4_USER_2.password;
+
+      const response2 = await request(app)
+        .post('/api/v1/tokens')
+        .set(
+          'Authorization',
+          'Basic ' + btoa(`${user2Username}:${user2Password}`)
+        );
+      const user2AccesToken = response2.body.accessToken;
+
+      const response3 = await request(app)
+        .post('/api/v1/issues')
+        .set('Authorization', 'Bearer ' + accessToken)
+        .send(JSON_4_ISSUE_EPIC_1);
+      const issueEpic1Id = response3.body._id;
+
+      // Act.
+      const response = await request(app)
+        .put(`/api/v1/issues/${issueEpic1Id}`)
+        .set('Authorization', 'Bearer ' + user2AccesToken)
+        .send({
+          status: '4 = done',
+        });
+
+      // Assert.
+      expect(response.status).toEqual(403);
+      expect(response.body).toEqual({
+        message:
+          'The targeted resource does not belong to the authenticated User',
+      });
+    }
+  );
 });
 
 describe('DELETE /api/v1/issues/:id', () => {
+  let userId;
   let accessToken;
 
   beforeEach(async () => {
-    const response = await request(app)
-      .post('/api/v1/tokens')
-      .set('Authorization', 'Basic ' + btoa('test-username:test-password'));
+    const response1 = await request(app)
+      .post('/api/v1/users')
+      .send(JSON_4_USER_1);
 
-    accessToken = response.body.accessToken;
+    userId = response1.body._id;
+    const userUsername = response1.body.username;
+    const userPassword = JSON_4_USER_1.password;
+
+    const response2 = await request(app)
+      .post('/api/v1/tokens')
+      .set('Authorization', 'Basic ' + btoa(`${userUsername}:${userPassword}`));
+
+    accessToken = response2.body.accessToken;
   });
 
   test('if an invalid ID is provided, should return 400', async () => {
     // Arrange.
     const issue = await Issue.create({
+      userId,
       status: '1 = backlog',
       deadline: new Date('2024-08-22T20:40:41.277Z'),
       description: 'generate code coverage reports in HTML format',
@@ -843,6 +1201,7 @@ describe('DELETE /api/v1/issues/:id', () => {
   test('if a non-existent ID is provided, should return 404', async () => {
     // Arrange.
     const issue = await Issue.create({
+      userId,
       status: '1 = backlog',
       deadline: new Date('2024-08-22T20:40:41.277Z'),
       description: 'generate code coverage reports in HTML format',
@@ -868,17 +1227,22 @@ describe('DELETE /api/v1/issues/:id', () => {
       ' should return 400',
     async () => {
       // Arrange.
-      const issueEpic1 = await Issue.create(JSON_4_ISSUE_EPIC_1);
+      const issueEpic1 = await Issue.create({
+        userId,
+        ...JSON_4_ISSUE_EPIC_1,
+      });
 
       const issueEpic1Id = issueEpic1._id.toString();
 
       const issue1 = await Issue.create({
+        userId,
         status: '1 = backlog',
         deadline: new Date('2024-08-31T21:43:31.696Z'),
         description: 'containerize the backend',
         parentId: issueEpic1Id,
       });
       const issue2 = await Issue.create({
+        userId,
         status: '1 = backlog',
         deadline: new Date('2024-08-31T23:43:31.696Z'),
         description: 'convert the "epic" field to a "parentId" field',
@@ -907,6 +1271,7 @@ describe('DELETE /api/v1/issues/:id', () => {
   test('if a valid ID is provided, should return 204', async () => {
     // Arrange.
     const issue = await Issue.create({
+      userId,
       status: '1 = backlog',
       deadline: new Date('2024-08-22T20:40:41.277Z'),
       description: 'generate code coverage reports in HTML format',
@@ -924,4 +1289,43 @@ describe('DELETE /api/v1/issues/:id', () => {
     expect(response.headers['content-length']).toEqual('0');
     expect(response.body).toEqual({});
   });
+
+  test(
+    'each User should be prevented from' +
+      ' deleting an Issue owned by another User',
+    async () => {
+      // Arrange.
+      const response1 = await request(app)
+        .post('/api/v1/users')
+        .send(JSON_4_USER_2);
+      const user2Username = JSON_4_USER_2.username;
+      const user2Password = JSON_4_USER_2.password;
+
+      const response2 = await request(app)
+        .post('/api/v1/tokens')
+        .set(
+          'Authorization',
+          'Basic ' + btoa(`${user2Username}:${user2Password}`)
+        );
+      const user2AccesToken = response2.body.accessToken;
+
+      const response3 = await request(app)
+        .post('/api/v1/issues')
+        .set('Authorization', 'Bearer ' + accessToken)
+        .send(JSON_4_ISSUE_EPIC_1);
+      const issueEpic1Id = response3.body._id;
+
+      // Act.
+      const response = await request(app)
+        .delete(`/api/v1/issues/${issueEpic1Id}`)
+        .set('Authorization', 'Bearer ' + user2AccesToken);
+
+      // Assert.
+      expect(response.status).toEqual(403);
+      expect(response.body).toEqual({
+        message:
+          'The targeted resource does not belong to the authenticated User',
+      });
+    }
+  );
 });

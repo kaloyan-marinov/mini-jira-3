@@ -1,14 +1,44 @@
 const mongoose = require('mongoose');
 
+const NAME_OF_USER_MODEL = 'User';
+
+const UserSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: [true, 'Please specify a value for "username"'],
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: [true, 'Please specify a value for "password"'],
+    // When HTTP clients get a User from the backend application,
+    // the generated HTTP response isn't going to contain the requested User's password.
+    select: false,
+  },
+  email: {
+    type: String,
+    required: [true, 'Please specify a value for "email"'],
+    unique: true,
+    // At the time when the video was recorded, the regex below came from:
+    // https://stackoverflow.com/questions/46155/how-can-i-validate-an-email-address-in-javascript
+    match: [
+      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      'Please specify a valid value for "email"',
+    ],
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+const User = new mongoose.model(NAME_OF_USER_MODEL, UserSchema);
+
 const RevokedTokenSchema = new mongoose.Schema({
-  // TODO: (2024/09/08, 09:42)
-  //      when a `User` model is implemented:
-  //      (a) the following should be changed to a reference to `User._id`
-  //      (b) more meaningful/comprehensive tests for requests to `/api/v1/tokens`
-  //          should be implemented
   userId: {
-    type: Number,
-    required: [true, 'Please specify a value for "userId"'],
+    type: mongoose.Schema.Types.ObjectId,
+    ref: NAME_OF_USER_MODEL,
+    required: true,
   },
   createdAt: {
     type: Date,
@@ -28,6 +58,11 @@ const RevokedToken = new mongoose.model('RevokedToken', RevokedTokenSchema);
 const NAME_OF_ISSUE_MODEL = 'Issue';
 
 const IssueSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: NAME_OF_USER_MODEL,
+    required: true,
+  },
   createdAt: {
     type: Date,
     required: [true, 'Please specify a value for "createdAt".'],
@@ -68,4 +103,8 @@ const IssueSchema = new mongoose.Schema({
 
 const Issue = new mongoose.model(NAME_OF_ISSUE_MODEL, IssueSchema);
 
-module.exports = { RevokedToken, Issue };
+module.exports = {
+  User,
+  RevokedToken,
+  Issue,
+};
