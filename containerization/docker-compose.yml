@@ -3,8 +3,6 @@ services:
     image: mongodb/mongodb-community-server:6.0.12-ubuntu2204
     container_name: container-mini-jira-3-mongo
     # restart: unless-stopped
-    # env_file:
-    #   - ../.env
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
@@ -21,8 +19,6 @@ services:
     image: image-mini-jira-3:2024-09-15-13-50
     container_name: container-mini-jira-3
     # restart: unless-stopped
-    # env_file:
-    #   - ../.env
     environment:
       - MONGO_HOST=container-mini-jira-3-mongo
       - MONGO_AUTHENTICATION_DATABASE
@@ -39,7 +35,6 @@ services:
       - type: bind
         source: ../containerization/wait-for.sh
         target: /home/node/mini-jira-3/containerization/wait-for.sh
-    # command:
     entrypoint:
       - /home/node/mini-jira-3/containerization/wait-for.sh
       - container-mini-jira-3-mongo:27017

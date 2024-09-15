@@ -153,12 +153,6 @@ describe('POST /api/v1/tokens', () => {
       const userUsername = request0.body.username;
       const userPassword = JSON_4_USER_1.password;
 
-      // const temp1 = await User.find();
-      // console.log('temp1 = ', temp1);
-
-      // const temp2 = await User.findOne({ username: 'test-jd' });
-      // console.log('temp2 = ', temp2);
-
       // Act.
       const response = await request(app)
         .post('/api/v1/tokens')
@@ -984,7 +978,6 @@ describe('GET /api/v1/issues/:id', () => {
       const response1 = await request(app)
         .post('/api/v1/users')
         .send(JSON_4_USER_2);
-      // const user2Id = response1.body._id;
       const user2Username = JSON_4_USER_2.username;
       const user2Password = JSON_4_USER_2.password;
 
@@ -1126,7 +1119,6 @@ describe('PUT /api/v1/issues/:id', () => {
       const response1 = await request(app)
         .post('/api/v1/users')
         .send(JSON_4_USER_2);
-      // const user2Id = response1.body._id;
       const user2Username = JSON_4_USER_2.username;
       const user2Password = JSON_4_USER_2.password;
 
@@ -1306,7 +1298,6 @@ describe('DELETE /api/v1/issues/:id', () => {
       const response1 = await request(app)
         .post('/api/v1/users')
         .send(JSON_4_USER_2);
-      // const user2Id = response1.body._id;
       const user2Username = JSON_4_USER_2.username;
       const user2Password = JSON_4_USER_2.password;
 
