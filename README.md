@@ -1278,8 +1278,6 @@ remove all Docker artifacts:
 
 # Containerization using Docker
 
-<u>TODO: (2024/09/10, 23:16) replace `mongo:latest` with an (image, specific tag)-pair (not from https://hub.docker.com/_/mongo but) from https://hub.docker.com/r/mongodb/mongodb-community-server >> https://www.mongodb.com/resources/products/compatibilities/docker ; it may also be worth it to take a look at https://www.mongodb.com/docs/upcoming/tutorial/install-mongodb-community-with-docker/ </u>
-
 ```bash
 docker network create \
    network-mini-jira-3
@@ -1295,7 +1293,7 @@ docker run \
    --env MONGO_INITDB_ROOT_PASSWORD=$(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
    --env MONGO_INITDB_DATABASE=$(grep -oP '^MONGO_DATABASE=\K.*' .env) \
    --publish 27017:27017 \
-   mongo:latest
+   mongodb/mongodb-community-server:6.0.12-ubuntu2204
 
 
 
@@ -1304,7 +1302,7 @@ docker run \
    --name container-mini-jira-3-mongosh \
    -it \
    --rm \
-   mongo:latest \
+   mongodb/mongodb-community-server:6.0.12-ubuntu2204 \
       mongosh \
       --host container-mini-jira-3-mongo \
       --username $(grep -oP '^MONGO_USERNAME=\K.*' .env) \
@@ -1315,7 +1313,7 @@ docker run \
 
 docker build \
    --file containerization/Dockerfile \
-   --tag image-mini-jira-3:2024-09-08-16-21 \
+   --tag image-mini-jira-3:2024-09-15-13-50 \
    .
 
 docker run \
@@ -1325,7 +1323,7 @@ docker run \
    --env MONGO_HOST=container-mini-jira-3-mongo \
    --publish 5000:5000 \
    --entrypoint npm \
-   image-mini-jira-3:2024-09-08-16-21 \
+   image-mini-jira-3:2024-09-15-13-50 \
    run dev
 ```
 
@@ -1361,6 +1359,8 @@ docker compose \
    --file containerization/docker-compose.yml \
    up
 ```
+
+<u>TODO: (2024/09/10, 23:16) replace `mongo:latest` with an (image, specific tag)-pair (not from https://hub.docker.com/_/mongo but) from https://hub.docker.com/r/mongodb/mongodb-community-server >> https://www.mongodb.com/resources/products/compatibilities/docker ; it may also be worth it to take a look at https://www.mongodb.com/docs/upcoming/tutorial/install-mongodb-community-with-docker/ </u>
 
 ```bash
 docker run \

@@ -109,6 +109,7 @@ app.put('/api/v1/users/:id', basicAuth, async (req, res) => {
   const userId = req.params.id;
 
   if (req.userId !== userId) {
+    // TODO: (2024/09/15, 13:54) change the status code to 403
     res.status(401).json({
       message:
         'You are authenticated as one User but are targeting another one',
@@ -217,14 +218,6 @@ const tokenAuth = async (req, res, next) => {
 
     return;
   }
-
-  // if (jwtPayload.userId !== parseInt(process.env.BACKEND_USER_ID)) {
-  //   res.status(401).json({
-  //     message: 'Your user is not allowed to invoke this endpoint',
-  //   });
-
-  //   return;
-  // }
 
   // Make the following information available to all downstream middleware functions,
   // which will be executed as part of the current request-response cycle.
