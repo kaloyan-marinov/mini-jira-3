@@ -224,11 +224,12 @@ curl -v \
 
 # ...
 < HTTP/1.1 201 Created
-< Location: /api/v1/users/66e5f830527fe7f31cd9cc2e
+< Location: /api/v1/users/66e6a20308581e0f24f8a302
+# ...
 {
    "__v" : 0,
-   "_id" : "66e5f830527fe7f31cd9cc2e",
-   "createdAt" : "2024-09-14T20:55:12.969Z",
+   "_id" : "66e6a20308581e0f24f8a302",
+   "createdAt" : "2024-09-15T08:59:47.067Z",
    "email" : "j.d@protonmail.com",
    "username" : "jd"
 }
@@ -267,6 +268,7 @@ export USER_1_EMAIL_UPDATED=john.doe@protonmail.com
 
 curl -v \
    -X PUT \
+   -u "${USER_1_USERNAME}:${USER_1_PASSWORD}" \
    -H "Content-Type: application/json" \
    -d "{
       \"email\": \"${USER_1_EMAIL_UPDATED}\"
@@ -279,8 +281,8 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66e5f830527fe7f31cd9cc2e",
-   "createdAt" : "2024-09-14T20:55:12.969Z",
+   "_id" : "66e6a20308581e0f24f8a302",
+   "createdAt" : "2024-09-15T08:59:47.067Z",
    "email" : "john.doe@protonmail.com",
    "username" : "jd"
 }
@@ -315,7 +317,7 @@ curl -v \
 < HTTP/1.1 200 OK
 # ...
 {
-   "accessToken" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmU1ZjgzMDUyN2ZlN2YzMWNkOWNjMmUiLCJpYXQiOjE3MjYzNDc1MTMsImV4cCI6MTcyNjM0OTAxM30.oO-hy9CTb87RPUvVIq6LoL6Hbg8r0Ewjw-I5CX2AIJc"
+   "accessToken" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmU2YTIwMzA4NTgxZTBmMjRmOGEzMDIiLCJpYXQiOjE3MjYzOTA5MTMsImV4cCI6MTcyNjM5MjQxM30.J_WfjMKy3a3b7ZZLZdS99cNva5lLEu9MTydTGJhO4-g"
 }
 
 
@@ -383,12 +385,13 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66dd7e58e7c673746905ff27",
-   "createdAt" : "2024-09-08T10:37:12.447Z",
+   "_id" : "66e6a35008581e0f24f8a30a",
+   "createdAt" : "2024-09-15T09:05:20.276Z",
    "deadline" : "2024-09-08T21:08:36.367Z",
    "description" : "backend",
    "parentId" : null,
-   "status" : "3 = in progress"
+   "status" : "3 = in progress",
+   "userId" : "66e6a20308581e0f24f8a302"
 }
 
 
@@ -484,6 +487,8 @@ export ISSUE_5_ID=<the-_id-present-in-the-preceding-HTTP-response>
 
 
 retrieve multiple `Issue`s
+
+<u>TODO: (2024/09/15, 11:09) consider whether the HTTP response to a request for retrieving one or multiple `Issue`s needs to return the `userId` (of the `User` who owns the returned `Issue`s - that `User` _should_ always be the `User` authenticated as part of the incoming request)</u>
 
 ```bash
 curl -v \

@@ -207,6 +207,7 @@ describe('DELETE /api/v1/tokens', () => {
 });
 
 describe('POST /api/v1/issues', () => {
+  let userId;
   let accessToken;
 
   beforeEach(async () => {
@@ -214,6 +215,7 @@ describe('POST /api/v1/issues', () => {
       .post('/api/v1/users')
       .send(JSON_4_USER_1);
 
+    userId = response1.body._id;
     const userUsername = response1.body.username;
     const userPassword = JSON_4_USER_1.password;
 
@@ -277,6 +279,7 @@ describe('POST /api/v1/issues', () => {
     expect(response.body).toEqual({
       __v: expect.anything(),
       _id: expect.anything(),
+      userId,
       createdAt: '2024-08-17T09:00:00.000Z',
       status: '1 = backlog',
       deadline: '2024-08-19T09:00:00.000Z',
@@ -309,7 +312,10 @@ describe('POST /api/v1/issues', () => {
 
   test('if "parentId" is non-existent, should returnd 400', async () => {
     // Arrange.
-    const issue = await Issue.create(JSON_4_ISSUE_EPIC_1);
+    const issue = await Issue.create({
+      userId,
+      ...JSON_4_ISSUE_EPIC_1,
+    });
 
     const nonexistentId = corruptIdOfMongooseObject(issue);
 
@@ -336,7 +342,10 @@ describe('POST /api/v1/issues', () => {
       ' should return 201',
     async () => {
       // Arrange.
-      const issue = await Issue.create(JSON_4_ISSUE_EPIC_1);
+      const issue = await Issue.create({
+        userId,
+        ...JSON_4_ISSUE_EPIC_1,
+      });
 
       // Act.
       const response = await request(app)
@@ -357,6 +366,7 @@ describe('POST /api/v1/issues', () => {
       expect(response.body).toEqual({
         __v: expect.anything(),
         _id: expect.anything(),
+        userId,
         createdAt: expect.anything(),
         status: '1 = backlog',
         deadline: '2024-09-02T02:48:26.383Z',
@@ -368,6 +378,7 @@ describe('POST /api/v1/issues', () => {
 });
 
 describe('GET /api/v1/issues', () => {
+  let userId;
   let accessToken;
 
   beforeEach(async () => {
@@ -375,6 +386,7 @@ describe('GET /api/v1/issues', () => {
       .post('/api/v1/users')
       .send(JSON_4_USER_1);
 
+    userId = response1.body._id;
     const userUsername = response1.body.username;
     const userPassword = JSON_4_USER_1.password;
 
@@ -416,12 +428,14 @@ describe('GET /api/v1/issues', () => {
     async () => {
       // Arrange.
       const issue1 = await Issue.create({
+        userId,
         status: '3 = in progress',
         deadline: new Date('2024-08-20T21:07:45.759Z'),
         description: 'write tests for the other request-handling functions',
       });
 
       const issue2 = await Issue.create({
+        userId,
         status: '1 = backlog',
         deadline: new Date('2024-08-20T21:08:31.345Z'),
         description:
@@ -449,6 +463,7 @@ describe('GET /api/v1/issues', () => {
           {
             __v: expect.anything(),
             _id: issue1._id.toString(),
+            userId,
             createdAt: expect.anything(),
             status: '3 = in progress',
             deadline: '2024-08-20T21:07:45.759Z',
@@ -458,6 +473,7 @@ describe('GET /api/v1/issues', () => {
           {
             __v: expect.anything(),
             _id: issue2._id.toString(),
+            userId,
             createdAt: expect.anything(),
             status: '1 = backlog',
             deadline: '2024-08-20T21:08:31.345Z',
@@ -476,13 +492,20 @@ describe('GET /api/v1/issues', () => {
       ' should return 200, a correct total, and representation of the resources',
     async () => {
       // Arrange.
-      const issueEpic1 = await Issue.create(JSON_4_ISSUE_EPIC_1);
-      const issueEpic2 = await Issue.create(JSON_4_ISSUE_EPIC_2);
+      const issueEpic1 = await Issue.create({
+        userId,
+        ...JSON_4_ISSUE_EPIC_1,
+      });
+      const issueEpic2 = await Issue.create({
+        userId,
+        ...JSON_4_ISSUE_EPIC_2,
+      });
 
       const issueEpic1Id = issueEpic1._id.toString();
       const issueEpic2Id = issueEpic2._id.toString();
 
       const issue1 = await Issue.create({
+        userId,
         status: '1 = backlog',
         deadline: new Date('2024-08-31T21:43:31.696Z'),
         description: 'containerize the backend',
@@ -490,6 +513,7 @@ describe('GET /api/v1/issues', () => {
       });
 
       const issue2 = await Issue.create({
+        userId,
         status: '1 = backlog',
         deadline: new Date('2024-08-31T22:43:31.696Z'),
         description:
@@ -498,6 +522,7 @@ describe('GET /api/v1/issues', () => {
       });
 
       const issue3 = await Issue.create({
+        userId,
         status: '1 = backlog',
         deadline: new Date('2024-08-31T23:43:31.696Z'),
         description: 'convert the "epic" field to a "parentId" field',
@@ -525,6 +550,7 @@ describe('GET /api/v1/issues', () => {
           {
             __v: expect.anything(),
             _id: issue1._id.toString(),
+            userId,
             createdAt: expect.anything(),
             status: '1 = backlog',
             deadline: '2024-08-31T21:43:31.696Z',
@@ -534,6 +560,7 @@ describe('GET /api/v1/issues', () => {
           {
             __v: expect.anything(),
             _id: issue3._id.toString(),
+            userId,
             createdAt: expect.anything(),
             status: '1 = backlog',
             deadline: '2024-08-31T23:43:31.696Z',
@@ -564,6 +591,7 @@ describe('GET /api/v1/issues', () => {
           {
             __v: expect.anything(),
             _id: issueEpic1Id,
+            userId,
             createdAt: expect.anything(),
             status: '3 = in progress',
             deadline: '2024-09-02T02:45:36.214Z',
@@ -573,6 +601,7 @@ describe('GET /api/v1/issues', () => {
           {
             __v: expect.anything(),
             _id: issueEpic2Id,
+            userId,
             createdAt: expect.anything(),
             status: '1 = backlog',
             deadline: '2024-09-02T03:28:39.611Z',
@@ -602,12 +631,14 @@ describe('GET /api/v1/issues', () => {
     async () => {
       // Arrange.
       const issue1 = await Issue.create({
+        userId,
         status: '2 = selected',
         deadline: new Date('2024-08-31T08:25:06.701Z'),
         description: 'fill out the tax return',
       });
 
       const issue2 = await Issue.create({
+        userId,
         status: '1 = backlog',
         deadline: new Date('2024-08-31T08:26:06.701Z'),
         description: 'submit the tax return',
@@ -655,6 +686,7 @@ describe('GET /api/v1/issues', () => {
     async () => {
       // Arrange.
       const issue1 = await Issue.create({
+        userId,
         status: '2 = selected',
         deadline: new Date('2024-08-31T09:58:50.783Z'),
         description:
@@ -662,6 +694,7 @@ describe('GET /api/v1/issues', () => {
       });
 
       const issue2 = await Issue.create({
+        userId,
         status: '3 = in progress',
         deadline: new Date('2024-08-31T09:59:50.783Z'),
         description:
@@ -681,6 +714,7 @@ describe('GET /api/v1/issues', () => {
         {
           __v: expect.anything(),
           _id: issue2._id.toString(),
+          userId,
           createdAt: expect.anything(),
           status: '3 = in progress',
           deadline: '2024-08-31T09:59:50.783Z',
@@ -692,6 +726,7 @@ describe('GET /api/v1/issues', () => {
         {
           __v: expect.anything(),
           _id: issue1._id.toString(),
+          userId,
           createdAt: expect.anything(),
           status: '2 = selected',
           deadline: '2024-08-31T09:58:50.783Z',
@@ -744,6 +779,7 @@ describe('GET /api/v1/issues', () => {
 
       for (const idx of indices) {
         await Issue.create({
+          userId,
           status: '1 = backlog',
           deadline: new Date(`2024-09-0${idx + 1}T16:41:47.722Z`),
           description: `carry out step ${idx + 1}`,
@@ -771,6 +807,7 @@ describe('GET /api/v1/issues', () => {
           {
             __v: expect.anything(),
             _id: expect.anything(),
+            userId,
             createdAt: expect.anything(),
             status: '1 = backlog',
             deadline: '2024-09-03T16:41:47.722Z',
@@ -784,6 +821,7 @@ describe('GET /api/v1/issues', () => {
 });
 
 describe('GET /api/v1/issues/:id', () => {
+  let userId;
   let accessToken;
 
   beforeEach(async () => {
@@ -791,6 +829,7 @@ describe('GET /api/v1/issues/:id', () => {
       .post('/api/v1/users')
       .send(JSON_4_USER_1);
 
+    userId = response1.body._id;
     const userUsername = response1.body.username;
     const userPassword = JSON_4_USER_1.password;
 
@@ -818,6 +857,7 @@ describe('GET /api/v1/issues/:id', () => {
     // Arrange.
     const deadline = new Date('2024-08-19T06:17:17.170Z');
     const issue = await Issue.create({
+      userId,
       status: '1 = backlog',
       deadline,
       description: 'ease of development',
@@ -833,6 +873,7 @@ describe('GET /api/v1/issues/:id', () => {
     expect(response.body).toEqual({
       __v: expect.anything(),
       _id: issue.id,
+      userId,
       createdAt: issue.createdAt.toISOString(),
       status: '1 = backlog',
       deadline: deadline.toISOString(),
@@ -843,6 +884,7 @@ describe('GET /api/v1/issues/:id', () => {
 });
 
 describe('PUT /api/v1/issues/:id', () => {
+  let userId;
   let accessToken;
 
   beforeEach(async () => {
@@ -850,6 +892,7 @@ describe('PUT /api/v1/issues/:id', () => {
       .post('/api/v1/users')
       .send(JSON_4_USER_1);
 
+    userId = response1.body._id;
     const userUsername = response1.body.username;
     const userPassword = JSON_4_USER_1.password;
 
@@ -863,6 +906,7 @@ describe('PUT /api/v1/issues/:id', () => {
   test('if an invalid ID is provided, should return 400', async () => {
     // Arrange.
     const issue = await Issue.create({
+      userId,
       status: '1 = backlog',
       deadline: new Date('2024-08-20T20:34:07.386Z'),
       description: 'code cvrg reports in HTML',
@@ -886,6 +930,7 @@ describe('PUT /api/v1/issues/:id', () => {
   test('if a non-existent ID is provided, should return 404', async () => {
     // Arrange.
     const issue = await Issue.create({
+      userId,
       status: '1 = backlog',
       deadline: new Date('2024-08-20T20:18:09.763Z'),
       description: 'code cvrg reports in HTML',
@@ -908,6 +953,7 @@ describe('PUT /api/v1/issues/:id', () => {
   test('if a valid ID is provided, should return 200', async () => {
     // Arrange.
     const issue = await Issue.create({
+      userId,
       status: '1 = backlog',
       deadline: new Date('2024-08-20T20:38:18.162Z'),
       description: 'code cvrg reports in HTML',
@@ -929,6 +975,7 @@ describe('PUT /api/v1/issues/:id', () => {
     expect(response.body).toEqual({
       __v: expect.anything(),
       _id: issueId,
+      userId,
       createdAt: expect.anything(),
       status: '2 = selected',
       deadline: '2024-08-20T20:38:18.162Z',
@@ -939,6 +986,7 @@ describe('PUT /api/v1/issues/:id', () => {
 });
 
 describe('DELETE /api/v1/issues/:id', () => {
+  let userId;
   let accessToken;
 
   beforeEach(async () => {
@@ -946,6 +994,7 @@ describe('DELETE /api/v1/issues/:id', () => {
       .post('/api/v1/users')
       .send(JSON_4_USER_1);
 
+    userId = response1.body._id;
     const userUsername = response1.body.username;
     const userPassword = JSON_4_USER_1.password;
 
@@ -959,6 +1008,7 @@ describe('DELETE /api/v1/issues/:id', () => {
   test('if an invalid ID is provided, should return 400', async () => {
     // Arrange.
     const issue = await Issue.create({
+      userId,
       status: '1 = backlog',
       deadline: new Date('2024-08-22T20:40:41.277Z'),
       description: 'generate code coverage reports in HTML format',
@@ -982,6 +1032,7 @@ describe('DELETE /api/v1/issues/:id', () => {
   test('if a non-existent ID is provided, should return 404', async () => {
     // Arrange.
     const issue = await Issue.create({
+      userId,
       status: '1 = backlog',
       deadline: new Date('2024-08-22T20:40:41.277Z'),
       description: 'generate code coverage reports in HTML format',
@@ -1007,17 +1058,22 @@ describe('DELETE /api/v1/issues/:id', () => {
       ' should return 400',
     async () => {
       // Arrange.
-      const issueEpic1 = await Issue.create(JSON_4_ISSUE_EPIC_1);
+      const issueEpic1 = await Issue.create({
+        userId,
+        ...JSON_4_ISSUE_EPIC_1,
+      });
 
       const issueEpic1Id = issueEpic1._id.toString();
 
       const issue1 = await Issue.create({
+        userId,
         status: '1 = backlog',
         deadline: new Date('2024-08-31T21:43:31.696Z'),
         description: 'containerize the backend',
         parentId: issueEpic1Id,
       });
       const issue2 = await Issue.create({
+        userId,
         status: '1 = backlog',
         deadline: new Date('2024-08-31T23:43:31.696Z'),
         description: 'convert the "epic" field to a "parentId" field',
@@ -1046,6 +1102,7 @@ describe('DELETE /api/v1/issues/:id', () => {
   test('if a valid ID is provided, should return 204', async () => {
     // Arrange.
     const issue = await Issue.create({
+      userId,
       status: '1 = backlog',
       deadline: new Date('2024-08-22T20:40:41.277Z'),
       description: 'generate code coverage reports in HTML format',

@@ -38,6 +38,10 @@ const RevokedTokenSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: NAME_OF_USER_MODEL,
+    // TODO: (2024/09/14, 23:40) add the following option:
+    // ```
+    // required: true
+    // ```
   },
   createdAt: {
     type: Date,
@@ -57,6 +61,11 @@ const RevokedToken = new mongoose.model('RevokedToken', RevokedTokenSchema);
 const NAME_OF_ISSUE_MODEL = 'Issue';
 
 const IssueSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: NAME_OF_USER_MODEL,
+    required: true,
+  },
   createdAt: {
     type: Date,
     required: [true, 'Please specify a value for "createdAt".'],
@@ -93,9 +102,6 @@ const IssueSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please specify a value for "description".'],
   },
-  // TODO: (2024/09/14, 20:07)
-  //      add a reference to `User._id`
-  //      and implement "authorization controls" based on the `User` owning this document
 });
 
 const Issue = new mongoose.model(NAME_OF_ISSUE_MODEL, IssueSchema);

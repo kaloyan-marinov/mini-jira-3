@@ -284,7 +284,10 @@ app.post('/api/v1/issues', tokenAuth, async (req, res) => {
   }
 
   try {
-    newIssue = await Issue.create(req.body);
+    newIssue = await Issue.create({
+      userId: req.userId,
+      ...req.body,
+    });
   } catch (err) {
     console.error(err);
 
