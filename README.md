@@ -139,8 +139,6 @@ create an empty database:
 
 - run a containerized MongoDB server
 
-   <u>TODO: (2024/09/10, 23:16) replace `mongo:latest` with an (image, specific tag)-pair (not from https://hub.docker.com/_/mongo but) from https://hub.docker.com/r/mongodb/mongodb-community-server >> https://www.mongodb.com/resources/products/compatibilities/docker ; it may also be worth it to take a look at https://www.mongodb.com/docs/upcoming/tutorial/install-mongodb-community-with-docker/ </u>
-
    ```bash
    docker run \
       --name container-m-j-3-mongo \
@@ -149,7 +147,7 @@ create an empty database:
       --env MONGO_INITDB_ROOT_PASSWORD=$(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
       --env MONGO_INITDB_DATABASE=$(grep -oP '^MONGO_DATABASE=\K.*' .env) \
       --publish 27017:27017 \
-      mongo:latest
+      mongodb/mongodb-community-server:6.0.12-ubuntu2204
    ```
 
    <u>TODO: (2024/08/17, 11:00)</u> as of the commit that adds this line, the preceding command creates "a simple user with the role `root⁠` in the `admin` authentication database⁠" (cf. https://hub.docker.com/_/mongo ); investigate (a) what "creation scripts in /docker-entrypoint-initdb.d/*.js" (cf. ) would need to be created and (b) how the preceding commands would need to be changed _in order for_ a non-`root` user to be created (cf. https://www.mongodb.com/docs/manual/core/security-users/#user-authentication-database )
@@ -171,7 +169,7 @@ create an empty database:
       --name container-m-j-3-mongosh \
       -it \
       --rm \
-      mongo:latest \
+      mongodb/mongodb-community-server:6.0.12-ubuntu2204 \
          mongosh \
          --host ${CONTAINER_M_J_3_MONGO_IP} \
          --username $(grep -oP '^MONGO_USERNAME=\K.*' .env) \
@@ -211,6 +209,12 @@ export USER_1_USERNAME=jd
 export USER_1_PASSWORD=123
 export USER_1_EMAIL=j.d@protonmail.com
 
+export USER_2_USERNAME=ms
+export USER_2_PASSWORD=456
+export USER_2_EMAIL=m.s@protonmail.com
+
+
+
 curl -v \
    -X POST \
    -H "Content-Type: application/json" \
@@ -224,12 +228,12 @@ curl -v \
 
 # ...
 < HTTP/1.1 201 Created
-< Location: /api/v1/users/66e6a20308581e0f24f8a302
+< Location: /api/v1/users/66e6b651d77e72d82c338182
 # ...
 {
    "__v" : 0,
-   "_id" : "66e6a20308581e0f24f8a302",
-   "createdAt" : "2024-09-15T08:59:47.067Z",
+   "_id" : "66e6b651d77e72d82c338182",
+   "createdAt" : "2024-09-15T10:26:25.029Z",
    "email" : "j.d@protonmail.com",
    "username" : "jd"
 }
@@ -237,8 +241,28 @@ curl -v \
 
 
 
-```
+```bash
 export USER_1_ID=<the-_id-present-in-the-preceding-HTTP-response>
+```
+
+
+
+```bash
+curl -v \
+   -X POST \
+   -H "Content-Type: application/json" \
+   -d "{
+      \"username\": \"${USER_2_USERNAME}\",
+      \"password\": \"${USER_2_PASSWORD}\",
+      \"email\": \"${USER_2_EMAIL}\"
+   }" \
+   localhost:5000/api/v1/users \
+   | json_pp
+
+# ...
+< HTTP/1.1 201 Created
+< Location: /api/v1/users/66e6b651d77e72d82c338182
+# ...
 ```
 
 
@@ -253,8 +277,8 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66e5f830527fe7f31cd9cc2e",
-   "createdAt" : "2024-09-14T20:55:12.969Z",
+   "_id" : "66e6b651d77e72d82c338182",
+   "createdAt" : "2024-09-15T10:26:25.029Z",
    "username" : "jd"
 }
 ```
@@ -263,6 +287,25 @@ curl -v \
 
 ```bash
 export USER_1_EMAIL_UPDATED=john.doe@protonmail.com
+
+
+
+curl -v \
+   -X PUT \
+   -u "${USER_2_USERNAME}:${USER_2_PASSWORD}" \
+   -H "Content-Type: application/json" \
+   -d "{
+      \"email\": \"${USER_1_EMAIL_UPDATED}\"
+   }" \
+   localhost:5000/api/v1/users/${USER_1_ID} \
+   | json_pp
+
+# ...
+< HTTP/1.1 401 Unauthorized
+# ...
+{
+   "message" : "You are authenticated as one User but are targeting another one"
+}
 
 
 
@@ -281,8 +324,8 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66e6a20308581e0f24f8a302",
-   "createdAt" : "2024-09-15T08:59:47.067Z",
+   "_id" : "66e6b651d77e72d82c338182",
+   "createdAt" : "2024-09-15T10:26:25.029Z",
    "email" : "john.doe@protonmail.com",
    "username" : "jd"
 }
@@ -317,12 +360,30 @@ curl -v \
 < HTTP/1.1 200 OK
 # ...
 {
-   "accessToken" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmU2YTIwMzA4NTgxZTBmMjRmOGEzMDIiLCJpYXQiOjE3MjYzOTA5MTMsImV4cCI6MTcyNjM5MjQxM30.J_WfjMKy3a3b7ZZLZdS99cNva5lLEu9MTydTGJhO4-g"
+   "accessToken" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmU2YjY1MWQ3N2U3MmQ4MmMzMzgxODIiLCJpYXQiOjE3MjYzOTYyOTgsImV4cCI6MTcyNjM5Nzc5OH0.C_yfIwMJ-kgO0FkvNzOqQ88aAfrtJUGcIzY0tUR_Dew"
 }
 
 
 
-export ACCESS_TOKEN=<the-value-present-in-the-preceding-HTTP-response>>
+export USER_1_ACCESS_TOKEN=<the-value-present-in-the-preceding-HTTP-response>
+```
+
+
+
+```bash
+curl -v \
+   -X POST \
+   -u "${USER_2_USERNAME}:${USER_2_PASSWORD}" \
+   localhost:5000/api/v1/tokens \
+   | json_pp
+
+# ...
+< HTTP/1.1 200 OK
+# ...
+
+
+
+export USER_2_ACCESS_TOKEN==<the-value-present-in-the-preceding-HTTP-response>
 ```
 
 
@@ -350,7 +411,7 @@ curl -v \
 ```bash
 curl -v \
    -X POST \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    -H "Content-Type: application/json" \
    -d "{
       \"status\": \"1 = backlog\"
@@ -369,7 +430,7 @@ curl -v \
 ```bash
 curl -v \
    -X POST \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    -H "Content-Type: application/json" \
    -d "{
       \"status\": \"3 = in progress\",
@@ -381,17 +442,17 @@ curl -v \
 
 # ...
 < HTTP/1.1 201 Created
-< Location: /api/v1/issues/66dc11fd1c3a2a743744172f
+< Location: /api/v1/issues/66e6b87ad77e72d82c338193
 # ...
 {
    "__v" : 0,
-   "_id" : "66e6a35008581e0f24f8a30a",
-   "createdAt" : "2024-09-15T09:05:20.276Z",
+   "_id" : "66e6b87ad77e72d82c338193",
+   "createdAt" : "2024-09-15T10:35:38.884Z",
    "deadline" : "2024-09-08T21:08:36.367Z",
    "description" : "backend",
    "parentId" : null,
    "status" : "3 = in progress",
-   "userId" : "66e6a20308581e0f24f8a302"
+   "userId" : "66e6b651d77e72d82c338182"
 }
 
 
@@ -404,7 +465,7 @@ export VALID_BUT_NONEXISTENT_ISSUE_ID=<same-as-ISSUE_BACKEND_ID-but-with-the-las
 
 curl -v \
    -X POST \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    -H "Content-Type: application/json" \
    -d "{
       \"status\": \"1 = backlog\",
@@ -426,7 +487,7 @@ export ISSUE_FRONTEND_ID=<the-_id-present-in-the-preceding-HTTP-response>
 
 curl -v \
    -X POST \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    -H "Content-Type: application/json" \
    -d "{
       \"status\": \"3 = in progress\",
@@ -445,7 +506,7 @@ curl -v \
 ```bash
 curl -v \
    -X POST \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    -H "Content-Type: application/json" \
    -d "{
       \"status\": \"1 = backlog\",
@@ -464,7 +525,7 @@ curl -v \
 ```bash
 curl -v \
    -X POST \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    -H "Content-Type: application/json" \
    -d "{
       \"status\": \"2 = selected\",
@@ -492,7 +553,7 @@ retrieve multiple `Issue`s
 
 ```bash
 curl -v \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues \
    | json_pp
 
@@ -511,56 +572,83 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66dd7e58e7c673746905ff27",
-         "createdAt" : "2024-09-08T10:37:12.447Z",
+         "_id" : "66e6b87ad77e72d82c338193",
+         "createdAt" : "2024-09-15T10:35:38.884Z",
          "deadline" : "2024-09-08T21:08:36.367Z",
          "description" : "backend",
          "parentId" : null,
-         "status" : "3 = in progress"
+         "status" : "3 = in progress",
+         "userId" : "66e6b651d77e72d82c338182"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ea5e7c673746905ff2a",
-         "createdAt" : "2024-09-08T10:38:29.616Z",
+         "_id" : "66e6b8b9d77e72d82c338196",
+         "createdAt" : "2024-09-15T10:36:41.400Z",
          "deadline" : "2024-09-15T21:08:36.367Z",
          "description" : "frontend",
          "parentId" : null,
-         "status" : "1 = backlog"
+         "status" : "1 = backlog",
+         "userId" : "66e6b651d77e72d82c338182"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7eb5e7c673746905ff2e",
-         "createdAt" : "2024-09-08T10:38:45.259Z",
+         "_id" : "66e6b8fad77e72d82c33819a",
+         "createdAt" : "2024-09-15T10:37:46.652Z",
          "deadline" : "2024-08-31T21:08:36.367Z",
          "description" : "convert the `epic` field to a `parentId` field",
-         "parentId" : "66dd7e58e7c673746905ff27",
-         "status" : "3 = in progress"
+         "parentId" : "66e6b87ad77e72d82c338193",
+         "status" : "3 = in progress",
+         "userId" : "66e6b651d77e72d82c338182"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ebce7c673746905ff32",
-         "createdAt" : "2024-09-08T10:38:52.671Z",
+         "_id" : "66e6b904d77e72d82c33819e",
+         "createdAt" : "2024-09-15T10:37:56.738Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "parentId" : "66dd7ea5e7c673746905ff2a",
-         "status" : "1 = backlog"
+         "parentId" : "66e6b8b9d77e72d82c338196",
+         "status" : "1 = backlog",
+         "userId" : "66e6b651d77e72d82c338182"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ec4e7c673746905ff36",
-         "createdAt" : "2024-09-08T10:39:00.513Z",
+         "_id" : "66e6b910d77e72d82c3381a2",
+         "createdAt" : "2024-09-15T10:38:08.582Z",
          "deadline" : "2024-08-31T23:08:36.367Z",
          "description" : "containerize the backend",
-         "parentId" : "66dd7e58e7c673746905ff27",
-         "status" : "2 = selected"
+         "parentId" : "66e6b87ad77e72d82c338193",
+         "status" : "2 = selected",
+         "userId" : "66e6b651d77e72d82c338182"
       }
    ]
+}
+
+
+
+curl -v \
+   -H "Authorization: Bearer ${USER_2_ACCESS_TOKEN}" \
+   localhost:5000/api/v1/issues \
+   | json_pp
+
+# ...
+< HTTP/1.1 200 OK
+# ...
+{
+   "meta" : {
+      "curr" : "/api/v1/issues",
+      "first" : "/api/v1/issues?page=1",
+      "last" : "/api/v1/issues?page=1",
+      "next" : null,
+      "prev" : null,
+      "total" : 0
+   },
+   "resources" : []
 }
 ```
 
 ```bash
 curl -v \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues?parentId=${ISSUE_FRONTEND_ID} \
    | json_pp
 
@@ -569,9 +657,9 @@ curl -v \
 # ...
 {
    "meta" : {
-      "curr" : "/api/v1/issues?parentId=66dd7ea5e7c673746905ff2a&perPage=100&page=1",
-      "first" : "/api/v1/issues?parentId=66dd7ea5e7c673746905ff2a&perPage=100&page=1",
-      "last" : "/api/v1/issues?parentId=66dd7ea5e7c673746905ff2a&perPage=100&page=1",
+      "curr" : "/api/v1/issues?parentId=66e6b8b9d77e72d82c338196&perPage=100&page=1",
+      "first" : "/api/v1/issues?parentId=66e6b8b9d77e72d82c338196&perPage=100&page=1",
+      "last" : "/api/v1/issues?parentId=66e6b8b9d77e72d82c338196&perPage=100&page=1",
       "next" : null,
       "prev" : null,
       "total" : 1
@@ -579,12 +667,13 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66dd7ebce7c673746905ff32",
-         "createdAt" : "2024-09-08T10:38:52.671Z",
+         "_id" : "66e6b904d77e72d82c33819e",
+         "createdAt" : "2024-09-15T10:37:56.738Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "parentId" : "66dd7ea5e7c673746905ff2a",
-         "status" : "1 = backlog"
+         "parentId" : "66e6b8b9d77e72d82c338196",
+         "status" : "1 = backlog",
+         "userId" : "66e6b651d77e72d82c338182"
       }
    ]
 }
@@ -592,7 +681,7 @@ curl -v \
 
 
 curl -v \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues?parentId=null \
    | json_pp
 
@@ -611,21 +700,23 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66dd7e58e7c673746905ff27",
-         "createdAt" : "2024-09-08T10:37:12.447Z",
+         "_id" : "66e6b87ad77e72d82c338193",
+         "createdAt" : "2024-09-15T10:35:38.884Z",
          "deadline" : "2024-09-08T21:08:36.367Z",
          "description" : "backend",
          "parentId" : null,
-         "status" : "3 = in progress"
+         "status" : "3 = in progress",
+         "userId" : "66e6b651d77e72d82c338182"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ea5e7c673746905ff2a",
-         "createdAt" : "2024-09-08T10:38:29.616Z",
+         "_id" : "66e6b8b9d77e72d82c338196",
+         "createdAt" : "2024-09-15T10:36:41.400Z",
          "deadline" : "2024-09-15T21:08:36.367Z",
          "description" : "frontend",
          "parentId" : null,
-         "status" : "1 = backlog"
+         "status" : "1 = backlog",
+         "userId" : "66e6b651d77e72d82c338182"
       }
    ]
 }
@@ -633,7 +724,7 @@ curl -v \
 
 
 curl -v \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues?parentId= \
    | json_pp
 
@@ -645,7 +736,7 @@ curl -v \
 
 ```bash
 curl -v \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    'localhost:5000/api/v1/issues?status\[lt\]=3' \
    | json_pp
 
@@ -664,30 +755,33 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66dd7ea5e7c673746905ff2a",
-         "createdAt" : "2024-09-08T10:38:29.616Z",
+         "_id" : "66e6b8b9d77e72d82c338196",
+         "createdAt" : "2024-09-15T10:36:41.400Z",
          "deadline" : "2024-09-15T21:08:36.367Z",
          "description" : "frontend",
          "parentId" : null,
-         "status" : "1 = backlog"
+         "status" : "1 = backlog",
+         "userId" : "66e6b651d77e72d82c338182"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ebce7c673746905ff32",
-         "createdAt" : "2024-09-08T10:38:52.671Z",
+         "_id" : "66e6b904d77e72d82c33819e",
+         "createdAt" : "2024-09-15T10:37:56.738Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "parentId" : "66dd7ea5e7c673746905ff2a",
-         "status" : "1 = backlog"
+         "parentId" : "66e6b8b9d77e72d82c338196",
+         "status" : "1 = backlog",
+         "userId" : "66e6b651d77e72d82c338182"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ec4e7c673746905ff36",
-         "createdAt" : "2024-09-08T10:39:00.513Z",
+         "_id" : "66e6b910d77e72d82c3381a2",
+         "createdAt" : "2024-09-15T10:38:08.582Z",
          "deadline" : "2024-08-31T23:08:36.367Z",
          "description" : "containerize the backend",
-         "parentId" : "66dd7e58e7c673746905ff27",
-         "status" : "2 = selected"
+         "parentId" : "66e6b87ad77e72d82c338193",
+         "status" : "2 = selected",
+         "userId" : "66e6b651d77e72d82c338182"
       }
    ]
 }
@@ -695,7 +789,7 @@ curl -v \
 
 ```bash
 curl -v \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    'localhost:5000/api/v1/issues?select=description,status' \
    | json_pp
 
@@ -713,27 +807,27 @@ curl -v \
    },
    "resources" : [
       {
-         "_id" : "66dd7e58e7c673746905ff27",
+         "_id" : "66e6b87ad77e72d82c338193",
          "description" : "backend",
          "status" : "3 = in progress"
       },
       {
-         "_id" : "66dd7ea5e7c673746905ff2a",
+         "_id" : "66e6b8b9d77e72d82c338196",
          "description" : "frontend",
          "status" : "1 = backlog"
       },
       {
-         "_id" : "66dd7eb5e7c673746905ff2e",
+         "_id" : "66e6b8fad77e72d82c33819a",
          "description" : "convert the `epic` field to a `parentId` field",
          "status" : "3 = in progress"
       },
       {
-         "_id" : "66dd7ebce7c673746905ff32",
+         "_id" : "66e6b904d77e72d82c33819e",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
          "status" : "1 = backlog"
       },
       {
-         "_id" : "66dd7ec4e7c673746905ff36",
+         "_id" : "66e6b910d77e72d82c3381a2",
          "description" : "containerize the backend",
          "status" : "2 = selected"
       }
@@ -743,7 +837,7 @@ curl -v \
 
 ```bash
 curl -v \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    'localhost:5000/api/v1/issues?sort=-status' \
    | json_pp
 
@@ -762,48 +856,53 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66dd7e58e7c673746905ff27",
-         "createdAt" : "2024-09-08T10:37:12.447Z",
+         "_id" : "66e6b87ad77e72d82c338193",
+         "createdAt" : "2024-09-15T10:35:38.884Z",
          "deadline" : "2024-09-08T21:08:36.367Z",
          "description" : "backend",
          "parentId" : null,
-         "status" : "3 = in progress"
+         "status" : "3 = in progress",
+         "userId" : "66e6b651d77e72d82c338182"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7eb5e7c673746905ff2e",
-         "createdAt" : "2024-09-08T10:38:45.259Z",
+         "_id" : "66e6b8fad77e72d82c33819a",
+         "createdAt" : "2024-09-15T10:37:46.652Z",
          "deadline" : "2024-08-31T21:08:36.367Z",
          "description" : "convert the `epic` field to a `parentId` field",
-         "parentId" : "66dd7e58e7c673746905ff27",
-         "status" : "3 = in progress"
+         "parentId" : "66e6b87ad77e72d82c338193",
+         "status" : "3 = in progress",
+         "userId" : "66e6b651d77e72d82c338182"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ec4e7c673746905ff36",
-         "createdAt" : "2024-09-08T10:39:00.513Z",
+         "_id" : "66e6b910d77e72d82c3381a2",
+         "createdAt" : "2024-09-15T10:38:08.582Z",
          "deadline" : "2024-08-31T23:08:36.367Z",
          "description" : "containerize the backend",
-         "parentId" : "66dd7e58e7c673746905ff27",
-         "status" : "2 = selected"
+         "parentId" : "66e6b87ad77e72d82c338193",
+         "status" : "2 = selected",
+         "userId" : "66e6b651d77e72d82c338182"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ea5e7c673746905ff2a",
-         "createdAt" : "2024-09-08T10:38:29.616Z",
+         "_id" : "66e6b8b9d77e72d82c338196",
+         "createdAt" : "2024-09-15T10:36:41.400Z",
          "deadline" : "2024-09-15T21:08:36.367Z",
          "description" : "frontend",
          "parentId" : null,
-         "status" : "1 = backlog"
+         "status" : "1 = backlog",
+         "userId" : "66e6b651d77e72d82c338182"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ebce7c673746905ff32",
-         "createdAt" : "2024-09-08T10:38:52.671Z",
+         "_id" : "66e6b904d77e72d82c33819e",
+         "createdAt" : "2024-09-15T10:37:56.738Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "parentId" : "66dd7ea5e7c673746905ff2a",
-         "status" : "1 = backlog"
+         "parentId" : "66e6b8b9d77e72d82c338196",
+         "status" : "1 = backlog",
+         "userId" : "66e6b651d77e72d82c338182"
       }
    ]
 }
@@ -811,7 +910,7 @@ curl -v \
 
 
 curl -v \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    'localhost:5000/api/v1/issues?sort=status' \
    | json_pp
 
@@ -830,48 +929,53 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66dd7ea5e7c673746905ff2a",
-         "createdAt" : "2024-09-08T10:38:29.616Z",
+         "_id" : "66e6b8b9d77e72d82c338196",
+         "createdAt" : "2024-09-15T10:36:41.400Z",
          "deadline" : "2024-09-15T21:08:36.367Z",
          "description" : "frontend",
          "parentId" : null,
-         "status" : "1 = backlog"
+         "status" : "1 = backlog",
+         "userId" : "66e6b651d77e72d82c338182"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ebce7c673746905ff32",
-         "createdAt" : "2024-09-08T10:38:52.671Z",
+         "_id" : "66e6b904d77e72d82c33819e",
+         "createdAt" : "2024-09-15T10:37:56.738Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "parentId" : "66dd7ea5e7c673746905ff2a",
-         "status" : "1 = backlog"
+         "parentId" : "66e6b8b9d77e72d82c338196",
+         "status" : "1 = backlog",
+         "userId" : "66e6b651d77e72d82c338182"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ec4e7c673746905ff36",
-         "createdAt" : "2024-09-08T10:39:00.513Z",
+         "_id" : "66e6b910d77e72d82c3381a2",
+         "createdAt" : "2024-09-15T10:38:08.582Z",
          "deadline" : "2024-08-31T23:08:36.367Z",
          "description" : "containerize the backend",
-         "parentId" : "66dd7e58e7c673746905ff27",
-         "status" : "2 = selected"
+         "parentId" : "66e6b87ad77e72d82c338193",
+         "status" : "2 = selected",
+         "userId" : "66e6b651d77e72d82c338182"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7e58e7c673746905ff27",
-         "createdAt" : "2024-09-08T10:37:12.447Z",
+         "_id" : "66e6b87ad77e72d82c338193",
+         "createdAt" : "2024-09-15T10:35:38.884Z",
          "deadline" : "2024-09-08T21:08:36.367Z",
          "description" : "backend",
          "parentId" : null,
-         "status" : "3 = in progress"
+         "status" : "3 = in progress",
+         "userId" : "66e6b651d77e72d82c338182"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7eb5e7c673746905ff2e",
-         "createdAt" : "2024-09-08T10:38:45.259Z",
+         "_id" : "66e6b8fad77e72d82c33819a",
+         "createdAt" : "2024-09-15T10:37:46.652Z",
          "deadline" : "2024-08-31T21:08:36.367Z",
          "description" : "convert the `epic` field to a `parentId` field",
-         "parentId" : "66dd7e58e7c673746905ff27",
-         "status" : "3 = in progress"
+         "parentId" : "66e6b87ad77e72d82c338193",
+         "status" : "3 = in progress",
+         "userId" : "66e6b651d77e72d82c338182"
       }
    ]
 }
@@ -879,7 +983,7 @@ curl -v \
 
 ```bash
 curl -v \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    'localhost:5000/api/v1/issues?perPage=2&page=2' \
    | json_pp
 
@@ -898,21 +1002,23 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66dd7eb5e7c673746905ff2e",
-         "createdAt" : "2024-09-08T10:38:45.259Z",
+         "_id" : "66e6b8fad77e72d82c33819a",
+         "createdAt" : "2024-09-15T10:37:46.652Z",
          "deadline" : "2024-08-31T21:08:36.367Z",
          "description" : "convert the `epic` field to a `parentId` field",
-         "parentId" : "66dd7e58e7c673746905ff27",
-         "status" : "3 = in progress"
+         "parentId" : "66e6b87ad77e72d82c338193",
+         "status" : "3 = in progress",
+         "userId" : "66e6b651d77e72d82c338182"
       },
       {
          "__v" : 0,
-         "_id" : "66dd7ebce7c673746905ff32",
-         "createdAt" : "2024-09-08T10:38:52.671Z",
+         "_id" : "66e6b904d77e72d82c33819e",
+         "createdAt" : "2024-09-15T10:37:56.738Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "parentId" : "66dd7ea5e7c673746905ff2a",
-         "status" : "1 = backlog"
+         "parentId" : "66e6b8b9d77e72d82c338196",
+         "status" : "1 = backlog",
+         "userId" : "66e6b651d77e72d82c338182"
       }
    ]
 }
@@ -924,7 +1030,7 @@ retrieve one `Issue`
 
 ```bash
 curl -v \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues/17 \
    | json_pp
 
@@ -938,7 +1044,7 @@ curl -v \
 
 ```bash
 curl -v \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
    | json_pp
 
@@ -952,7 +1058,7 @@ curl -v \
 
 ```bash
 curl -v \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues/${ISSUE_5_ID} \
    | json_pp
 
@@ -961,12 +1067,27 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66dd7ec4e7c673746905ff36",
-   "createdAt" : "2024-09-08T10:39:00.513Z",
+   "_id" : "66e6b910d77e72d82c3381a2",
+   "createdAt" : "2024-09-15T10:38:08.582Z",
    "deadline" : "2024-08-31T23:08:36.367Z",
    "description" : "containerize the backend",
-   "parentId" : "66dd7e58e7c673746905ff27",
-   "status" : "2 = selected"
+   "parentId" : "66e6b87ad77e72d82c338193",
+   "status" : "2 = selected",
+   "userId" : "66e6b651d77e72d82c338182"
+}
+```
+
+```bash
+curl -v \
+   -H "Authorization: Bearer ${USER_2_ACCESS_TOKEN}" \
+   localhost:5000/api/v1/issues/${ISSUE_5_ID} \
+   | json_pp
+
+# ...
+< HTTP/1.1 403 Forbidden
+# ...
+{
+   "message" : "The targeted resource does not belong to the authenticated User"
 }
 ```
 
@@ -977,7 +1098,7 @@ update one `Issue`
 ```bash
 curl -v \
    -X PUT \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues/17 \
    | json_pp
 
@@ -992,7 +1113,7 @@ curl -v \
 ```bash
 curl -v \
    -X PUT \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
    | json_pp
 
@@ -1007,7 +1128,7 @@ curl -v \
 ```bash
 curl -v \
    -X PUT \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    -H "Content-Type: application/json" \
    -d "{
       \"status\": \"3 = in progress\"
@@ -1020,12 +1141,32 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66dd7ec4e7c673746905ff36",
-   "createdAt" : "2024-09-08T10:39:00.513Z",
+   "_id" : "66e6b910d77e72d82c3381a2",
+   "createdAt" : "2024-09-15T10:38:08.582Z",
    "deadline" : "2024-08-31T23:08:36.367Z",
    "description" : "containerize the backend",
-   "parentId" : "66dd7e58e7c673746905ff27",
-   "status" : "3 = in progress"
+   "parentId" : "66e6b87ad77e72d82c338193",
+   "status" : "3 = in progress",
+   "userId" : "66e6b651d77e72d82c338182"
+}
+```
+
+```bash
+curl -v \
+   -X PUT \
+   -H "Authorization: Bearer ${USER_2_ACCESS_TOKEN}" \
+   -H "Content-Type: application/json" \
+   -d "{
+      \"status\": \"3 = in progress\"
+   }" \
+   localhost:5000/api/v1/issues/${ISSUE_5_ID} \
+   | json_pp
+
+# ...
+< HTTP/1.1 403 Forbidden
+# ...
+{
+   "message" : "The targeted resource does not belong to the authenticated User"
 }
 ```
 
@@ -1036,7 +1177,7 @@ delete one `Issue`
 ```bash
 curl -v \
    -X DELETE \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues/17 \
    | json_pp
 
@@ -1051,7 +1192,7 @@ curl -v \
 ```bash
 curl -v \
    -X DELETE \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues/${VALID_BUT_NONEXISTENT_ISSUE_ID} \
    | json_pp
 
@@ -1066,7 +1207,22 @@ curl -v \
 ```bash
 curl -v \
    -X DELETE \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_2_ACCESS_TOKEN}" \
+   localhost:5000/api/v1/issues/${ISSUE_5_ID} \
+   | json_pp
+
+# ...
+< HTTP/1.1 403 Forbidden
+# ...
+{
+   "message" : "The targeted resource does not belong to the authenticated User"
+}
+```
+
+```bash
+curl -v \
+   -X DELETE \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues/${ISSUE_5_ID}
 
 # ...
@@ -1084,7 +1240,7 @@ verify that the backend will not accept the revoked token
 ```bash
 curl -v \
    -X DELETE \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    localhost:5000/api/v1/tokens
 
 # ...
@@ -1097,7 +1253,7 @@ curl -v \
 # Repeat any one of the above-listed HTTP requests with status codes 2xx -
 # for example:
 curl -v \
-   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues \
    | json_pp
 
@@ -1121,6 +1277,8 @@ remove all Docker artifacts:
 
 
 # Containerization using Docker
+
+<u>TODO: (2024/09/10, 23:16) replace `mongo:latest` with an (image, specific tag)-pair (not from https://hub.docker.com/_/mongo but) from https://hub.docker.com/r/mongodb/mongodb-community-server >> https://www.mongodb.com/resources/products/compatibilities/docker ; it may also be worth it to take a look at https://www.mongodb.com/docs/upcoming/tutorial/install-mongodb-community-with-docker/ </u>
 
 ```bash
 docker network create \
