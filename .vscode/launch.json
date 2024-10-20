@@ -2,6 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Node.js : Current File",
+      // "program": "${workspaceFolder}/app.js",
+      "program": "${file}",
+      "request": "launch",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node"
+    },
+    {
       "name": "Node Backend",
       "type": "node",
       "request": "launch",
