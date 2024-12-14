@@ -824,6 +824,21 @@ http \
    'localhost:5000/api/v1/issues?deadline[lt]=1970-01-01T17:17:17.001' \
    Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
 # "total": 1,
+
+
+
+http \
+   'localhost:5000/api/v1/issues?perPage=3&status[in]=1 = backlog&sort=deadline' \
+   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
+http \
+   'localhost:5000/api/v1/issues?perPage=3&status[in]=2 = selected,3 = in progress&sort=deadline' \
+   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
+http \
+   'localhost:5000/api/v1/issues?perPage=3&status[in]=4 = done&sort=-finishedAt' \
+   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
+http \
+   'localhost:5000/api/v1/issues?perPage=3&status[in]=5 = will not do&sort=deadline' \
+   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
 ```
 
 ```bash
