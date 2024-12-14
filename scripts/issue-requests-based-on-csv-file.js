@@ -61,6 +61,31 @@ const obtainAccessToken = async (username, password) => {
   return accessToken;
 };
 
+const determineEpicNames = async (pathToCSVFile) => {
+  return new Promise((resolve, reject) => {
+    const epicNames = [];
+
+    fs.createReadStream(pathToCSVFile)
+      .pipe(csvParser())
+      .on('data', async (row) => {
+        // A JavaScript object representing the current row is stored in `row`.
+        // console.log(row);
+
+        const epicName = row['category/Epic/project'];
+        if (!epicNames.includes(epicName)) {
+          epicNames.push(epicName);
+        }
+      })
+      .on('end', () => {
+        console.log('finished processing the CSV file');
+        resolve(epicNames);
+      })
+      .on('error', (err) => {
+        reject(err);
+      });
+  });
+};
+
 const issueRequests = async (pathToCSVFile, accessToken) => {
   fs.createReadStream(pathToCSVFile)
     .pipe(csvParser())
@@ -134,5 +159,9 @@ if (!path) {
     process.env.USERNAME,
     process.env.PASSWORD
   );
+
+  const epicNames = await determineEpicNames(path);
+  console.log(epicNames);
+
   await issueRequests(path, accessToken);
 })();
