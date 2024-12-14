@@ -88,12 +88,11 @@ const issueRequests = async (pathToCSVFile, accessToken) => {
       delete sanitizedRow['created_at'];
       sanitizedRow['createdAt'] = row['created_at'];
 
-      // if (sanitizedRow['finished_at'] === 'n/a') {
-      //   sanitizedRow['finished_at'] = null;
-      // }
+      delete sanitizedRow['finished_at'];
+      sanitizedRow['finishedAt'] =
+        row['finished_at'] === 'n/a' ? null : row['finished_at'];
 
       // TODO: (2024/10/21, 07:10)
-      //      finished_at >> finishedAt
       //      parentId
 
       console.log(['(start)', row['id'], sanitizedRow['deadline']].join(' - '));
