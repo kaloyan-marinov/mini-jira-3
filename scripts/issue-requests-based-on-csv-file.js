@@ -86,6 +86,36 @@ const determineEpicNames = async (pathToCSVFile) => {
   });
 };
 
+const requestsForCreatingEpics = async (epicNames, accessToken) => {
+  const epicNameToEpic = {};
+
+  for (const epicName of epicNames) {
+    try {
+      const response = await fetch('http://localhost:5000/api/v1/issues', {
+        method: 'POST',
+        body: JSON.stringify({
+          createdAt: new Date('2023-11-20T06:55:17'),
+          status: '3 = in progress',
+          deadline: new Date('2024-12-31T17:17:17'),
+          finishedAt: null,
+          parentId: null,
+          description: epicName,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + accessToken,
+        },
+      });
+
+      epicNameToEpic[epicName] = await response.json();
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  return epicNameToEpic;
+};
+
 const issueRequests = async (pathToCSVFile, accessToken) => {
   fs.createReadStream(pathToCSVFile)
     .pipe(csvParser())
@@ -138,8 +168,8 @@ const issueRequests = async (pathToCSVFile, accessToken) => {
         const data = await response.json();
 
         console.log(['(final)', response.status, data._id].join(' - '));
-      } catch (error) {
-        console.log(error);
+      } catch (err) {
+        console.log(err);
       }
     })
     .on('end', () => {
@@ -147,6 +177,10 @@ const issueRequests = async (pathToCSVFile, accessToken) => {
     });
 };
 
+// TODO: (2024/10/22, 06:53)
+//      re-order the symbols defined in this file
+//      to match the order in which they are used within the IIFE
+//      (:= Immediately Invoked Function Expression) below
 const path = process.argv[2];
 
 if (!path) {
@@ -163,5 +197,8 @@ if (!path) {
   const epicNames = await determineEpicNames(path);
   console.log(epicNames);
 
-  await issueRequests(path, accessToken);
+  const epicNameToEpic = await requestsForCreatingEpics(epicNames, accessToken);
+  console.log(epicNameToEpic);
+
+  // await issueRequests(path, accessToken);
 })();
