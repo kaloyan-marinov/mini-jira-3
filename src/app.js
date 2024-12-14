@@ -329,12 +329,23 @@ app.get('/api/v1/issues', tokenAuth, async (req, res) => {
 
   // Create the following Mongoose operators: `$in`, `$lt`, `$lte`, `$gt`, `$gte` .
   const queryStr = queryRawStr.replace(
-    /\b(in|lt|lte|gt|gte)\b/g,
-    (match) => `$${match}`
+    // /(in|lt|lte|gt|gte)"/g,
+    /(")(in|lt|lte|gt|gte)(")/g,
+    (match, p1, p2, p3) => {
+      // console.log(match);
+      // console.log([p1, p2, p3]);
+      return p1 + '$' + p2 + p3;
+    }
   );
   //console.log('queryStr', queryStr);
   const queryJSON = JSON.parse(queryStr);
   //console.log('queryJSON', queryJSON);
+  const keys = Object.keys(queryJSON);
+  for (const k of keys) {
+    if (queryJSON[k].hasOwnProperty('$in')) {
+      queryJSON[k]['$in'] = queryJSON[k]['$in'].split(',');
+    }
+  }
 
   // Apply filtering criteria.
   query = Issue.find({

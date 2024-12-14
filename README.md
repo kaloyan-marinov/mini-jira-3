@@ -788,13 +788,42 @@ curl -v \
 }
 
 
-# The request issued by the following statement is processed incorrectly by the backend.
-# (Even if there are matching documents in the MongoDB server,
-# the HTTP response will return 0 hits.)
 curl -v \
    -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    'localhost:5000/api/v1/issues?status\[in\]=1%20=%20backlog,4%20=%20done' \
    | json_pp
+
+http \
+   'localhost:5000/api/v1/issues?status[in]=1 = backlog,2 = selected&sort=deadline' \
+   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
+
+
+
+db-4-m-j-3> db.issues.find({ deadline: { $lte: ISODate('1971-01-02') } }).count()
+# 1
+
+db-4-m-j-3> db.issues.find({ deadline: { $lte: ISODate('1971-01-02') } })
+# ...
+
+http \
+   'localhost:5000/api/v1/issues?deadline[lt]=1970-01-02' \
+   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
+# "total": 1,
+
+http \
+   'localhost:5000/api/v1/issues?deadline[lt]=1970-01-01' \
+   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
+# "total": 0,
+
+http \
+   'localhost:5000/api/v1/issues?deadline[lt]=1970-01-01T17:17:17.000' \
+   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
+# "total": 0,
+
+http \
+   'localhost:5000/api/v1/issues?deadline[lt]=1970-01-01T17:17:17.001' \
+   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
+# "total": 1,
 ```
 
 ```bash
