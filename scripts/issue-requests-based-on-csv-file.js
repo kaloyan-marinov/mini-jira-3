@@ -85,12 +85,14 @@ const issueRequests = async (pathToCSVFile, accessToken) => {
         sanitizedRow['deadline'] = mostRecentlySetDeadline.trim();
       }
 
+      delete sanitizedRow['created_at'];
+      sanitizedRow['createdAt'] = row['created_at'];
+
       // if (sanitizedRow['finished_at'] === 'n/a') {
       //   sanitizedRow['finished_at'] = null;
       // }
 
       // TODO: (2024/10/21, 07:10)
-      //      created_at >> createdAt
       //      finished_at >> finishedAt
       //      parentId
 
