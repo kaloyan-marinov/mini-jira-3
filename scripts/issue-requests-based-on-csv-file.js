@@ -6,7 +6,7 @@ const csvParser = require('csv-parser');
 const issueRequests = (pathToCSVFile, accessToken) => {
   fs.createReadStream(pathToCSVFile)
     .pipe(csvParser())
-    .on('data', (row) => {
+    .on('data', async (row) => {
       // A JavaScript object representing the current row is stored in `row`.
       // console.log(row);
 
@@ -36,26 +36,27 @@ const issueRequests = (pathToCSVFile, accessToken) => {
       //      finished_at >> finishedAt
       //      parentId
 
-      // console.log(sanitizedRow['id'], sanitizedRow['deadline']);
+      console.log(['(start)', row['id'], sanitizedRow['deadline']].join(' - '));
 
       // Issue an HTTP request, whose body is set equal to `sanitizedRow`.
-      fetch('http://localhost:5000/api/v1/issues', {
-        method: 'POST',
-        body: JSON.stringify(sanitizedRow),
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + accessToken,
-        },
-      })
-        .then((response) => {
-          return response.json();
-        })
-        .then((data) => {
-          console.log(data);
-        })
-        .catch((err) => {
-          console.log(err);
+      let response;
+
+      try {
+        response = await fetch('http://localhost:5000/api/v1/issues', {
+          method: 'POST',
+          body: JSON.stringify(sanitizedRow),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + accessToken,
+          },
         });
+
+        const data = await response.json();
+
+        console.log(['(final)', response.status, data._id].join(' - '));
+      } catch (error) {
+        console.log(error);
+      }
     })
     .on('end', () => {
       console.log('finished processing the CSV file');
