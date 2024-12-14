@@ -1,9 +1,67 @@
+/*
+In order to be able to run this script,
+you must begin by taking these preparatory steps:
+
+1. create a `User`
+   (as described in the repository's `README.md`)
+
+2. run
+```
+cp \
+  scripts/.env.template
+  scripts/.env
+```
+
+3. provide real values in the newly-created `scripts/.env` file
+
+4. in VS Code's sidebar that is on the left, click on "Run & Debug" ;
+   using the dropdown menu,
+   select the launch configuration called "Node.js : Current File" ;
+   run it by clicking the [Play] button;
+
+   alternatively,
+   use a terminal to navigate into the repository
+   and go on to execute
+   ```
+   node scripts/issue-requests-based-on-csv-file.js \
+      scripts/example-issues.csv
+   ```
+*/
+
+
+const dotenv = require('dotenv');
 const fs = require('fs');
 const csvParser = require('csv-parser');
 
-// const fetch = require('node-fetch');
+// Load all environment variables, which are set in a file at the specified path.
+dotenv.config({
+  path: 'scripts/.env',
+});
 
-const issueRequests = (pathToCSVFile, accessToken) => {
+const obtainAccessToken = async (username, password) => {
+  let response;
+  let accessToken;
+
+  try {
+    const base64EncodingOfCredentials = btoa(username + ':' + password);
+    response = await fetch('http://localhost:5000/api/v1/tokens', {
+      method: 'POST',
+      headers: {
+        Authorization: 'Basic ' + base64EncodingOfCredentials,
+      },
+    });
+
+    const data = await response.json();
+
+    accessToken = data.accessToken;
+  } catch (error) {
+    console.log(error);
+  }
+
+  return accessToken;
+};
+
+const issueRequests = async (pathToCSVFile, accessToken) => {
   fs.createReadStream(pathToCSVFile)
     .pipe(csvParser())
     .on('data', async (row) => {
@@ -70,8 +128,10 @@ if (!path) {
   process.exit(1);
 }
 
-// TODO: (2024/10/21, 07:09)
-//      avoid hard-coding an `accessToken`
-accessToken =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzVkZjI3NGRiOTBhMzI0OWJkZDA0MzEiLCJpYXQiOjE3MzQyMTAxNjksImV4cCI6MTczNDIxMTY2OX0.gckY1i28sDkVu6eyThF3lFKIUD_0v_JkqTeBGcW94Q4';
-issueRequests(path, accessToken);
+(async () => {
+  const accessToken = await obtainAccessToken(
+    process.env.USERNAME,
+    process.env.PASSWORD
+  );
+  await issueRequests(path, accessToken);
+})();

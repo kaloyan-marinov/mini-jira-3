@@ -9,6 +9,7 @@ containerization/Dockerfile
 containerization/Dockerfile.dockerignore
 coverage
 node_modules
+scripts
 
 .env
 .env.template
