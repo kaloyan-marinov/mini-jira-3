@@ -156,8 +156,8 @@ const requestsForCreatingIssues = async (
         sanitizedRow['finishedAt'] =
           row['finished_at'] === 'n/a' ? null : row['finished_at'];
 
-        // TODO: (2024/10/21, 07:10)
-        //      parentId
+        sanitizedRow['parentId'] = epicNameToEpic[row['category/Epic/project']];
+        delete sanitizedRow['category/Epic/project'];
 
         console.log(
           ['(start)', row['id'], sanitizedRow['deadline']].join(' - ')
