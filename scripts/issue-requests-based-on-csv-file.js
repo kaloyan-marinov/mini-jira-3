@@ -116,60 +116,72 @@ const requestsForCreatingEpics = async (epicNames, accessToken) => {
   return epicNameToEpic;
 };
 
-const requestsForCreatingIssues = async (pathToCSVFile, accessToken) => {
+const requestsForCreatingIssues = async (
+  epicNameToEpic,
+  pathToCSVFile,
+  accessToken
+) => {
   fs.createReadStream(pathToCSVFile)
     .pipe(csvParser())
     .on('data', async (row) => {
       // A JavaScript object representing the current row is stored in `row`.
       // console.log(row);
 
-      // Sanitize `row`.
-      const sanitizedRow = { ...row };
-
-      delete sanitizedRow['id'];
-
-      if (sanitizedRow['deadline'] === 'n/a') {
-        // sanitizedRow['deadline'] = null;
-        sanitizedRow['deadline'] =
-          sanitizedRow['finished_at'] !== 'n/a'
-            ? sanitizedRow['finished_at']
-            : new Date('1970-01-01T17:17:17');
+      if (!Object.keys(epicNameToEpic).includes(row['category/Epic/project'])) {
+        console.log(
+          'will not issue an HTTP request based on the current `row`'
+        );
       } else {
-        const deadlines = sanitizedRow['deadline'].split('<<');
-        const mostRecentlySetDeadline = deadlines[0];
-        sanitizedRow['deadline'] = mostRecentlySetDeadline.trim();
-      }
+        // Sanitize `row`.
+        const sanitizedRow = { ...row };
 
-      delete sanitizedRow['created_at'];
-      sanitizedRow['createdAt'] = row['created_at'];
+        delete sanitizedRow['id'];
 
-      delete sanitizedRow['finished_at'];
-      sanitizedRow['finishedAt'] =
-        row['finished_at'] === 'n/a' ? null : row['finished_at'];
+        if (sanitizedRow['deadline'] === 'n/a') {
+          // sanitizedRow['deadline'] = null;
+          sanitizedRow['deadline'] =
+            sanitizedRow['finished_at'] !== 'n/a'
+              ? sanitizedRow['finished_at']
+              : new Date('1970-01-01T17:17:17');
+        } else {
+          const deadlines = sanitizedRow['deadline'].split('<<');
+          const mostRecentlySetDeadline = deadlines[0];
+          sanitizedRow['deadline'] = mostRecentlySetDeadline.trim();
+        }
 
-      // TODO: (2024/10/21, 07:10)
-      //      parentId
+        delete sanitizedRow['created_at'];
+        sanitizedRow['createdAt'] = row['created_at'];
 
-      console.log(['(start)', row['id'], sanitizedRow['deadline']].join(' - '));
+        delete sanitizedRow['finished_at'];
+        sanitizedRow['finishedAt'] =
+          row['finished_at'] === 'n/a' ? null : row['finished_at'];
 
-      // Issue an HTTP request, whose body is set equal to `sanitizedRow`.
-      let response;
+        // TODO: (2024/10/21, 07:10)
+        //      parentId
 
-      try {
-        response = await fetch('http://localhost:5000/api/v1/issues', {
-          method: 'POST',
-          body: JSON.stringify(sanitizedRow),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + accessToken,
-          },
-        });
+        console.log(
+          ['(start)', row['id'], sanitizedRow['deadline']].join(' - ')
+        );
 
-        const data = await response.json();
+        // Issue an HTTP request, whose body is set equal to `sanitizedRow`.
+        let response;
 
-        console.log(['(final)', response.status, data._id].join(' - '));
-      } catch (err) {
-        console.log(err);
+        try {
+          response = await fetch('http://localhost:5000/api/v1/issues', {
+            method: 'POST',
+            body: JSON.stringify(sanitizedRow),
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + accessToken,
+            },
+          });
+
+          const data = await response.json();
+
+          console.log(['(final)', response.status, data._id].join(' - '));
+        } catch (err) {
+          console.log(err);
+        }
       }
     })
     .on('end', () => {
@@ -200,5 +212,5 @@ if (!path) {
   const epicNameToEpic = await requestsForCreatingEpics(epicNames, accessToken);
   console.log(epicNameToEpic);
 
-  await requestsForCreatingIssues(path, accessToken);
+  await requestsForCreatingIssues(epicNameToEpic, path, accessToken);
 })();
