@@ -116,7 +116,7 @@ const requestsForCreatingEpics = async (epicNames, accessToken) => {
   return epicNameToEpic;
 };
 
-const issueRequests = async (pathToCSVFile, accessToken) => {
+const requestsForCreatingIssues = async (pathToCSVFile, accessToken) => {
   fs.createReadStream(pathToCSVFile)
     .pipe(csvParser())
     .on('data', async (row) => {
@@ -200,5 +200,5 @@ if (!path) {
   const epicNameToEpic = await requestsForCreatingEpics(epicNames, accessToken);
   console.log(epicNameToEpic);
 
-  // await issueRequests(path, accessToken);
+  await requestsForCreatingIssues(path, accessToken);
 })();
