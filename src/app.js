@@ -347,6 +347,15 @@ app.get('/api/v1/issues', tokenAuth, async (req, res) => {
     }
   }
 
+  // TODO: (2024/12/15, 13:50)
+  //      double-check whether the following block of code is necessary
+  if (keys.includes('deadline')) {
+    const subKeys = Object.keys(queryJSON['deadline']);
+    for (const sK of subKeys) {
+      queryJSON['deadline'][sK] = new Date(queryJSON['deadline'][sK]);
+    }
+  }
+
   // Apply filtering criteria.
   query = Issue.find({
     userId: req.userId,
