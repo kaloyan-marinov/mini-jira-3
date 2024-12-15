@@ -518,7 +518,7 @@ describe('GET /api/v1/issues', () => {
         deadline: new Date('2024-08-31T22:43:31.696Z'),
         description:
           'build a client (hopefully, a CLI tool combined with "jq")',
-        parentId: issueEpic2._id.toString(),
+        parentId: issueEpic2Id,
       });
 
       const issue3 = await Issue.create({
