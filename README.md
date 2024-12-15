@@ -786,6 +786,15 @@ curl -v \
       }
    ]
 }
+
+
+# The request issued by the following statement is processed incorrectly by the backend.
+# (Even if there are matching documents in the MongoDB server,
+# the HTTP response will return 0 hits.)
+curl -v \
+   -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
+   'localhost:5000/api/v1/issues?status\[in\]=1%20=%20backlog,4%20=%20done' \
+   | json_pp
 ```
 
 ```bash
