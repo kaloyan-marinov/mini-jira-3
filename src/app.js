@@ -342,7 +342,10 @@ app.get('/api/v1/issues', tokenAuth, async (req, res) => {
   //console.log('queryJSON', queryJSON);
   const keys = Object.keys(queryJSON);
   for (const k of keys) {
-    if (queryJSON[k].hasOwnProperty('$in')) {
+    console.log('POTENTIAL DANGER AHEAD ### queryJSON[k] =', queryJSON[k]);
+    if (queryJSON[k] === null) {
+      continue;
+    } else if (queryJSON[k].hasOwnProperty('$in')) {
       queryJSON[k]['$in'] = queryJSON[k]['$in'].split(',');
     }
   }
