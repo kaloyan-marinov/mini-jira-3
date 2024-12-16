@@ -228,12 +228,12 @@ curl -v \
 
 # ...
 < HTTP/1.1 201 Created
-< Location: /api/v1/users/66e6b651d77e72d82c338182
+< Location: /api/v1/users/675fcaa9366c6c8f6f557a2a
 # ...
 {
    "__v" : 0,
-   "_id" : "66e6b651d77e72d82c338182",
-   "createdAt" : "2024-09-15T10:26:25.029Z",
+   "_id" : "675fcaa9366c6c8f6f557a2a",
+   "createdAt" : "2024-12-16T06:37:29.854Z",
    "email" : "j.d@protonmail.com",
    "username" : "jd"
 }
@@ -261,7 +261,7 @@ curl -v \
 
 # ...
 < HTTP/1.1 201 Created
-< Location: /api/v1/users/66e6b651d77e72d82c338182
+< Location: /api/v1/users/675fcada366c6c8f6f557a2c
 # ...
 ```
 
@@ -277,8 +277,8 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66e6b651d77e72d82c338182",
-   "createdAt" : "2024-09-15T10:26:25.029Z",
+   "_id" : "675fcaa9366c6c8f6f557a2a",
+   "createdAt" : "2024-12-16T06:37:29.854Z",
    "username" : "jd"
 }
 ```
@@ -325,8 +325,8 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66e6b651d77e72d82c338182",
-   "createdAt" : "2024-09-15T10:26:25.029Z",
+   "_id" : "675fcaa9366c6c8f6f557a2a",
+   "createdAt" : "2024-12-16T06:37:29.854Z",
    "email" : "john.doe@protonmail.com",
    "username" : "jd"
 }
@@ -361,7 +361,7 @@ curl -v \
 < HTTP/1.1 200 OK
 # ...
 {
-   "accessToken" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmU2YjY1MWQ3N2U3MmQ4MmMzMzgxODIiLCJpYXQiOjE3MjYzOTYyOTgsImV4cCI6MTcyNjM5Nzc5OH0.C_yfIwMJ-kgO0FkvNzOqQ88aAfrtJUGcIzY0tUR_Dew"
+   "accessToken" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzVmY2FhOTM2NmM2YzhmNmY1NTdhMmEiLCJpYXQiOjE3MzQzMzExNjYsImV4cCI6MTczNDMzMjY2Nn0.1BMQWj4T7jNfmVtydRR6BtKJioecvvKyFtm4Zg2V4Bk"
 }
 
 
@@ -443,17 +443,17 @@ curl -v \
 
 # ...
 < HTTP/1.1 201 Created
-< Location: /api/v1/issues/66e6b87ad77e72d82c338193
+< Location: /api/v1/issues/675fcb61366c6c8f6f557a38
 # ...
 {
    "__v" : 0,
-   "_id" : "66e6b87ad77e72d82c338193",
-   "createdAt" : "2024-09-15T10:35:38.884Z",
+   "_id" : "675fcb61366c6c8f6f557a38",
+   "createdAt" : "2024-12-16T06:40:33.089Z",
    "deadline" : "2024-09-08T21:08:36.367Z",
    "description" : "backend",
    "parentId" : null,
    "status" : "3 = in progress",
-   "userId" : "66e6b651d77e72d82c338182"
+   "userId" : "675fcaa9366c6c8f6f557a2a"
 }
 
 
@@ -573,53 +573,53 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66e6b87ad77e72d82c338193",
-         "createdAt" : "2024-09-15T10:35:38.884Z",
+         "_id" : "675fcb61366c6c8f6f557a38",
+         "createdAt" : "2024-12-16T06:40:33.089Z",
          "deadline" : "2024-09-08T21:08:36.367Z",
          "description" : "backend",
          "parentId" : null,
          "status" : "3 = in progress",
-         "userId" : "66e6b651d77e72d82c338182"
+         "userId" : "675fcaa9366c6c8f6f557a2a"
       },
       {
          "__v" : 0,
-         "_id" : "66e6b8b9d77e72d82c338196",
-         "createdAt" : "2024-09-15T10:36:41.400Z",
+         "_id" : "675fcb90366c6c8f6f557a3b",
+         "createdAt" : "2024-12-16T06:41:20.688Z",
          "deadline" : "2024-09-15T21:08:36.367Z",
          "description" : "frontend",
          "parentId" : null,
          "status" : "1 = backlog",
-         "userId" : "66e6b651d77e72d82c338182"
+         "userId" : "675fcaa9366c6c8f6f557a2a"
       },
       {
          "__v" : 0,
-         "_id" : "66e6b8fad77e72d82c33819a",
-         "createdAt" : "2024-09-15T10:37:46.652Z",
+         "_id" : "675fcba5366c6c8f6f557a3f",
+         "createdAt" : "2024-12-16T06:41:41.275Z",
          "deadline" : "2024-08-31T21:08:36.367Z",
          "description" : "convert the `epic` field to a `parentId` field",
-         "parentId" : "66e6b87ad77e72d82c338193",
+         "parentId" : "675fcb61366c6c8f6f557a38",
          "status" : "3 = in progress",
-         "userId" : "66e6b651d77e72d82c338182"
+         "userId" : "675fcaa9366c6c8f6f557a2a"
       },
       {
          "__v" : 0,
-         "_id" : "66e6b904d77e72d82c33819e",
-         "createdAt" : "2024-09-15T10:37:56.738Z",
+         "_id" : "675fcbb0366c6c8f6f557a43",
+         "createdAt" : "2024-12-16T06:41:52.111Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "parentId" : "66e6b8b9d77e72d82c338196",
+         "parentId" : "675fcb90366c6c8f6f557a3b",
          "status" : "1 = backlog",
-         "userId" : "66e6b651d77e72d82c338182"
+         "userId" : "675fcaa9366c6c8f6f557a2a"
       },
       {
          "__v" : 0,
-         "_id" : "66e6b910d77e72d82c3381a2",
-         "createdAt" : "2024-09-15T10:38:08.582Z",
+         "_id" : "675fcbb9366c6c8f6f557a47",
+         "createdAt" : "2024-12-16T06:42:01.007Z",
          "deadline" : "2024-08-31T23:08:36.367Z",
          "description" : "containerize the backend",
-         "parentId" : "66e6b87ad77e72d82c338193",
+         "parentId" : "675fcb61366c6c8f6f557a38",
          "status" : "2 = selected",
-         "userId" : "66e6b651d77e72d82c338182"
+         "userId" : "675fcaa9366c6c8f6f557a2a"
       }
    ]
 }
@@ -658,9 +658,9 @@ curl -v \
 # ...
 {
    "meta" : {
-      "curr" : "/api/v1/issues?parentId=66e6b8b9d77e72d82c338196&perPage=100&page=1",
-      "first" : "/api/v1/issues?parentId=66e6b8b9d77e72d82c338196&perPage=100&page=1",
-      "last" : "/api/v1/issues?parentId=66e6b8b9d77e72d82c338196&perPage=100&page=1",
+      "curr" : "/api/v1/issues?parentId=675fcb90366c6c8f6f557a3b&perPage=100&page=1",
+      "first" : "/api/v1/issues?parentId=675fcb90366c6c8f6f557a3b&perPage=100&page=1",
+      "last" : "/api/v1/issues?parentId=675fcb90366c6c8f6f557a3b&perPage=100&page=1",
       "next" : null,
       "prev" : null,
       "total" : 1
@@ -668,13 +668,13 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66e6b904d77e72d82c33819e",
-         "createdAt" : "2024-09-15T10:37:56.738Z",
+         "_id" : "675fcbb0366c6c8f6f557a43",
+         "createdAt" : "2024-12-16T06:41:52.111Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "parentId" : "66e6b8b9d77e72d82c338196",
+         "parentId" : "675fcb90366c6c8f6f557a3b",
          "status" : "1 = backlog",
-         "userId" : "66e6b651d77e72d82c338182"
+         "userId" : "675fcaa9366c6c8f6f557a2a"
       }
    ]
 }
@@ -701,23 +701,23 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66e6b87ad77e72d82c338193",
-         "createdAt" : "2024-09-15T10:35:38.884Z",
+         "_id" : "675fcb61366c6c8f6f557a38",
+         "createdAt" : "2024-12-16T06:40:33.089Z",
          "deadline" : "2024-09-08T21:08:36.367Z",
          "description" : "backend",
          "parentId" : null,
          "status" : "3 = in progress",
-         "userId" : "66e6b651d77e72d82c338182"
+         "userId" : "675fcaa9366c6c8f6f557a2a"
       },
       {
          "__v" : 0,
-         "_id" : "66e6b8b9d77e72d82c338196",
-         "createdAt" : "2024-09-15T10:36:41.400Z",
+         "_id" : "675fcb90366c6c8f6f557a3b",
+         "createdAt" : "2024-12-16T06:41:20.688Z",
          "deadline" : "2024-09-15T21:08:36.367Z",
          "description" : "frontend",
          "parentId" : null,
          "status" : "1 = backlog",
-         "userId" : "66e6b651d77e72d82c338182"
+         "userId" : "675fcaa9366c6c8f6f557a2a"
       }
    ]
 }
@@ -756,33 +756,33 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66e6b8b9d77e72d82c338196",
-         "createdAt" : "2024-09-15T10:36:41.400Z",
+         "_id" : "675fcb90366c6c8f6f557a3b",
+         "createdAt" : "2024-12-16T06:41:20.688Z",
          "deadline" : "2024-09-15T21:08:36.367Z",
          "description" : "frontend",
          "parentId" : null,
          "status" : "1 = backlog",
-         "userId" : "66e6b651d77e72d82c338182"
+         "userId" : "675fcaa9366c6c8f6f557a2a"
       },
       {
          "__v" : 0,
-         "_id" : "66e6b904d77e72d82c33819e",
-         "createdAt" : "2024-09-15T10:37:56.738Z",
+         "_id" : "675fcbb0366c6c8f6f557a43",
+         "createdAt" : "2024-12-16T06:41:52.111Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "parentId" : "66e6b8b9d77e72d82c338196",
+         "parentId" : "675fcb90366c6c8f6f557a3b",
          "status" : "1 = backlog",
-         "userId" : "66e6b651d77e72d82c338182"
+         "userId" : "675fcaa9366c6c8f6f557a2a"
       },
       {
          "__v" : 0,
-         "_id" : "66e6b910d77e72d82c3381a2",
-         "createdAt" : "2024-09-15T10:38:08.582Z",
+         "_id" : "675fcbb9366c6c8f6f557a47",
+         "createdAt" : "2024-12-16T06:42:01.007Z",
          "deadline" : "2024-08-31T23:08:36.367Z",
          "description" : "containerize the backend",
-         "parentId" : "66e6b87ad77e72d82c338193",
+         "parentId" : "675fcb61366c6c8f6f557a38",
          "status" : "2 = selected",
-         "userId" : "66e6b651d77e72d82c338182"
+         "userId" : "675fcaa9366c6c8f6f557a2a"
       }
    ]
 }
@@ -793,52 +793,66 @@ curl -v \
    "localhost:5000/api/v1/issues?status\[in\]=1%20=%20backlog,4%20=%20done" \
    | json_pp
 
-http \
-   'localhost:5000/api/v1/issues?status[in]=1 = backlog,2 = selected&sort=deadline' \
-   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
+# http \
+#    'localhost:5000/api/v1/issues?status[in]=1 = backlog,2 = selected&sort=deadline' \
+#    Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
+
+# ...
+< HTTP/1.1 200 OK
+# ...
+{
+   "meta" : {
+      "curr" : "/api/v1/issues?status=%5Bobject+Object%5D&perPage=100&page=1",
+      "first" : "/api/v1/issues?status=%5Bobject+Object%5D&perPage=100&page=1",
+      "last" : "/api/v1/issues?status=%5Bobject+Object%5D&perPage=100&page=1",
+      "next" : null,
+      "prev" : null,
+      "total" : 2
+   },
+   "resources" : [
+      {
+         "__v" : 0,
+         "_id" : "675fcb90366c6c8f6f557a3b",
+         "createdAt" : "2024-12-16T06:41:20.688Z",
+         "deadline" : "2024-09-15T21:08:36.367Z",
+         "description" : "frontend",
+         "parentId" : null,
+         "status" : "1 = backlog",
+         "userId" : "675fcaa9366c6c8f6f557a2a"
+      },
+      {
+         "__v" : 0,
+         "_id" : "675fcbb0366c6c8f6f557a43",
+         "createdAt" : "2024-12-16T06:41:52.111Z",
+         "deadline" : "2024-08-31T22:08:36.367Z",
+         "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
+         "parentId" : "675fcb90366c6c8f6f557a3b",
+         "status" : "1 = backlog",
+         "userId" : "675fcaa9366c6c8f6f557a2a"
+      }
+   ]
+}
 
 
-
+# TODO: (2024/12/16, 07:47)
+#        relocate the following examples to the `mongodb-crash-course` repository
 db-4-m-j-3> db.issues.find({ deadline: { $lte: ISODate('1971-01-02') } }).count()
 # 1
 
 db-4-m-j-3> db.issues.find({ deadline: { $lte: ISODate('1971-01-02') } })
 # ...
 
+# TODO: (2024/12/16, 07:50)
+#        re-write every `curl` command in this repository into an HTTPie command
 http \
-   'localhost:5000/api/v1/issues?deadline[lt]=1970-01-02' \
+   'localhost:5000/api/v1/issues?deadline[gt]=2024-09-15' \
    Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
 # "total": 1,
 
 http \
-   'localhost:5000/api/v1/issues?deadline[lt]=1970-01-01' \
+   'localhost:5000/api/v1/issues?deadline[lt]=2024-08-31' \
    Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
 # "total": 0,
-
-http \
-   'localhost:5000/api/v1/issues?deadline[lt]=1970-01-01T17:17:17.000' \
-   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
-# "total": 0,
-
-http \
-   'localhost:5000/api/v1/issues?deadline[lt]=1970-01-01T17:17:17.001' \
-   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
-# "total": 1,
-
-
-
-http \
-   'localhost:5000/api/v1/issues?perPage=3&status[in]=1 = backlog&sort=deadline' \
-   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
-http \
-   'localhost:5000/api/v1/issues?perPage=3&status[in]=2 = selected,3 = in progress&sort=deadline' \
-   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
-http \
-   'localhost:5000/api/v1/issues?perPage=3&status[in]=4 = done&sort=-finishedAt' \
-   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
-http \
-   'localhost:5000/api/v1/issues?perPage=3&status[in]=5 = will not do&sort=deadline' \
-   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
 ```
 
 ```bash
@@ -1033,6 +1047,21 @@ curl -v \
       }
    ]
 }
+```
+
+```bash
+http \
+   'localhost:5000/api/v1/issues?perPage=3&status[in]=1 = backlog&sort=deadline' \
+   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
+http \
+   'localhost:5000/api/v1/issues?perPage=3&status[in]=2 = selected,3 = in progress&sort=deadline' \
+   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
+http \
+   'localhost:5000/api/v1/issues?perPage=3&status[in]=4 = done&sort=-finishedAt' \
+   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
+http \
+   'localhost:5000/api/v1/issues?perPage=3&status[in]=5 = will not do&sort=deadline' \
+   Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
 ```
 
 ```bash
