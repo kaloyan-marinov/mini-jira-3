@@ -211,4 +211,7 @@ if (!path) {
   console.log(epicNameToEpic);
 
   await requestsForCreatingIssues(epicNameToEpic, path, accessToken);
+
+  // TODO: (2024/12/16, 07:16)
+  //      issue a request that revokes the `accessToken`
 })();
