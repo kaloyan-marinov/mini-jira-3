@@ -384,7 +384,7 @@ curl -v \
 
 
 
-export USER_2_ACCESS_TOKEN==<the-value-present-in-the-preceding-HTTP-response>
+export USER_2_ACCESS_TOKEN=<the-value-present-in-the-preceding-HTTP-response>
 ```
 
 
@@ -650,7 +650,7 @@ curl -v \
 ```bash
 curl -v \
    -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
-   localhost:5000/api/v1/issues?parentId=${ISSUE_FRONTEND_ID} \
+   "localhost:5000/api/v1/issues?parentId=${ISSUE_FRONTEND_ID}" \
    | json_pp
 
 # ...
@@ -683,7 +683,7 @@ curl -v \
 
 curl -v \
    -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
-   localhost:5000/api/v1/issues?parentId=null \
+   "localhost:5000/api/v1/issues?parentId=null" \
    | json_pp
 
 # ...
@@ -726,7 +726,7 @@ curl -v \
 
 curl -v \
    -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
-   localhost:5000/api/v1/issues?parentId= \
+   "localhost:5000/api/v1/issues?parentId=" \
    | json_pp
 
 # The HTTP response to this request is the same as
@@ -738,7 +738,7 @@ curl -v \
 ```bash
 curl -v \
    -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
-   'localhost:5000/api/v1/issues?status\[lt\]=3' \
+   "localhost:5000/api/v1/issues?status\[lt\]=3" \
    | json_pp
 
 # ...
@@ -790,7 +790,7 @@ curl -v \
 
 curl -v \
    -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
-   'localhost:5000/api/v1/issues?status\[in\]=1%20=%20backlog,4%20=%20done' \
+   "localhost:5000/api/v1/issues?status\[in\]=1%20=%20backlog,4%20=%20done" \
    | json_pp
 
 http \
