@@ -28,7 +28,6 @@ cp \
    ```
 */
 
-
 const dotenv = require('dotenv');
 const fs = require('fs');
 const csvParser = require('csv-parser');
@@ -192,10 +191,6 @@ const requestsForCreatingIssues = async (
     });
 };
 
-// TODO: (2024/10/22, 06:53)
-//      re-order the symbols defined in this file
-//      to match the order in which they are used within the IIFE
-//      (:= Immediately Invoked Function Expression) below
 const path = process.argv[2];
 
 if (!path) {
