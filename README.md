@@ -1063,15 +1063,136 @@ curl -v \
 http \
    'localhost:5000/api/v1/issues?perPage=3&status[in]=1 = backlog&sort=deadline' \
    Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
+
+HTTP/1.1 200 OK
+# ...
+
+{
+    "meta": {
+        "curr": "/api/v1/issues?status=%5Bobject+Object%5D&sort=deadline&perPage=3&page=1",
+        "first": "/api/v1/issues?status=%5Bobject+Object%5D&sort=deadline&perPage=3&page=1",
+        "last": "/api/v1/issues?status=%5Bobject+Object%5D&sort=deadline&perPage=3&page=1",
+        "next": null,
+        "prev": null,
+        "total": 2
+    },
+    "resources": [
+        {
+            "__v": 0,
+            "_id": "675fcbb0366c6c8f6f557a43",
+            "createdAt": "2024-12-16T06:41:52.111Z",
+            "deadline": "2024-08-31T22:08:36.367Z",
+            "description": "build a client (hopefully, a CLI tool combined with `jq`)",
+            "parentId": "675fcb90366c6c8f6f557a3b",
+            "status": "1 = backlog",
+            "userId": "675fcaa9366c6c8f6f557a2a"
+        },
+        {
+            "__v": 0,
+            "_id": "675fcb90366c6c8f6f557a3b",
+            "createdAt": "2024-12-16T06:41:20.688Z",
+            "deadline": "2024-09-15T21:08:36.367Z",
+            "description": "frontend",
+            "parentId": null,
+            "status": "1 = backlog",
+            "userId": "675fcaa9366c6c8f6f557a2a"
+        }
+    ]
+}
+
+
+
 http \
    'localhost:5000/api/v1/issues?perPage=3&status[in]=2 = selected,3 = in progress&sort=deadline' \
    Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
+
+HTTP/1.1 200 OK
+# ...
+
+{
+    "meta": {
+        "curr": "/api/v1/issues?status=%5Bobject+Object%5D&sort=deadline&perPage=3&page=1",
+        "first": "/api/v1/issues?status=%5Bobject+Object%5D&sort=deadline&perPage=3&page=1",
+        "last": "/api/v1/issues?status=%5Bobject+Object%5D&sort=deadline&perPage=3&page=1",
+        "next": null,
+        "prev": null,
+        "total": 3
+    },
+    "resources": [
+        {
+            "__v": 0,
+            "_id": "675fcba5366c6c8f6f557a3f",
+            "createdAt": "2024-12-16T06:41:41.275Z",
+            "deadline": "2024-08-31T21:08:36.367Z",
+            "description": "convert the `epic` field to a `parentId` field",
+            "parentId": "675fcb61366c6c8f6f557a38",
+            "status": "3 = in progress",
+            "userId": "675fcaa9366c6c8f6f557a2a"
+        },
+        {
+            "__v": 0,
+            "_id": "675fcbb9366c6c8f6f557a47",
+            "createdAt": "2024-12-16T06:42:01.007Z",
+            "deadline": "2024-08-31T23:08:36.367Z",
+            "description": "containerize the backend",
+            "parentId": "675fcb61366c6c8f6f557a38",
+            "status": "2 = selected",
+            "userId": "675fcaa9366c6c8f6f557a2a"
+        },
+        {
+            "__v": 0,
+            "_id": "675fcb61366c6c8f6f557a38",
+            "createdAt": "2024-12-16T06:40:33.089Z",
+            "deadline": "2024-09-08T21:08:36.367Z",
+            "description": "backend",
+            "parentId": null,
+            "status": "3 = in progress",
+            "userId": "675fcaa9366c6c8f6f557a2a"
+        }
+    ]
+}
+
+
+
 http \
    'localhost:5000/api/v1/issues?perPage=3&status[in]=4 = done&sort=-finishedAt' \
    Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
+
+HTTP/1.1 200 OK
+# ...
+
+{
+    "meta": {
+        "curr": "/api/v1/issues",
+        "first": "/api/v1/issues?page=1",
+        "last": "/api/v1/issues?page=1",
+        "next": null,
+        "prev": null,
+        "total": 0
+    },
+    "resources": []
+}
+
+
+
 http \
    'localhost:5000/api/v1/issues?perPage=3&status[in]=5 = will not do&sort=deadline' \
    Authorization:"Bearer ${USER_1_ACCESS_TOKEN}"
+
+HTTP/1.1 200 OK
+# ...
+
+{
+    "meta": {
+        "curr": "/api/v1/issues",
+        "first": "/api/v1/issues?page=1",
+        "last": "/api/v1/issues?page=1",
+        "next": null,
+        "prev": null,
+        "total": 0
+    },
+    "resources": []
+}
 ```
 
 ```bash
@@ -1095,23 +1216,23 @@ curl -v \
    "resources" : [
       {
          "__v" : 0,
-         "_id" : "66e6b8fad77e72d82c33819a",
-         "createdAt" : "2024-09-15T10:37:46.652Z",
+         "_id" : "675fcba5366c6c8f6f557a3f",
+         "createdAt" : "2024-12-16T06:41:41.275Z",
          "deadline" : "2024-08-31T21:08:36.367Z",
          "description" : "convert the `epic` field to a `parentId` field",
-         "parentId" : "66e6b87ad77e72d82c338193",
+         "parentId" : "675fcb61366c6c8f6f557a38",
          "status" : "3 = in progress",
-         "userId" : "66e6b651d77e72d82c338182"
+         "userId" : "675fcaa9366c6c8f6f557a2a"
       },
       {
          "__v" : 0,
-         "_id" : "66e6b904d77e72d82c33819e",
-         "createdAt" : "2024-09-15T10:37:56.738Z",
+         "_id" : "675fcbb0366c6c8f6f557a43",
+         "createdAt" : "2024-12-16T06:41:52.111Z",
          "deadline" : "2024-08-31T22:08:36.367Z",
          "description" : "build a client (hopefully, a CLI tool combined with `jq`)",
-         "parentId" : "66e6b8b9d77e72d82c338196",
+         "parentId" : "675fcb90366c6c8f6f557a3b",
          "status" : "1 = backlog",
-         "userId" : "66e6b651d77e72d82c338182"
+         "userId" : "675fcaa9366c6c8f6f557a2a"
       }
    ]
 }
@@ -1160,13 +1281,13 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66e6b910d77e72d82c3381a2",
-   "createdAt" : "2024-09-15T10:38:08.582Z",
+   "_id" : "675fcbb9366c6c8f6f557a47",
+   "createdAt" : "2024-12-16T06:42:01.007Z",
    "deadline" : "2024-08-31T23:08:36.367Z",
    "description" : "containerize the backend",
-   "parentId" : "66e6b87ad77e72d82c338193",
+   "parentId" : "675fcb61366c6c8f6f557a38",
    "status" : "2 = selected",
-   "userId" : "66e6b651d77e72d82c338182"
+   "userId" : "675fcaa9366c6c8f6f557a2a"
 }
 ```
 
@@ -1234,13 +1355,13 @@ curl -v \
 # ...
 {
    "__v" : 0,
-   "_id" : "66e6b910d77e72d82c3381a2",
-   "createdAt" : "2024-09-15T10:38:08.582Z",
+   "_id" : "675fcbb9366c6c8f6f557a47",
+   "createdAt" : "2024-12-16T06:42:01.007Z",
    "deadline" : "2024-08-31T23:08:36.367Z",
    "description" : "containerize the backend",
-   "parentId" : "66e6b87ad77e72d82c338193",
+   "parentId" : "675fcb61366c6c8f6f557a38",
    "status" : "3 = in progress",
-   "userId" : "66e6b651d77e72d82c338182"
+   "userId" : "675fcaa9366c6c8f6f557a2a"
 }
 ```
 
