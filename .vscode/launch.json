@@ -2,9 +2,9 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Node.js : Current File",
-      // "program": "${workspaceFolder}/app.js",
-      "program": "${file}",
+      "name": "Node : Populate DB",
+      "program": "${workspaceFolder}/scripts/issue-requests-based-on-csv-file.js",
+      // "program": "${file}",
       "request": "launch",
       "skipFiles": ["<node_internals>/**"],
       "type": "node",
