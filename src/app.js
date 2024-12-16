@@ -92,7 +92,7 @@ const basicAuth = async (req, res, next) => {
 
     return;
   }
-  if (password !== user.password) {
+  if (user === null || password !== user.password) {
     res.status(401).json({
       message: 'Incorrect credentials',
     });
