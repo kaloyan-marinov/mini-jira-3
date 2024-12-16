@@ -18,6 +18,9 @@ if (process.env.NODE_ENV === 'development') {
 app.post('/api/v1/users', async (req, res) => {
   let newUser;
   try {
+    // TODO: (2024/12/16, 07:22)
+    //      switch from storing the cleartext of the password
+    //      to storing the hash of the password
     newUser = await User.create(req.body);
   } catch (err) {
     console.error(err);
