@@ -143,9 +143,9 @@ create an empty database:
    docker run \
       --name container-m-j-3-mongo \
       --mount source=volume-m-j-3-mongo,destination=/data/db \
-      --env MONGO_INITDB_ROOT_USERNAME=$(grep -oP '^MONGO_USERNAME=\K.*' .env) \
-      --env MONGO_INITDB_ROOT_PASSWORD=$(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
-      --env MONGO_INITDB_DATABASE=$(grep -oP '^MONGO_DATABASE=\K.*' .env) \
+      --env MONGO_INITDB_ROOT_USERNAME=$(grep 'MONGO_USERNAME=' .env | awk -F '=' '{print $2}') \
+      --env MONGO_INITDB_ROOT_PASSWORD=$(grep 'MONGO_PASSWORD=' .env | awk -F '=' '{print $2}') \
+      --env MONGO_INITDB_DATABASE=$(grep 'MONGO_DATABASE=' .env | awk -F '=' '{print $2}') \
       --publish 27017:27017 \
       mongodb/mongodb-community-server:6.0.12-ubuntu2204
    ```
@@ -172,10 +172,10 @@ create an empty database:
       mongodb/mongodb-community-server:6.0.12-ubuntu2204 \
          mongosh \
          --host ${CONTAINER_M_J_3_MONGO_IP} \
-         --username $(grep -oP '^MONGO_USERNAME=\K.*' .env) \
-         --password $(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
+         --username $(grep 'MONGO_USERNAME=' .env | awk -F '=' '{print $2}') \
+         --password $(grep 'MONGO_PASSWORD=' .env | awk -F '=' '{print $2}') \
          --authenticationDatabase admin \
-         $(grep -oP '^MONGO_DATABASE=\K.*' .env)
+         $(grep 'MONGO_DATABASE=' .env | awk -F '=' '{print $2}')
    ```
 
 [step 5]
@@ -1272,6 +1272,20 @@ curl -v \
 
 ```bash
 curl -v \
+   -H "Authorization: Bearer ${USER_2_ACCESS_TOKEN}" \
+   localhost:5000/api/v1/issues/${ISSUE_5_ID} \
+   | json_pp
+
+# ...
+< HTTP/1.1 403 Forbidden
+# ...
+{
+   "message" : "The targeted resource does not belong to the authenticated User"
+}
+```
+
+```bash
+curl -v \
    -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    localhost:5000/api/v1/issues/${ISSUE_5_ID} \
    | json_pp
@@ -1288,20 +1302,6 @@ curl -v \
    "parentId" : "675fcb61366c6c8f6f557a38",
    "status" : "2 = selected",
    "userId" : "675fcaa9366c6c8f6f557a2a"
-}
-```
-
-```bash
-curl -v \
-   -H "Authorization: Bearer ${USER_2_ACCESS_TOKEN}" \
-   localhost:5000/api/v1/issues/${ISSUE_5_ID} \
-   | json_pp
-
-# ...
-< HTTP/1.1 403 Forbidden
-# ...
-{
-   "message" : "The targeted resource does not belong to the authenticated User"
 }
 ```
 
@@ -1342,6 +1342,25 @@ curl -v \
 ```bash
 curl -v \
    -X PUT \
+   -H "Authorization: Bearer ${USER_2_ACCESS_TOKEN}" \
+   -H "Content-Type: application/json" \
+   -d "{
+      \"status\": \"3 = in progress\"
+   }" \
+   localhost:5000/api/v1/issues/${ISSUE_5_ID} \
+   | json_pp
+
+# ...
+< HTTP/1.1 403 Forbidden
+# ...
+{
+   "message" : "The targeted resource does not belong to the authenticated User"
+}
+```
+
+```bash
+curl -v \
+   -X PUT \
    -H "Authorization: Bearer ${USER_1_ACCESS_TOKEN}" \
    -H "Content-Type: application/json" \
    -d "{
@@ -1362,25 +1381,6 @@ curl -v \
    "parentId" : "675fcb61366c6c8f6f557a38",
    "status" : "3 = in progress",
    "userId" : "675fcaa9366c6c8f6f557a2a"
-}
-```
-
-```bash
-curl -v \
-   -X PUT \
-   -H "Authorization: Bearer ${USER_2_ACCESS_TOKEN}" \
-   -H "Content-Type: application/json" \
-   -d "{
-      \"status\": \"3 = in progress\"
-   }" \
-   localhost:5000/api/v1/issues/${ISSUE_5_ID} \
-   | json_pp
-
-# ...
-< HTTP/1.1 403 Forbidden
-# ...
-{
-   "message" : "The targeted resource does not belong to the authenticated User"
 }
 ```
 
@@ -1483,8 +1483,8 @@ curl -v \
 
 ---
 
-remove all Docker artifacts:
-```
+remove all Docker components that were created in this section:
+```bash
 ./containerization/clean-docker-artifacts.sh
 ```
 
@@ -1503,9 +1503,9 @@ docker run \
    --network network-mini-jira-3 \
    --name container-mini-jira-3-mongo \
    --mount source=volume-mini-jira-3-mongo,destination=/data/db \
-   --env MONGO_INITDB_ROOT_USERNAME=$(grep -oP '^MONGO_USERNAME=\K.*' .env) \
-   --env MONGO_INITDB_ROOT_PASSWORD=$(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
-   --env MONGO_INITDB_DATABASE=$(grep -oP '^MONGO_DATABASE=\K.*' .env) \
+   --env MONGO_INITDB_ROOT_USERNAME=$(grep 'MONGO_USERNAME=' .env | awk -F '=' '{print $2}') \
+   --env MONGO_INITDB_ROOT_PASSWORD=$(grep 'MONGO_PASSWORD=' .env | awk -F '=' '{print $2}') \
+   --env MONGO_INITDB_DATABASE=$(grep 'MONGO_DATABASE=' .env | awk -F '=' '{print $2}') \
    --publish 27017:27017 \
    mongodb/mongodb-community-server:6.0.12-ubuntu2204
 
@@ -1519,15 +1519,15 @@ docker run \
    mongodb/mongodb-community-server:6.0.12-ubuntu2204 \
       mongosh \
       --host container-mini-jira-3-mongo \
-      --username $(grep -oP '^MONGO_USERNAME=\K.*' .env) \
-      --password $(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
+      --username $(grep 'MONGO_USERNAME=' .env | awk -F '=' '{print $2}') \
+      --password $(grep 'MONGO_PASSWORD=' .env | awk -F '=' '{print $2}') \
       --authenticationDatabase admin \
-      $(grep -oP '^MONGO_DATABASE=\K.*' .env)
+      $(grep 'MONGO_DATABASE=' .env | awk -F '=' '{print $2}')
 
 
 docker build \
    --file containerization/Dockerfile \
-   --tag image-mini-jira-3:2024-09-15-13-50 \
+   --tag image-mini-jira-3:2024-12-16-08-27 \
    .
 
 docker run \
@@ -1537,7 +1537,7 @@ docker run \
    --env MONGO_HOST=container-mini-jira-3-mongo \
    --publish 5000:5000 \
    --entrypoint npm \
-   image-mini-jira-3:2024-09-15-13-50 \
+   image-mini-jira-3:2024-12-16-08-27 \
    run dev
 ```
 
@@ -1545,17 +1545,12 @@ recall that there is one section in this file,
 which contains a sequence of HTTP requests and their expected responses -
 now you can issue that same sequence of HTTP requests
 
-remove all Docker components that were created in this section:
-```bash
-./containerization/clean-docker-artifacts.sh
-```
-
 
 
 ---
 
-remove all Docker artifacts:
-```
+remove all Docker components that were created in this section:
+```bash
 ./containerization/clean-docker-artifacts.sh
 ```
 
@@ -1583,26 +1578,21 @@ docker run \
    mongodb/mongodb-community-server:6.0.12-ubuntu2204 \
       mongosh \
          --host container-mini-jira-3-mongo \
-         --username $(grep -oP '^MONGO_USERNAME=\K.*' .env) \
-         --password $(grep -oP '^MONGO_PASSWORD=\K.*' .env) \
+         --username $(grep 'MONGO_USERNAME=' .env | awk -F '=' '{print $2}') \
+         --password $(grep 'MONGO_PASSWORD=' .env | awk -F '=' '{print $2}') \
          --authenticationDatabase admin \
-         $(grep -oP '^MONGO_DATABASE=\K.*' .env)
+         $(grep 'MONGO_DATABASE=' .env | awk -F '=' '{print $2}')
 ```
 
 recall that there is one section in this file,
 which contains a sequence of HTTP requests and their expected responses -
 now you can issue that same sequence of HTTP requests
 
-remove all Docker components that were created in this section:
-```bash
-./containerization/clean-docker-artifacts.sh
-```
-
 
 
 ---
 
-remove all Docker artifacts:
-```
+remove all Docker components that were created in this section:
+```bash
 ./containerization/clean-docker-artifacts.sh
 ```

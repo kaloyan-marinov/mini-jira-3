@@ -1,4 +1,4 @@
-FROM node:20.17-alpine3.20
+FROM node:23.4.0-alpine3.20
 
 RUN mkdir -p /home/node/mini-jira-3
 WORKDIR /home/node/mini-jira-3
