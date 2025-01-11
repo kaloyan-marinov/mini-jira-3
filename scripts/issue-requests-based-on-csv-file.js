@@ -152,6 +152,47 @@ const sanitizeRow = (row, epicNameToEpic) => {
   return sanitizedRow;
 };
 
+/**
+ * This function processes a CSV file and issues an HTTP request for each row.
+ *
+ * More concretely, this function
+ * reads a CSV file line by line, parses each row, and issues an HTTP request.
+ * All requests are sent asynchronously,
+ * but the function is designed to resolve
+ * only after all requests have been completed.
+ *
+ * (
+ * Technical justification for the way in which this function is implemented
+ *
+ *    To ensure that all HTTP requests issued by this function have been processed
+ *    before the Node.js runtime goes on to the statement after this function has been called,
+ *    this function needs to track the asynchronous operations in the `.on('data')` handler
+ *    and wait for all those operations to complete.
+ *
+ *    The key problem is that
+ *    the `on('data')` callback is not designed to await asynchronous operations.
+ *
+ *    So this function must explicitly manage these promises.
+ *    That can achieved by using a combination of
+ *    `Promise` handling and an array of all active requests.
+ * )
+ *
+ * @param {string} pathToCSVFile - The path to the CSV file to be processed.
+ * @param {string} accessToken - The access token to be included
+ *                               in the Authorization header of each request.
+ * @returns {Promise<void>} A promise that resolves when all requests have been processed.
+ *
+ * Usage:
+ *
+ * ```
+ * try {
+ *   await requestsForCreatingIssues('path/to/file.csv', 'your-access-token');
+ *   console.log('All requests completed successfully');
+ * } catch (error) {
+ *   console.error('An error occurred:', error);
+ * }
+ * ```
+ */
 const requestsForCreatingIssues = async (
   epicNameToEpic,
   pathToCSVFile,
