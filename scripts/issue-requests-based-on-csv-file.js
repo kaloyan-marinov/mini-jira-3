@@ -289,8 +289,6 @@ if (!path) {
   );
   // console.log('accessToken =', accessToken);
 
-  // TODO: (2025/01/10, 08:17)
-  //       determine whether `determineEpicNames` needs to be defined as an async function
   const epicNames = await determineEpicNames(path);
   console.log('epicNames =', epicNames);
 
