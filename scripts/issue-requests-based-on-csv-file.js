@@ -115,6 +115,41 @@ const requestsForCreatingEpics = async (epicNames, accessToken) => {
   return epicNameToEpic;
 };
 
+const sanitizeRow = (row, epicNameToEpic) => {
+  const sanitizedRow = { ...row };
+
+  delete sanitizedRow['id'];
+
+  if (sanitizedRow['deadline'] === 'n/a') {
+    // sanitizedRow['deadline'] = null;
+    // TODO: (2024/10/23, 05:27)
+    //      update the file at `pathToCSVFile`
+    //      s.t. no Issue lacks a `deadline`
+    sanitizedRow['deadline'] =
+      sanitizedRow['finished_at'] !== 'n/a'
+        ? sanitizedRow['finished_at']
+        : new Date('1970-01-01T17:17:17');
+  } else {
+    const deadlines = sanitizedRow['deadline'].split('<<');
+    const mostRecentlySetDeadline = deadlines[0];
+    sanitizedRow['deadline'] = mostRecentlySetDeadline.trim();
+  }
+
+  delete sanitizedRow['created_at'];
+  sanitizedRow['createdAt'] = row['created_at'];
+
+  delete sanitizedRow['finished_at'];
+  sanitizedRow['finishedAt'] =
+    row['finished_at'] === 'n/a' ? null : row['finished_at'];
+
+  sanitizedRow['parentId'] = epicNameToEpic[row['category/Epic/project']];
+  delete sanitizedRow['category/Epic/project'];
+
+  console.log(['(start)', row['id'], sanitizedRow['deadline']].join(' - '));
+
+  return sanitizedRow;
+};
+
 const requestsForCreatingIssues = async (
   epicNameToEpic,
   pathToCSVFile,
@@ -136,40 +171,7 @@ const requestsForCreatingIssues = async (
             'will not issue an HTTP request based on the current `row`'
           );
         } else {
-          // Sanitize `row`.
-          const sanitizedRow = { ...row };
-
-          delete sanitizedRow['id'];
-
-          if (sanitizedRow['deadline'] === 'n/a') {
-            // sanitizedRow['deadline'] = null;
-            // TODO: (2024/10/23, 05:27)
-            //      update the file at `pathToCSVFile`
-            //      s.t. no Issue lacks a `deadline`
-            sanitizedRow['deadline'] =
-              sanitizedRow['finished_at'] !== 'n/a'
-                ? sanitizedRow['finished_at']
-                : new Date('1970-01-01T17:17:17');
-          } else {
-            const deadlines = sanitizedRow['deadline'].split('<<');
-            const mostRecentlySetDeadline = deadlines[0];
-            sanitizedRow['deadline'] = mostRecentlySetDeadline.trim();
-          }
-
-          delete sanitizedRow['created_at'];
-          sanitizedRow['createdAt'] = row['created_at'];
-
-          delete sanitizedRow['finished_at'];
-          sanitizedRow['finishedAt'] =
-            row['finished_at'] === 'n/a' ? null : row['finished_at'];
-
-          sanitizedRow['parentId'] =
-            epicNameToEpic[row['category/Epic/project']];
-          delete sanitizedRow['category/Epic/project'];
-
-          console.log(
-            ['(start)', row['id'], sanitizedRow['deadline']].join(' - ')
-          );
+          const sanitizedRow = sanitizeRow(row, epicNameToEpic);
 
           // Create a promise for an HTTP request,
           // whose body is set equal to `sanitizedRow`.
@@ -234,7 +236,7 @@ const revokeAccessToken = async (accessToken) => {
     // const data = await response.json();
 
     // console.log([response.status, data].join(' - '));
-    console.log(['response.status', response.status].join(' - '));
+    console.log(['(final)', response.status].join(' - '));
   } catch (err) {
     console.log(err);
   }
