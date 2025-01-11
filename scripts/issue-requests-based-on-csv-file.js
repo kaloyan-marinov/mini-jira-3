@@ -38,6 +38,9 @@ dotenv.config({
 });
 
 const obtainAccessToken = async (username, password) => {
+  console.log('');
+  console.log('obtaining an access token');
+
   let response;
   let accessToken;
 
@@ -60,7 +63,10 @@ const obtainAccessToken = async (username, password) => {
   return accessToken;
 };
 
-const determineEpicNames = async (pathToCSVFile) => {
+const determineEpicNames = (pathToCSVFile) => {
+  console.log('');
+  console.log('determining the names of all epics');
+
   return new Promise((resolve, reject) => {
     const epicNames = [];
 
@@ -151,6 +157,11 @@ const requestsForCreatingIssues = async (
   pathToCSVFile,
   accessToken
 ) => {
+  console.log('');
+  console.log(
+    'creating all issues, each of which has a `parentId` different from `null`'
+  );
+
   const activeRequests = [];
 
   const awaitAllActiveRequests = (resolve, reject) => {
@@ -196,10 +207,36 @@ const requestsForCreatingIssues = async (
   return new Promise(awaitAllActiveRequests);
 };
 
+const revokeAccessToken = async (accessToken) => {
+  console.log('');
+  console.log('revoking the obtained access token');
+
+  let response;
+
+  try {
+    response = await fetch('http://localhost:5000/api/v1/tokens', {
+      method: 'DELETE',
+      headers: {
+        // 'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + accessToken,
+      },
+    });
+
+    // const data = await response.json();
+
+    // console.log([response.status, data].join(' - '));
+    console.log(['(final)', response.status].join(' - '));
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 const path = process.argv[2];
 
 if (!path) {
-  console.error('boo!');
+  console.error(
+    'must provide a CSV file with `Issue`s as a command-line argument - aborting!'
+  );
   process.exit(1);
 }
 
@@ -229,14 +266,17 @@ const revokeAccessToken = async (accessToken) => {
     process.env.USERNAME,
     process.env.PASSWORD
   );
-  console.log('accessToken =', accessToken);
+  // console.log('accessToken =', accessToken);
 
   // TODO: (2025/01/10, 08:17)
   //       determine whether `determineEpicNames` needs to be defined as an async function
   const epicNames = await determineEpicNames(path);
   console.log('epicNames =', epicNames);
 
-  // Issue requests for creating "epics" (= `Issue`s without a `parentId`).
+  // Create all "epics" (= `Issue`s without a `parentId`).
+  console.log('');
+  console.log('creating all epics');
+
   const epicNameToEpic = {};
   for (const epicName of epicNames) {
     const data = await requestForCreatingSingleIssue(accessToken, {
