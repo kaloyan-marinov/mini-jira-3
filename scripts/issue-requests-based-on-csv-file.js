@@ -72,7 +72,7 @@ const determineEpicNames = (pathToCSVFile) => {
 
     fs.createReadStream(pathToCSVFile)
       .pipe(csvParser())
-      .on('data', async (row) => {
+      .on('data', (row) => {
         // A JavaScript object representing the current row is stored in `row`.
         // console.log(row);
 
@@ -237,29 +237,9 @@ if (!path) {
   console.error(
     'must provide a CSV file with `Issue`s as a command-line argument - aborting!'
   );
+
   process.exit(1);
 }
-
-const revokeAccessToken = async (accessToken) => {
-  let response;
-
-  try {
-    response = await fetch('http://localhost:5000/api/v1/tokens', {
-      method: 'DELETE',
-      headers: {
-        // 'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + accessToken,
-      },
-    });
-
-    // const data = await response.json();
-
-    // console.log([response.status, data].join(' - '));
-    console.log(['(final)', response.status].join(' - '));
-  } catch (err) {
-    console.log(err);
-  }
-};
 
 (async () => {
   const accessToken = await obtainAccessToken(
@@ -292,7 +272,13 @@ const revokeAccessToken = async (accessToken) => {
   }
   console.log('epicNameToEpic =', epicNameToEpic);
 
-  await requestsForCreatingIssues(epicNameToEpic, path, accessToken);
+  try {
+    await requestsForCreatingIssues(epicNameToEpic, path, accessToken);
+  } catch (err) {
+    console.error(err);
+
+    process.exit(1);
+  }
 
   await revokeAccessToken(accessToken);
 })();
