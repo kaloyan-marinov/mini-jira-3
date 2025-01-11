@@ -120,10 +120,6 @@ const sanitizeRow = (row, epicNameToEpic) => {
   delete sanitizedRow['id'];
 
   if (sanitizedRow['deadline'] === 'n/a') {
-    // sanitizedRow['deadline'] = null;
-    // TODO: (2024/10/23, 05:27)
-    //      update the file at `pathToCSVFile`
-    //      s.t. no Issue lacks a `deadline`
     sanitizedRow['deadline'] =
       sanitizedRow['finished_at'] !== 'n/a'
         ? sanitizedRow['finished_at']

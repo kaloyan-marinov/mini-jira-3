@@ -284,6 +284,10 @@ app.post('/api/v1/issues', tokenAuth, async (req, res) => {
       ...req.body,
     });
   } catch (err) {
+    // TODO: (2025/01/11, 14:21)
+    //       arrange for a more helpful HTTP response
+    //       (in cases where the incoming request does not specify
+    //       a value for some required field, e.g. for the `deadline`)
     console.error(err);
 
     res.status(400).json({
