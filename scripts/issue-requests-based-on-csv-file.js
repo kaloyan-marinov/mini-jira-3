@@ -85,31 +85,43 @@ const determineEpicNames = async (pathToCSVFile) => {
   });
 };
 
+const requestForCreatingSingleIssue = async (accessToken, jsonPayload) => {
+  let data;
+
+  try {
+    response = await fetch('http://localhost:5000/api/v1/issues', {
+      method: 'POST',
+      body: JSON.stringify(jsonPayload),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + accessToken,
+      },
+    });
+
+    data = await response.json();
+
+    console.log(['(final)', response.status, data._id].join(' - '));
+  } catch (err) {
+    console.log(err);
+  }
+
+  return data;
+};
+
 const requestsForCreatingEpics = async (epicNames, accessToken) => {
   const epicNameToEpic = {};
 
   for (const epicName of epicNames) {
-    try {
-      const response = await fetch('http://localhost:5000/api/v1/issues', {
-        method: 'POST',
-        body: JSON.stringify({
-          createdAt: new Date('2023-11-20T06:55:17'),
-          status: '3 = in progress',
-          deadline: new Date('2024-12-31T17:17:17'),
-          finishedAt: null,
-          parentId: null,
-          description: epicName,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + accessToken,
-        },
-      });
+    const data = await requestForCreatingSingleIssue(accessToken, {
+      createdAt: new Date('2023-11-20T06:55:17'),
+      status: '3 = in progress',
+      deadline: new Date('2024-12-31T17:17:17'),
+      finishedAt: null,
+      parentId: null,
+      description: epicName,
+    });
 
-      epicNameToEpic[epicName] = await response.json();
-    } catch (err) {
-      console.log(err);
-    }
+    epicNameToEpic[epicName] = data;
   }
 
   return epicNameToEpic;
@@ -142,8 +154,11 @@ const sanitizeRow = (row, epicNameToEpic) => {
   sanitizedRow['finishedAt'] =
     row['finished_at'] === 'n/a' ? null : row['finished_at'];
 
-  sanitizedRow['parentId'] = epicNameToEpic[row['category/Epic/project']];
+  const parentId = epicNameToEpic[row['category/Epic/project']]._id;
+  sanitizedRow['parentId'] = parentId;
   delete sanitizedRow['category/Epic/project'];
+
+  // console.log('sanitizedRow =', sanitizedRow);
 
   console.log(['(start)', row['id'], sanitizedRow['deadline']].join(' - '));
 
@@ -175,24 +190,10 @@ const requestsForCreatingIssues = async (
 
           // Create a promise for an HTTP request,
           // whose body is set equal to `sanitizedRow`.
-          const requestPromise = (async () => {
-            try {
-              response = await fetch('http://localhost:5000/api/v1/issues', {
-                method: 'POST',
-                body: JSON.stringify(sanitizedRow),
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: 'Bearer ' + accessToken,
-                },
-              });
-
-              const data = await response.json();
-
-              console.log(['(final)', response.status, data._id].join(' - '));
-            } catch (err) {
-              console.log(err);
-            }
-          })();
+          const requestPromise = requestForCreatingSingleIssue(
+            accessToken,
+            sanitizedRow
+          );
 
           activeRequests.push(requestPromise);
         }
