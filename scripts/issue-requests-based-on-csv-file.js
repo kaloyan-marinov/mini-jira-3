@@ -250,9 +250,13 @@ const revokeAccessToken = async (accessToken) => {
   );
   console.log('accessToken =', accessToken);
 
+  // TODO: (2025/01/10, 08:17)
+  //       determine whether `determineEpicNames` needs to be defined as an async function
   const epicNames = await determineEpicNames(path);
   console.log('epicNames =', epicNames);
 
+  // TODO: (2025/01/10, 08:18)
+  //       eliminate the following function - just use the for loop here
   const epicNameToEpic = await requestsForCreatingEpics(epicNames, accessToken);
   console.log('epicNameToEpic =', epicNameToEpic);
 
