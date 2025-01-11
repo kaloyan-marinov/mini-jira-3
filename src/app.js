@@ -357,8 +357,15 @@ app.get('/api/v1/issues', tokenAuth, async (req, res) => {
     }
   }
 
-  // TODO: (2024/12/15, 13:50)
-  //      double-check whether the following block of code is necessary
+  // TODO: (2025/01/11, 23:02)
+  //       at the same time when you are addressing (2024/12/16, 07:50),
+  //       change the `in` to `of` in the following `for` loop
+  //       (b/c, as it stands, `keyHoldingADatetime` ends up being
+  //       the index of an element in the array - rather than the element itself)
+  //
+  // It does not seem that
+  // the following block of code is necessary,
+  // but it should be safer (and more explicit) to keep here.
   for (const keyHoldingADatetime in ['deadline', 'finishedAt']) {
     if (keys.includes(keyHoldingADatetime)) {
       const subKeys = Object.keys(queryJSON[keyHoldingADatetime]);
