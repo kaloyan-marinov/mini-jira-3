@@ -108,25 +108,6 @@ const requestForCreatingSingleIssue = async (accessToken, jsonPayload) => {
   return data;
 };
 
-const requestsForCreatingEpics = async (epicNames, accessToken) => {
-  const epicNameToEpic = {};
-
-  for (const epicName of epicNames) {
-    const data = await requestForCreatingSingleIssue(accessToken, {
-      createdAt: new Date('2023-11-20T06:55:17'),
-      status: '3 = in progress',
-      deadline: new Date('2024-12-31T17:17:17'),
-      finishedAt: null,
-      parentId: null,
-      description: epicName,
-    });
-
-    epicNameToEpic[epicName] = data;
-  }
-
-  return epicNameToEpic;
-};
-
 const sanitizeRow = (row, epicNameToEpic) => {
   const sanitizedRow = { ...row };
 
@@ -255,9 +236,20 @@ const revokeAccessToken = async (accessToken) => {
   const epicNames = await determineEpicNames(path);
   console.log('epicNames =', epicNames);
 
-  // TODO: (2025/01/10, 08:18)
-  //       eliminate the following function - just use the for loop here
-  const epicNameToEpic = await requestsForCreatingEpics(epicNames, accessToken);
+  // Issue requests for creating "epics" (= `Issue`s without a `parentId`).
+  const epicNameToEpic = {};
+  for (const epicName of epicNames) {
+    const data = await requestForCreatingSingleIssue(accessToken, {
+      createdAt: new Date('2023-11-20T06:55:17'),
+      status: '3 = in progress',
+      deadline: new Date('2024-12-31T17:17:17'),
+      finishedAt: null,
+      parentId: null,
+      description: epicName,
+    });
+
+    epicNameToEpic[epicName] = data;
+  }
   console.log('epicNameToEpic =', epicNameToEpic);
 
   await requestsForCreatingIssues(epicNameToEpic, path, accessToken);
